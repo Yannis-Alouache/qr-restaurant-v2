@@ -199,7 +199,7 @@ Three public-read storage buckets for images:
 - Delete orders (no delete policy exists)
 - Delete tables that have associated orders (restrict constraint)
 
-**Authentication method:** Email/password with email confirmation.
+**Authentication method:** Email/password without email confirmation.
 
 ---
 
@@ -276,8 +276,8 @@ Three public-read storage buckets for images:
 
 **Steps:**
 1. Owner enters email and password (minimum 6 characters)
-2. System creates account and sends email confirmation
-3. Owner logs in after confirming email
+2. System creates account
+3. Owner logs in
 4. System checks if restaurant exists for this user
 5. If no restaurant exists → onboarding form shown:
    - Enter restaurant name → system generates unique slug

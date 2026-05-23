@@ -55,3 +55,9 @@ All details, examples, and code snippets in `.claude/rules/`:
 - **Design patterns**: use only when they emerge from refactoring — see `design-patterns.md`
 
 > "A little bit of duplication is 10x better than the wrong abstraction."
+
+## Design Principles 
+
+For the UI of the admin panel you should use the design principle located in `DESING.ADMIN.md`
+
+For the UI of the client side of the application you should use the design principle located in `DESING.CLIENT.{THEME}.md`
