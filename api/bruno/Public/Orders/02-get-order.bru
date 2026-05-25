@@ -1,0 +1,28 @@
+meta {
+  name: Get public order
+  type: http
+  seq: 2
+  tags: [
+    public
+    smoke
+  ]
+}
+
+get {
+  url: {{baseUrl}}/api/public/orders/{{orderId}}
+  auth: none
+}
+
+tests {
+  test("public order detail returns 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("public order detail returns current order and items", function() {
+    const body = res.getBody();
+
+    expect(body.id).to.equal(bru.getEnvVar("orderId"));
+    expect(Array.isArray(body.items)).to.equal(true);
+    expect(body.items.length).to.be.greaterThan(0);
+  });
+}

@@ -1,0 +1,54 @@
+meta {
+  name: Update restaurant
+  type: http
+  seq: 3
+  tags: [
+    admin
+  ]
+}
+
+put {
+  url: {{baseUrl}}/api/admin/restaurant
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+}
+
+auth:bearer {
+  token: {{adminToken}}
+}
+
+body:json {
+  {
+    "name": "Bistro Bruno & Co",
+    "address": "18 Rue des Menus, Paris",
+    "themeId": "nature",
+    "paymentProviderAccountId": "{{stripeAccountId}}"
+  }
+}
+
+script:post-response {
+  const body = res.getBody();
+
+  if (res.getStatus() === 200) {
+    bru.setEnvVar("restaurantId", body.id);
+    bru.setEnvVar("restaurantSlug", body.slug);
+  }
+}
+
+tests {
+  test("restaurant update returns 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("restaurant update keeps key fields", function() {
+    const body = res.getBody();
+
+    expect(body.name).to.equal("Bistro Bruno & Co");
+    expect(body.themeId).to.equal("nature");
+    expect(body.paymentProviderAccountId).to.equal(bru.getEnvVar("stripeAccountId"));
+  });
+}

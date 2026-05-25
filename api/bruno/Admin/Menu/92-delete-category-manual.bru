@@ -1,0 +1,19 @@
+meta {
+  name: Delete category (manual empty category)
+  type: http
+  seq: 92
+  tags: [
+    admin
+    manual
+    destructive
+  ]
+}
+
+delete {
+  url: {{baseUrl}}/api/admin/categories/{{categoryId}}
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{adminToken}}
+}

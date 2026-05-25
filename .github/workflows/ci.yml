@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  api:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - name: Run API tests
+        run: cd api && mvn -q test
+
+  frontend:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        app: [admin, client]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: ${{ matrix.app }}/package-lock.json
+      - name: Install dependencies
+        run: cd ${{ matrix.app }} && npm ci
+      - name: Run tests
+        run: cd ${{ matrix.app }} && npm test -- --watch=false
+      - name: Build app
+        run: cd ${{ matrix.app }} && npm run build
+
+  browser-e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            admin/package-lock.json
+            client/package-lock.json
+      - name: Install root e2e dependencies
+        run: npm ci
+      - name: Install admin dependencies
+        run: cd admin && npm ci
+      - name: Install client dependencies
+        run: cd client && npm ci
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+      - name: Start PostgreSQL
+        run: docker compose -f docker/docker-compose.yml up -d postgres
+      - name: Run browser e2e
+        run: npm run test:e2e

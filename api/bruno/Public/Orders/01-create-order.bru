@@ -1,0 +1,77 @@
+meta {
+  name: Create public order
+  type: http
+  seq: 1
+  tags: [
+    public
+    smoke
+  ]
+}
+
+post {
+  url: {{baseUrl}}/api/public/orders
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+script:pre-request {
+  bru.setEnvVar("comboGroupId", bru.interpolate("{{$guid}}"));
+}
+
+body:json {
+  {
+    "slug": "{{restaurantSlug}}",
+    "tableId": "{{tableId}}",
+    "items": [
+      {
+        "menuItemId": "{{menuVariantId}}",
+        "quantity": 1,
+        "menuGroupId": "{{comboGroupId}}",
+        "menuRole": "plat"
+      },
+      {
+        "menuItemId": "{{sideItemId}}",
+        "quantity": 1,
+        "menuGroupId": "{{comboGroupId}}",
+        "menuRole": "accompagnement"
+      },
+      {
+        "menuItemId": "{{drinkItemId}}",
+        "quantity": 1,
+        "menuGroupId": "{{comboGroupId}}",
+        "menuRole": "boisson"
+      },
+      {
+        "menuItemId": "{{dessertItemId}}",
+        "quantity": 1
+      }
+    ]
+  }
+}
+
+script:post-response {
+  const body = res.getBody();
+
+  if (res.getStatus() === 201) {
+    bru.setEnvVar("orderId", body.id);
+    bru.setEnvVar("adminOrderId", body.id);
+  }
+}
+
+tests {
+  test("public order creation returns 201", function() {
+    expect(res.getStatus()).to.equal(201);
+  });
+
+  test("public order creation returns id and pending payment status", function() {
+    const body = res.getBody();
+
+    expect(body.id).to.be.a("string");
+    expect(body.status).to.equal("en_attente_paiement");
+    expect(body.total).to.be.a("number");
+  });
+}

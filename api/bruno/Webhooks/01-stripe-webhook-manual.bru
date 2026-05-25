@@ -1,0 +1,38 @@
+meta {
+  name: Stripe webhook (manual signature required)
+  type: http
+  seq: 1
+  tags: [
+    manual
+    conditional
+    webhook
+  ]
+}
+
+post {
+  url: {{baseUrl}}/api/webhooks/stripe
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Stripe-Signature: {{stripeSignature}}
+}
+
+body:json {
+  {
+    "id": "evt_manual_checkout_completed",
+    "object": "event",
+    "type": "checkout.session.completed",
+    "data": {
+      "object": {
+        "id": "cs_manual_checkout_completed",
+        "object": "checkout.session",
+        "metadata": {
+          "order_id": "{{orderId}}"
+        }
+      }
+    }
+  }
+}

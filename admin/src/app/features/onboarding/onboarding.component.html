@@ -1,0 +1,71 @@
+<div class="min-h-screen flex items-center justify-center bg-canvas-white">
+  <div class="w-full max-w-md p-10">
+    <h1 class="font-polysans text-heading-sm tracking-tight text-midnight-graphite mb-2">
+      Votre restaurant
+    </h1>
+    <p class="text-dark-shale text-sm mb-8">Configurez votre espace en quelques secondes.</p>
+
+    @if (error) {
+      <div class="mb-6 px-4 py-3 rounded-radius-lg bg-slate-mist text-midnight-graphite text-sm">
+        {{ error }}
+      </div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-6">
+      <div>
+        <label class="block text-sm font-medium text-midnight-graphite mb-1.5">Nom du restaurant</label>
+        <input
+          type="text"
+          formControlName="name"
+          class="w-full px-4 py-2.5 rounded-radius-2xl border border-light-pearl bg-canvas-white text-midnight-graphite text-body outline-none focus:border-midnight-graphite transition-colors"
+          placeholder="ex: Naia Burger"
+        />
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-midnight-graphite mb-1.5">Nombre de tables</label>
+        <input
+          type="number"
+          formControlName="tableCount"
+          min="1"
+          max="50"
+          class="w-full px-4 py-2.5 rounded-radius-2xl border border-light-pearl bg-canvas-white text-midnight-graphite text-body outline-none focus:border-midnight-graphite transition-colors"
+        />
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-midnight-graphite mb-3">Thème du menu client</label>
+        <div class="grid grid-cols-2 gap-3">
+          @for (theme of themes; track theme.id) {
+            <label
+              class="flex items-center justify-center px-4 py-3 rounded-radius-2xl border cursor-pointer transition-all text-sm"
+              [class]="form.get('themeId')?.value === theme.id
+                ? 'border-midnight-graphite bg-midnight-graphite text-canvas-white'
+                : 'border-light-pearl bg-canvas-white text-dark-shale hover:border-midnight-graphite'"
+            >
+              <input
+                type="radio"
+                formControlName="themeId"
+                [value]="theme.id"
+                class="sr-only"
+              />
+              {{ theme.label }}
+            </label>
+          }
+        </div>
+      </div>
+
+      <button
+        type="submit"
+        [disabled]="form.invalid || loading"
+        class="w-full py-2.5 rounded-radius-2xl bg-midnight-graphite text-canvas-white font-medium text-body hover:opacity-90 transition-opacity disabled:opacity-40"
+      >
+        @if (loading) {
+          Création...
+        } @else {
+          Créer mon restaurant
+        }
+      </button>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,19 @@
+meta {
+  name: Delete menu item (manual disposable id)
+  type: http
+  seq: 91
+  tags: [
+    admin
+    manual
+    destructive
+  ]
+}
+
+delete {
+  url: {{baseUrl}}/api/admin/menu-items/{{dessertItemId}}
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{adminToken}}
+}

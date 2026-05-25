@@ -1,0 +1,52 @@
+meta {
+  name: Create category
+  type: http
+  seq: 2
+  tags: [
+    admin
+    smoke
+  ]
+}
+
+post {
+  url: {{baseUrl}}/api/admin/categories
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+}
+
+auth:bearer {
+  token: {{adminToken}}
+}
+
+body:json {
+  {
+    "name": "Burgers",
+    "hasMenu": true
+  }
+}
+
+script:post-response {
+  const body = res.getBody();
+
+  if (res.getStatus() === 201) {
+    bru.setEnvVar("categoryId", body.id);
+  }
+}
+
+tests {
+  test("category creation returns 201", function() {
+    expect(res.getStatus()).to.equal(201);
+  });
+
+  test("category creation returns id and name", function() {
+    const body = res.getBody();
+
+    expect(body.id).to.be.a("string");
+    expect(body.name).to.equal("Burgers");
+    expect(body.hasMenu).to.equal(true);
+  });
+}

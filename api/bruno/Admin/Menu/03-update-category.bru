@@ -1,0 +1,44 @@
+meta {
+  name: Update category
+  type: http
+  seq: 3
+  tags: [
+    admin
+  ]
+}
+
+put {
+  url: {{baseUrl}}/api/admin/categories/{{categoryId}}
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+}
+
+auth:bearer {
+  token: {{adminToken}}
+}
+
+body:json {
+  {
+    "name": "Burgers signatures",
+    "position": 0,
+    "hasMenu": true
+  }
+}
+
+tests {
+  test("category update returns 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("category update returns updated fields", function() {
+    const body = res.getBody();
+
+    expect(body.id).to.be.a("string");
+    expect(body.name).to.equal("Burgers signatures");
+    expect(body.hasMenu).to.equal(true);
+  });
+}

@@ -1,0 +1,52 @@
+meta {
+  name: Create side composition
+  type: http
+  seq: 11
+  tags: [
+    admin
+    smoke
+  ]
+}
+
+post {
+  url: {{baseUrl}}/api/admin/compositions
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+}
+
+auth:bearer {
+  token: {{adminToken}}
+}
+
+body:json {
+  {
+    "compositionType": "accompagnement",
+    "menuItemId": "{{sideItemId}}",
+    "supplementPrice": 0
+  }
+}
+
+script:post-response {
+  const body = res.getBody();
+
+  if (res.getStatus() === 201) {
+    bru.setEnvVar("compositionId", body.id);
+  }
+}
+
+tests {
+  test("side composition creation returns 201", function() {
+    expect(res.getStatus()).to.equal(201);
+  });
+
+  test("side composition creation returns type and menu item", function() {
+    const body = res.getBody();
+
+    expect(body.compositionType).to.equal("accompagnement");
+    expect(body.menuItemId).to.equal(bru.getEnvVar("sideItemId"));
+  });
+}

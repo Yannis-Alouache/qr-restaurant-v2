@@ -1,0 +1,52 @@
+meta {
+  name: Signup (first run)
+  type: http
+  seq: 1
+  tags: [
+    auth
+  ]
+}
+
+post {
+  url: {{baseUrl}}/api/auth/signup
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "email": "{{adminEmail}}",
+    "password": "{{adminPassword}}"
+  }
+}
+
+script:post-response {
+  const status = res.getStatus();
+  const body = res.getBody();
+
+  if (status === 201 && body && body.token) {
+    bru.setEnvVar("adminToken", body.token);
+  }
+}
+
+tests {
+  test("signup returns created or conflict on rerun", function() {
+    expect([201, 409]).to.include(res.getStatus());
+  });
+
+  test("signup returns auth payload or rerun message", function() {
+    const status = res.getStatus();
+    const body = res.getBody();
+
+    if (status === 201) {
+      expect(body.token).to.be.a("string");
+      expect(body.userId).to.be.a("string");
+    } else {
+      expect(body.message).to.equal("Cette adresse email est déjà enregistrée");
+    }
+  });
+}

@@ -1,0 +1,56 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: qr-restaurant-db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-qr_restaurant}
+      POSTGRES_USER: ${POSTGRES_USER:-qr_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-qr_password}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-qr_user}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  seaweedfs:
+    image: chrislusf/seaweedfs:latest
+    container_name: qr-restaurant-storage
+    ports:
+      - "9333:9333"
+      - "18080:8080"
+      - "8333:8333"
+      - "8888:8888"
+    command: "server -s3"
+    volumes:
+      - seaweedfs_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9333/cluster/status"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  init-buckets:
+    image: amazon/aws-cli:latest
+    container_name: qr-restaurant-init-buckets
+    depends_on:
+      seaweedfs:
+        condition: service_healthy
+    environment:
+      AWS_ACCESS_KEY_ID: any
+      AWS_SECRET_ACCESS_KEY: any
+      AWS_DEFAULT_REGION: us-east-1
+    entrypoint: >
+      /bin/bash -c "
+        aws --endpoint-url http://seaweedfs:8333 s3 mb s3://logos 2>/dev/null || true
+        aws --endpoint-url http://seaweedfs:8333 s3 mb s3://category-images 2>/dev/null || true
+        aws --endpoint-url http://seaweedfs:8333 s3 mb s3://menu-images 2>/dev/null || true
+        echo 'Buckets created successfully'
+      "
+
+volumes:
+  postgres_data:
+  seaweedfs_data:

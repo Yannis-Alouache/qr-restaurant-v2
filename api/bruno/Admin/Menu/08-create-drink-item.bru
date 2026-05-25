@@ -1,0 +1,52 @@
+meta {
+  name: Create drink item
+  type: http
+  seq: 8
+  tags: [
+    admin
+    smoke
+  ]
+}
+
+post {
+  url: {{baseUrl}}/api/admin/menu-items
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+}
+
+auth:bearer {
+  token: {{adminToken}}
+}
+
+body:json {
+  {
+    "categoryId": "{{categoryId}}",
+    "name": "Limonade artisanale",
+    "price": 3.10
+  }
+}
+
+script:post-response {
+  const body = res.getBody();
+
+  if (res.getStatus() === 201) {
+    bru.setEnvVar("drinkItemId", body.id);
+  }
+}
+
+tests {
+  test("drink item creation returns 201", function() {
+    expect(res.getStatus()).to.equal(201);
+  });
+
+  test("drink item creation returns id and name", function() {
+    const body = res.getBody();
+
+    expect(body.id).to.be.a("string");
+    expect(body.name).to.equal("Limonade artisanale");
+  });
+}

@@ -808,7 +808,7 @@ Feature: Restaurant owner signup and onboarding
   @owner
   Scenario: Successful signup and restaurant creation
     Given no account exists for "owner@example.com"
-    When the owner signs up with email "owner@example.com" and password "secret123"
+    When the owner signs up with email "owner@example.com" and password "Secret123!"
     Then an account is created
     And the owner is prompted to create a restaurant
     When the owner enters restaurant name "My Burger" and 5 tables
