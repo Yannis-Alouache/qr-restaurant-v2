@@ -1,0 +1,35 @@
+meta {
+  name: List orders
+  type: http
+  seq: 1
+  tags: [
+    admin
+  ]
+}
+
+get {
+  url: {{baseUrl}}/api/admin/orders
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{adminToken}}
+}
+
+script:post-response {
+  const body = res.getBody();
+
+  if (res.getStatus() === 200 && Array.isArray(body) && body.length > 0) {
+    bru.setEnvVar("adminOrderId", body[0].id);
+  }
+}
+
+tests {
+  test("admin orders endpoint returns 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("admin orders endpoint returns an array", function() {
+    expect(Array.isArray(res.getBody())).to.equal(true);
+  });
+}

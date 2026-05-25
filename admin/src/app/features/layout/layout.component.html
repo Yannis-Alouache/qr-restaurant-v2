@@ -1,0 +1,61 @@
+<div class="min-h-screen flex bg-canvas-white">
+  <!-- Sidebar -->
+  <aside class="w-60 border-r border-light-pearl flex flex-col bg-canvas-white">
+    <!-- Logo / Brand -->
+    <div class="px-6 py-6 border-b border-light-pearl">
+      <h2 class="font-polysans text-subheading tracking-tight text-midnight-graphite truncate">
+        {{ restaurantName }}
+      </h2>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="flex-1 py-4">
+      <ul class="space-y-1">
+        <li>
+          <a
+            routerLink="/menu"
+            routerLinkActive="bg-cloud-whisper text-midnight-graphite"
+            class="flex items-center gap-3 px-6 py-2.5 text-sm text-dark-shale hover:bg-cloud-whisper hover:text-midnight-graphite transition-colors [routerLinkActive]"
+          >
+            <span class="text-base">📋</span> Menu
+          </a>
+        </li>
+        <li>
+          <a
+            routerLink="/orders"
+            routerLinkActive="bg-cloud-whisper text-midnight-graphite"
+            class="flex items-center gap-3 px-6 py-2.5 text-sm text-dark-shale hover:bg-cloud-whisper hover:text-midnight-graphite transition-colors [routerLinkActive]"
+          >
+            <span class="text-base">🧾</span> Commandes
+          </a>
+        </li>
+        <li>
+          <a
+            routerLink="/settings"
+            routerLinkActive="bg-cloud-whisper text-midnight-graphite"
+            class="flex items-center gap-3 px-6 py-2.5 text-sm text-dark-shale hover:bg-cloud-whisper hover:text-midnight-graphite transition-colors [routerLinkActive]"
+          >
+            <span class="text-base">⚙️</span> Paramètres
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Logout -->
+    <div class="px-6 py-4 border-t border-light-pearl">
+      <button
+        (click)="logout()"
+        class="text-sm text-silver-ash hover:text-midnight-graphite transition-colors"
+      >
+        Déconnexion
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 overflow-y-auto">
+    <div class="max-w-5xl mx-auto px-10 py-10">
+      <router-outlet />
+    </div>
+  </main>
+</div>

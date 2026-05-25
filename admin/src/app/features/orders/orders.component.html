@@ -1,0 +1,73 @@
+<div>
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h1 class="font-polysans text-heading tracking-tight text-midnight-graphite mb-2">Commandes</h1>
+      <p class="text-dark-shale text-sm">
+        Commandes actives en temps réel
+        @if (connected()) {
+          <span class="inline-block w-2 h-2 rounded-full bg-green-500 ml-1 align-middle"></span>
+        } @else {
+          <span class="inline-block w-2 h-2 rounded-full bg-silver-ash ml-1 align-middle"></span>
+        }
+      </p>
+    </div>
+  </div>
+
+  @if (activeOrders().length === 0) {
+    <div class="text-center py-20">
+      <p class="text-silver-ash text-lg">Aucune commande active</p>
+      <p class="text-silver-ash text-sm mt-2">Les nouvelles commandes apparaîtront ici en temps réel.</p>
+    </div>
+  }
+
+  <div class="space-y-8">
+    @for (entry of ordersByTable(); track entry[0]) {
+      <section>
+        <h2 class="font-polysans text-subheading tracking-tight text-midnight-graphite mb-4">
+          Table {{ entry[0] }}
+        </h2>
+        <div class="space-y-3">
+          @for (order of entry[1]; track order.id) {
+            <div class="p-5 rounded-radius-lg border border-light-pearl bg-canvas-white">
+              <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-3">
+                  <span class="px-3 py-1 rounded-radius-2xl text-xs font-medium {{ getStatusColor(order.status) }}">
+                    {{ statusLabels[order.status] }}
+                  </span>
+                  <span class="text-xs text-silver-ash">{{ formatTime(order.createdAt) }}</span>
+                </div>
+                <span class="text-sm font-medium text-midnight-graphite">{{ formatPrice(order.total) }}</span>
+              </div>
+
+              <!-- Items -->
+              <div class="space-y-1 mb-4">
+                @for (item of order.items; track item.id) {
+                  <div class="flex items-center justify-between text-sm">
+                    <div class="flex items-center gap-2">
+                      <span class="text-dark-shale">{{ item.quantity }}x</span>
+                      <span class="text-midnight-graphite">{{ item.name }}</span>
+                      @if (item.menuRole) {
+                        <span class="text-xs text-silver-ash">({{ item.menuRole }})</span>
+                      }
+                    </div>
+                    <span class="text-dark-shale">{{ formatPrice(item.unitPrice * item.quantity) }}</span>
+                  </div>
+                }
+              </div>
+
+              <!-- Actions -->
+              @if (nextStatus[order.status]) {
+                <button
+                  (click)="advanceStatus(order.id, order.status)"
+                  class="px-4 py-1.5 rounded-radius-2xl text-sm bg-midnight-graphite text-canvas-white hover:opacity-90 transition-opacity"
+                >
+                  {{ statusLabels[nextStatus[order.status]] }}
+                </button>
+              }
+            </div>
+          }
+        </div>
+      </section>
+    }
+  </div>
+</div>

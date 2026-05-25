@@ -1,0 +1,119 @@
+package com.qrrestaurant.menu.application;
+
+import com.qrrestaurant.menu.domain.Category;
+import com.qrrestaurant.menu.domain.MenuItem;
+import com.qrrestaurant.menu.infrastructure.persistence.InMemoryCategoryRepository;
+import com.qrrestaurant.menu.infrastructure.persistence.InMemoryMenuItemRepository;
+import com.qrrestaurant.restaurant.domain.Restaurant;
+import com.qrrestaurant.restaurant.infrastructure.persistence.InMemoryRestaurantRepository;
+import org.junit.jupiter.api.Test;
+
+import java.math.BigDecimal;
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+class ManageMenuItemUseCaseTest {
+
+    @Test
+    void shouldRejectCreatingMenuVariantWhenCategoryDoesNotAllowMenus() {
+        UUID ownerId = UUID.randomUUID();
+        UUID restaurantId = UUID.randomUUID();
+        UUID categoryId = UUID.randomUUID();
+
+        InMemoryRestaurantRepository restaurantRepository = new InMemoryRestaurantRepository();
+        InMemoryCategoryRepository categoryRepository = new InMemoryCategoryRepository();
+        InMemoryMenuItemRepository menuItemRepository = new InMemoryMenuItemRepository();
+
+        restaurantRepository.save(restaurant(ownerId, restaurantId));
+        categoryRepository.save(new Category(categoryId, restaurantId, "Burgers", null, 0, false));
+        MenuItem baseItem = menuItemRepository.save(new MenuItem(
+                UUID.randomUUID(), categoryId, "Burger", null, new BigDecimal("12.00"), null, true, null));
+
+        ManageMenuItemUseCase useCase = new ManageMenuItemUseCase(
+                menuItemRepository, categoryRepository, restaurantRepository);
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> useCase.create(
+                ownerId,
+                categoryId,
+                "Menu Burger",
+                null,
+                new BigDecimal("15.00"),
+                null,
+                baseItem.getId()));
+
+        assertEquals("Cette catégorie ne permet pas de créer de variante menu", exception.getMessage());
+    }
+
+    @Test
+    void shouldRejectCreatingMenuVariantWhenBaseItemBelongsToAnotherCategory() {
+        UUID ownerId = UUID.randomUUID();
+        UUID restaurantId = UUID.randomUUID();
+        UUID burgersCategoryId = UUID.randomUUID();
+        UUID dessertsCategoryId = UUID.randomUUID();
+
+        InMemoryRestaurantRepository restaurantRepository = new InMemoryRestaurantRepository();
+        InMemoryCategoryRepository categoryRepository = new InMemoryCategoryRepository();
+        InMemoryMenuItemRepository menuItemRepository = new InMemoryMenuItemRepository();
+
+        restaurantRepository.save(restaurant(ownerId, restaurantId));
+        categoryRepository.save(new Category(burgersCategoryId, restaurantId, "Burgers", null, 0, true));
+        categoryRepository.save(new Category(dessertsCategoryId, restaurantId, "Desserts", null, 1, true));
+        MenuItem baseItem = menuItemRepository.save(new MenuItem(
+                UUID.randomUUID(), dessertsCategoryId, "Brownie", null, new BigDecimal("5.00"), null, true, null));
+
+        ManageMenuItemUseCase useCase = new ManageMenuItemUseCase(
+                menuItemRepository, categoryRepository, restaurantRepository);
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> useCase.create(
+                ownerId,
+                burgersCategoryId,
+                "Menu Brownie",
+                null,
+                new BigDecimal("8.00"),
+                null,
+                baseItem.getId()));
+
+        assertEquals("La variante menu doit référencer un plat de la même catégorie", exception.getMessage());
+    }
+
+    @Test
+    void shouldClearDescriptionWhenUpdatingWithBlankValue() {
+        UUID ownerId = UUID.randomUUID();
+        UUID restaurantId = UUID.randomUUID();
+        UUID categoryId = UUID.randomUUID();
+
+        InMemoryRestaurantRepository restaurantRepository = new InMemoryRestaurantRepository();
+        InMemoryCategoryRepository categoryRepository = new InMemoryCategoryRepository();
+        InMemoryMenuItemRepository menuItemRepository = new InMemoryMenuItemRepository();
+
+        restaurantRepository.save(restaurant(ownerId, restaurantId));
+        categoryRepository.save(new Category(categoryId, restaurantId, "Burgers", null, 0, true));
+        MenuItem item = menuItemRepository.save(new MenuItem(
+                UUID.randomUUID(), categoryId, "Burger", "Description initiale",
+                new BigDecimal("12.00"), null, true, null));
+
+        ManageMenuItemUseCase useCase = new ManageMenuItemUseCase(
+                menuItemRepository, categoryRepository, restaurantRepository);
+
+        MenuItemView updated = useCase.update(
+                ownerId,
+                item.getId(),
+                null,
+                "",
+                null,
+                null,
+                null);
+
+        assertEquals(null, updated.description());
+    }
+
+    private Restaurant restaurant(UUID ownerId, UUID restaurantId) {
+        Restaurant restaurant = new Restaurant();
+        restaurant.setId(restaurantId);
+        restaurant.setUserId(ownerId);
+        restaurant.setSlug("naia-burger");
+        return restaurant;
+    }
+}

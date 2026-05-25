@@ -1,0 +1,45 @@
+meta {
+  name: Create checkout (requires Stripe configuration)
+  type: http
+  seq: 1
+  tags: [
+    public
+    conditional
+    smoke
+  ]
+}
+
+post {
+  url: {{baseUrl}}/api/public/payments/checkout
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "orderId": "{{orderId}}"
+  }
+}
+
+tests {
+  test("checkout returns 200 or payment provider failure", function() {
+    expect([200, 503]).to.include(res.getStatus());
+  });
+
+  test("checkout returns checkoutUrl on success", function() {
+    const status = res.getStatus();
+    const body = res.getBody();
+
+    if (status === 200) {
+      expect(body.checkoutUrl).to.be.a("string");
+    }
+
+    if (status === 503) {
+      expect(body.message).to.be.a("string");
+    }
+  });
+}

@@ -1,0 +1,19 @@
+meta {
+  name: Delete composition (manual disposable id)
+  type: http
+  seq: 90
+  tags: [
+    admin
+    manual
+    destructive
+  ]
+}
+
+delete {
+  url: {{baseUrl}}/api/admin/compositions/{{compositionId}}
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{adminToken}}
+}

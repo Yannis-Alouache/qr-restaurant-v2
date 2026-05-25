@@ -1,0 +1,65 @@
+meta {
+  name: Create restaurant (first run)
+  type: http
+  seq: 1
+  tags: [
+    admin
+    smoke
+  ]
+}
+
+post {
+  url: {{baseUrl}}/api/admin/restaurants
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+}
+
+auth:bearer {
+  token: {{adminToken}}
+}
+
+body:json {
+  {
+    "name": "Bistro Bruno",
+    "tableCount": 4,
+    "themeId": "chaud"
+  }
+}
+
+script:post-response {
+  const status = res.getStatus();
+  const body = res.getBody();
+
+  if (status === 201) {
+    bru.setEnvVar("restaurantId", body.id);
+    bru.setEnvVar("restaurantSlug", body.slug);
+
+    if (Array.isArray(body.tables) && body.tables.length > 0) {
+      bru.setEnvVar("tableId", body.tables[0].id);
+    }
+  }
+}
+
+tests {
+  test("restaurant onboarding returns created or conflict on rerun", function() {
+    expect([201, 409]).to.include(res.getStatus());
+  });
+
+  test("restaurant onboarding returns restaurant payload or rerun message", function() {
+    const status = res.getStatus();
+    const body = res.getBody();
+
+    if (status === 201) {
+      expect(body.id).to.be.a("string");
+      expect(body.slug).to.be.a("string");
+      expect(Array.isArray(body.tables)).to.equal(true);
+      expect(body.tables.length).to.be.greaterThan(0);
+    } else {
+      expect(body.message).to.equal("Cet utilisateur possède déjà un restaurant");
+    }
+  });
+}

@@ -1,0 +1,52 @@
+meta {
+  name: Create drink composition
+  type: http
+  seq: 12
+  tags: [
+    admin
+    smoke
+  ]
+}
+
+post {
+  url: {{baseUrl}}/api/admin/compositions
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+}
+
+auth:bearer {
+  token: {{adminToken}}
+}
+
+body:json {
+  {
+    "compositionType": "boisson",
+    "menuItemId": "{{drinkItemId}}",
+    "supplementPrice": 0
+  }
+}
+
+script:post-response {
+  const body = res.getBody();
+
+  if (res.getStatus() === 201) {
+    bru.setEnvVar("compositionId", body.id);
+  }
+}
+
+tests {
+  test("drink composition creation returns 201", function() {
+    expect(res.getStatus()).to.equal(201);
+  });
+
+  test("drink composition creation returns type and menu item", function() {
+    const body = res.getBody();
+
+    expect(body.compositionType).to.equal("boisson");
+    expect(body.menuItemId).to.equal(bru.getEnvVar("drinkItemId"));
+  });
+}

@@ -1,0 +1,35 @@
+meta {
+  name: Toggle menu item availability (manual)
+  type: http
+  seq: 81
+  tags: [
+    admin
+    manual
+  ]
+}
+
+patch {
+  url: {{baseUrl}}/api/admin/menu-items/{{baseMenuItemId}}/availability
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+}
+
+auth:bearer {
+  token: {{adminToken}}
+}
+
+body:json {
+  {
+    "available": false
+  }
+}
+
+tests {
+  test("availability update returns 204", function() {
+    expect(res.getStatus()).to.equal(204);
+  });
+}

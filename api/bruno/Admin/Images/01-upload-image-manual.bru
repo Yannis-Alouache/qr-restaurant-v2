@@ -1,0 +1,23 @@
+meta {
+  name: Upload image (manual file path)
+  type: http
+  seq: 1
+  tags: [
+    admin
+    manual
+  ]
+}
+
+post {
+  url: {{baseUrl}}/api/admin/images/{{imageBucket}}
+  body: multipart-form
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{adminToken}}
+}
+
+body:multipart-form {
+  file: @file({{imageFilePath}})
+}
