@@ -2,10 +2,11 @@ package com.qrrestaurant.auth.presentation;
 
 import com.qrrestaurant.auth.application.AuthResponse;
 import com.qrrestaurant.auth.application.AuthService;
+import com.qrrestaurant.auth.domain.PasswordPolicy;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Pattern;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,7 +34,9 @@ public class AuthController {
 
     public record SignupRequest(
             @NotBlank(message = "Email requis") @Email(message = "Email invalide") String email,
-            @NotBlank(message = "Mot de passe requis") @Size(min = 6, message = "Le mot de passe doit contenir au moins 6 caractères") String password
+            @NotBlank(message = "Mot de passe requis")
+            @Pattern(regexp = PasswordPolicy.PASSWORD_PATTERN, message = PasswordPolicy.PASSWORD_REQUIREMENTS_MESSAGE)
+            String password
     ) {}
 
     public record LoginRequest(

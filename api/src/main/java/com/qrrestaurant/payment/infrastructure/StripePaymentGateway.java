@@ -1,23 +1,19 @@
 package com.qrrestaurant.payment.infrastructure;
 
 import com.qrrestaurant.payment.domain.PaymentGateway;
-import com.stripe.StripeClient;
 import com.stripe.exception.StripeException;
-import com.stripe.model.checkout.Session;
 import com.stripe.param.checkout.SessionCreateParams;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.UUID;
 
 @Service
 public class StripePaymentGateway implements PaymentGateway {
 
-    private final StripeClient stripeClient;
+    private final StripeCheckoutSessionClient checkoutSessionClient;
 
-    public StripePaymentGateway(@Value("${stripe.secret-key}") String secretKey) {
-        this.stripeClient = new StripeClient(secretKey);
+    public StripePaymentGateway(StripeCheckoutSessionClient checkoutSessionClient) {
+        this.checkoutSessionClient = checkoutSessionClient;
     }
 
     @Override
@@ -48,10 +44,8 @@ public class StripePaymentGateway implements PaymentGateway {
                                 .build())
                         .build())
                 .build();
-
         try {
-            Session session = stripeClient.v1().checkout().sessions().create(params);
-            return session.getUrl();
+            return checkoutSessionClient.createCheckoutSessionUrl(params);
         } catch (StripeException e) {
             throw new PaymentGateway.CheckoutSessionCreationException(
                     "Le paiement en ligne est temporairement indisponible. Réessayez dans quelques instants.",

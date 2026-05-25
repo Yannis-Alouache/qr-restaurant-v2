@@ -28,10 +28,10 @@
         </h2>
         <div class="space-y-3">
           @for (order of entry[1]; track order.id) {
-            <div class="p-5 rounded-radius-lg border border-light-pearl bg-canvas-white">
+            <div class="p-5 rounded-radius-lg border border-light-pearl bg-canvas-white" [attr.data-testid]="'order-card-' + order.id">
               <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center gap-3">
-                  <span class="px-3 py-1 rounded-radius-2xl text-xs font-medium {{ getStatusColor(order.status) }}">
+                  <span class="px-3 py-1 rounded-radius-2xl text-xs font-medium {{ getStatusColor(order.status) }}" [attr.data-testid]="'order-status-' + order.id">
                     {{ statusLabels[order.status] }}
                   </span>
                   <span class="text-xs text-silver-ash">{{ formatTime(order.createdAt) }}</span>
@@ -59,6 +59,7 @@
               @if (nextStatus[order.status]) {
                 <button
                   (click)="advanceStatus(order.id, order.status)"
+                  [attr.data-testid]="'order-advance-' + order.id"
                   class="px-4 py-1.5 rounded-radius-2xl text-sm bg-midnight-graphite text-canvas-white hover:opacity-90 transition-opacity"
                 >
                   {{ statusLabels[nextStatus[order.status]] }}

@@ -1,7 +1,6 @@
 package com.qrrestaurant.shared.infrastructure;
 
 import com.qrrestaurant.auth.infrastructure.JwtAuthenticationFilter;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -15,28 +14,22 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.net.URI;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Value("${app.client-base-url}")
-    private String clientBaseUrl;
-
-    @Value("${app.admin-base-url}")
-    private String adminBaseUrl;
-
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final RateLimitingFilter rateLimitingFilter;
+    private final AllowedOriginResolver allowedOriginResolver;
 
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
-                          RateLimitingFilter rateLimitingFilter) {
+                          RateLimitingFilter rateLimitingFilter,
+                          AllowedOriginResolver allowedOriginResolver) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.rateLimitingFilter = rateLimitingFilter;
+        this.allowedOriginResolver = allowedOriginResolver;
     }
 
     @Bean
@@ -66,7 +59,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(resolveAllowedOrigins());
+        config.setAllowedOrigins(allowedOriginResolver.resolve());
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Stripe-Signature"));
         config.setExposedHeaders(List.of("Location"));
@@ -75,27 +68,8 @@ public class SecurityConfig {
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/api/**", config);
+        source.registerCorsConfiguration("/ws", config);
         source.registerCorsConfiguration("/ws/**", config);
         return source;
-    }
-
-    private List<String> resolveAllowedOrigins() {
-        Set<String> origins = new LinkedHashSet<>();
-        addOrigin(origins, clientBaseUrl);
-        addOrigin(origins, adminBaseUrl);
-        origins.add("http://localhost:4200");
-        origins.add("http://localhost:4300");
-        return List.copyOf(origins);
-    }
-
-    private void addOrigin(Set<String> origins, String value) {
-        try {
-            URI uri = URI.create(value);
-            if (uri.getScheme() != null && uri.getHost() != null) {
-                origins.add(uri.getScheme() + "://" + uri.getHost() + (uri.getPort() > 0 ? ":" + uri.getPort() : ""));
-            }
-        } catch (IllegalArgumentException ignored) {
-            // Ignore invalid configured origins to keep startup safe in local development.
-        }
     }
 }

@@ -10,12 +10,13 @@
       </div>
     }
 
-    <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-5">
+    <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-5" data-testid="signup-form">
       <div>
         <label class="block text-sm text-dark-shale mb-1.5">Email</label>
         <input
           type="email"
           formControlName="email"
+          data-testid="signup-email"
           class="w-full px-4 py-2.5 rounded-radius-2xl border border-light-pearl bg-canvas-white text-midnight-graphite text-body outline-none focus:border-midnight-graphite transition-colors"
           placeholder="votre@email.com"
         />
@@ -26,16 +27,20 @@
         <input
           type="password"
           formControlName="password"
+          data-testid="signup-password"
           class="w-full px-4 py-2.5 rounded-radius-2xl border border-light-pearl bg-canvas-white text-midnight-graphite text-body outline-none focus:border-midnight-graphite transition-colors"
-          placeholder="Minimum 6 caractères"
+          placeholder="10 caractères minimum avec complexité"
         />
-        @if (form.get('password')?.errors?.['minlength'] && form.get('password')?.touched) {
-          <p class="mt-1 text-xs text-sunset-orange">Minimum 6 caractères</p>
+        @if ((form.get('password')?.errors?.['minlength'] || form.get('password')?.errors?.['pattern']) && form.get('password')?.touched) {
+          <p class="mt-1 text-xs text-sunset-orange" data-testid="signup-password-hint">
+            10 caractères minimum, avec majuscule, minuscule, chiffre et caractère spécial
+          </p>
         }
       </div>
 
       <button
         type="submit"
+        data-testid="signup-submit"
         [disabled]="form.invalid || loading"
         class="w-full py-2.5 rounded-radius-2xl bg-midnight-graphite text-canvas-white font-medium text-body hover:opacity-90 transition-opacity disabled:opacity-40"
       >

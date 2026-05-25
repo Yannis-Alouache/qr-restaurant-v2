@@ -10,6 +10,12 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
+    private final AllowedOriginResolver allowedOriginResolver;
+
+    public WebSocketConfig(AllowedOriginResolver allowedOriginResolver) {
+        this.allowedOriginResolver = allowedOriginResolver;
+    }
+
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
         config.enableSimpleBroker("/topic");
@@ -19,7 +25,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws")
-                .setAllowedOriginPatterns("http://localhost:*")
+                .setAllowedOriginPatterns(allowedOriginResolver.resolve().toArray(String[]::new))
                 .withSockJS();
     }
 }

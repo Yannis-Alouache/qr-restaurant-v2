@@ -8,6 +8,8 @@ node_modules/
 dist/
 .tmp/
 .angular/
+playwright-report/
+test-results/
 
 # Java / Maven
 target/
