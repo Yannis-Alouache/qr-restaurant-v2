@@ -1,0 +1,13 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "QR Restaurant Local",
+      "Group": "Servers",
+      "Host": "postgres",
+      "Port": 5432,
+      "MaintenanceDB": "postgres",
+      "Username": "qr_user",
+      "SSLMode": "prefer"
+    }
+  }
+}

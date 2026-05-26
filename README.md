@@ -27,6 +27,8 @@ Copiez `.env.example` vers `.env` et adaptez si besoin.
 | `POSTGRES_DB` | oui | nom de base Docker | `qr_restaurant` |
 | `POSTGRES_USER` | oui | utilisateur PostgreSQL | `qr_user` |
 | `POSTGRES_PASSWORD` | oui | mot de passe PostgreSQL | `qr_password` |
+| `PGADMIN_DEFAULT_EMAIL` | non | email de connexion pgAdmin local | `admin@example.com` |
+| `PGADMIN_DEFAULT_PASSWORD` | non | mot de passe de connexion pgAdmin local | `admin` |
 | `STRIPE_SECRET_KEY` | oui | clé Stripe backend | `sk_test_xxx` |
 | `STRIPE_PUBLIC_KEY` | oui | clé publique Stripe | `pk_test_xxx` |
 | `STRIPE_WEBHOOK_SECRET` | non mais requis pour les webhooks Stripe | validation des signatures webhook | `whsec_xxx` |
@@ -43,8 +45,8 @@ Copiez `.env.example` vers `.env` et adaptez si besoin.
    - `cd admin && npm ci`
    - `cd client && npm ci`
    - `npm ci`
-2. Démarrer PostgreSQL :
-   - `docker compose -f docker/docker-compose.yml up -d postgres`
+2. Démarrer PostgreSQL et pgAdmin :
+   - `docker compose -f docker/docker-compose.yml up -d postgres pgadmin`
 3. Démarrer l’API :
    - `cd api && mvn spring-boot:run`
 4. Démarrer les frontends :
@@ -52,6 +54,14 @@ Copiez `.env.example` vers `.env` et adaptez si besoin.
    - `cd client && npm start`
 
 En local, les proxies Angular redirigent `/api` et `/ws` vers `http://localhost:8080`.
+
+### Explorer la base avec pgAdmin
+
+- URL : `http://localhost:5050`
+- login pgAdmin : `PGADMIN_DEFAULT_EMAIL` / `PGADMIN_DEFAULT_PASSWORD`
+- serveur préconfiguré : `QR Restaurant Local`
+- mot de passe PostgreSQL à saisir lors de la première connexion : `POSTGRES_PASSWORD` (par défaut `qr_password`)
+- si vous changez `POSTGRES_DB` ou `POSTGRES_USER`, adaptez la connexion pgAdmin une fois connecté
 
 ### Démo locale seedée
 
@@ -68,6 +78,13 @@ Après migration complète, le compte seed local est :
 | Admin | `cd admin && npm ci` | `cd admin && npm test -- --watch=false` | `cd admin && npm run build` | `cd admin && npm start` |
 | Client | `cd client && npm ci` | `cd client && npm test -- --watch=false` | `cd client && npm run build` | `cd client && npm start` |
 | E2E navigateur | `npm ci` | `npm run test:e2e` | n/a | démarre les serveurs via Playwright |
+
+### Reset local de la base
+
+- `npm run reset-db`
+- la commande n'est autorisee que si `APP_ENV=local` dans votre `.env`
+- la commande refuse de s’exécuter en CI
+- au lancement, une confirmation interactive `oui / non` est demandée avant de vider la base
 
 ## Ce qui est prouvé automatiquement
 

@@ -2,6 +2,7 @@
   "name": "qr-restaurant-v2",
   "private": true,
   "scripts": {
+    "reset-db": "bash ./scripts/reset-db.sh",
     "test:e2e": "bash ./scripts/run-e2e.sh",
     "test:e2e:headed": "bash ./scripts/run-e2e.sh --headed"
   },
