@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 import { ItemView } from '../../models/menu.model';
 import { ItemCardComponent } from '../item-card/item-card.component';
 
@@ -7,9 +7,16 @@ import { ItemCardComponent } from '../item-card/item-card.component';
   standalone: true,
   imports: [ItemCardComponent],
   template: `
-    <div class="grid gap-3">
-      @for (item of items(); track item.id) {
-        @if (item.available && item.menuVariantOf === null) {
+    <div class="grid gap-4">
+      @if (visibleItems().length === 0) {
+        <div class="rounded-[1.75rem] border border-outline-variant/70 bg-surface-container-low px-5 py-8 text-center shadow-[var(--shadow-soft)]">
+          <p class="font-display text-base font-bold text-on-surface">Cette catégorie revient très vite.</p>
+          <p class="mt-2 text-sm text-on-surface-variant">
+            Aucun plat n'est disponible pour le moment.
+          </p>
+        </div>
+      } @else {
+        @for (item of visibleItems(); track item.id) {
           <app-item-card
             [item]="item"
             [canComposeAsMenu]="canComposeAsMenu(item)"
@@ -22,6 +29,9 @@ import { ItemCardComponent } from '../item-card/item-card.component';
 export class ItemListComponent {
   items = input.required<ItemView[]>();
   itemClick = output<ItemView>();
+  readonly visibleItems = computed(() =>
+    this.items().filter((item) => item.available && item.menuVariantOf === null),
+  );
 
   canComposeAsMenu(item: ItemView): boolean {
     return this.items().some((candidate) => candidate.menuVariantOf === item.id && candidate.available);
