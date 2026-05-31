@@ -1,11 +1,12 @@
 package com.qrrestaurant.payment.application;
+import com.qrrestaurant.order.application.dto.OrderStatusUpdate;
 
 import com.qrrestaurant.order.domain.Order;
 import com.qrrestaurant.order.domain.OrderStatus;
-import com.qrrestaurant.order.infrastructure.persistence.InMemoryOrderRepository;
-import com.qrrestaurant.shared.infrastructure.OrderEventPublisher;
-import com.qrrestaurant.shared.infrastructure.PublishedMessage;
-import com.qrrestaurant.shared.infrastructure.RecordingMessageChannel;
+import com.qrrestaurant.order.infrastructure.persistence.order.InMemoryOrderRepository;
+import com.qrrestaurant.shared.infrastructure.events.OrderEventPublisher;
+import com.qrrestaurant.shared.infrastructure.events.PublishedMessage;
+import com.qrrestaurant.shared.infrastructure.events.RecordingMessageChannel;
 import org.junit.jupiter.api.Test;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
@@ -39,9 +40,9 @@ class HandleWebhookUseCaseIntegrationTest {
         assertEquals("pi_123456", updatedOrder.getPaymentTransactionId());
         assertEquals(List.of(
                 new PublishedMessage("/topic/restaurants/" + restaurantId + "/orders",
-                        new com.qrrestaurant.order.application.OrderStatusUpdate(savedOrder.getId().toString(), OrderStatus.nouvelle.name())),
+                        new com.qrrestaurant.order.application.dto.OrderStatusUpdate(savedOrder.getId().toString(), OrderStatus.nouvelle.name())),
                 new PublishedMessage("/topic/orders/" + savedOrder.getId(),
-                        new com.qrrestaurant.order.application.OrderStatusUpdate(savedOrder.getId().toString(), OrderStatus.nouvelle.name()))
+                        new com.qrrestaurant.order.application.dto.OrderStatusUpdate(savedOrder.getId().toString(), OrderStatus.nouvelle.name()))
         ), messageChannel.publishedMessages());
     }
 
@@ -66,9 +67,9 @@ class HandleWebhookUseCaseIntegrationTest {
         assertEquals(OrderStatus.paiement_echoue, updatedOrder.getStatus());
         assertEquals(List.of(
                 new PublishedMessage("/topic/restaurants/" + restaurantId + "/orders",
-                        new com.qrrestaurant.order.application.OrderStatusUpdate(savedOrder.getId().toString(), OrderStatus.paiement_echoue.name())),
+                        new com.qrrestaurant.order.application.dto.OrderStatusUpdate(savedOrder.getId().toString(), OrderStatus.paiement_echoue.name())),
                 new PublishedMessage("/topic/orders/" + savedOrder.getId(),
-                        new com.qrrestaurant.order.application.OrderStatusUpdate(savedOrder.getId().toString(), OrderStatus.paiement_echoue.name()))
+                        new com.qrrestaurant.order.application.dto.OrderStatusUpdate(savedOrder.getId().toString(), OrderStatus.paiement_echoue.name()))
         ), messageChannel.publishedMessages());
     }
 }

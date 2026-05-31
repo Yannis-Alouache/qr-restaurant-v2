@@ -1,11 +1,12 @@
 package com.qrrestaurant.order.application;
+import com.qrrestaurant.order.application.dto.OrderStatusUpdate;
 
 import com.qrrestaurant.order.domain.Order;
 import com.qrrestaurant.order.domain.OrderRepository;
 import com.qrrestaurant.order.domain.OrderStatus;
 import com.qrrestaurant.restaurant.domain.Restaurant;
 import com.qrrestaurant.restaurant.domain.RestaurantRepository;
-import com.qrrestaurant.shared.infrastructure.OrderEventPublisher;
+import com.qrrestaurant.shared.infrastructure.events.OrderEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

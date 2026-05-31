@@ -1,8 +1,9 @@
 package com.qrrestaurant.auth.application;
+import com.qrrestaurant.auth.application.dto.AuthResponse;
 
 import com.qrrestaurant.auth.domain.User;
-import com.qrrestaurant.auth.infrastructure.DeterministicTokenService;
-import com.qrrestaurant.auth.infrastructure.PrefixPasswordEncoder;
+import com.qrrestaurant.auth.infrastructure.token.DeterministicTokenService;
+import com.qrrestaurant.auth.infrastructure.security.PrefixPasswordEncoder;
 import com.qrrestaurant.auth.infrastructure.persistence.InMemoryUserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

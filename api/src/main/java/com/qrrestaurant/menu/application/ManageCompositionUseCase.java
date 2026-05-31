@@ -1,4 +1,5 @@
 package com.qrrestaurant.menu.application;
+import com.qrrestaurant.menu.application.dto.CompositionView;
 
 import com.qrrestaurant.menu.domain.MenuComposition;
 import com.qrrestaurant.menu.domain.MenuCompositionRepository;

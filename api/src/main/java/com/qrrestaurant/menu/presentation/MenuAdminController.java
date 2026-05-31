@@ -1,4 +1,7 @@
 package com.qrrestaurant.menu.presentation;
+import com.qrrestaurant.menu.application.dto.MenuItemView;
+import com.qrrestaurant.menu.application.dto.CompositionView;
+import com.qrrestaurant.menu.application.dto.CategoryView;
 
 import com.qrrestaurant.menu.application.*;
 import jakarta.validation.Valid;

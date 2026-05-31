@@ -3,7 +3,7 @@ package com.qrrestaurant.payment.application;
 import com.qrrestaurant.order.domain.Order;
 import com.qrrestaurant.order.domain.OrderRepository;
 import com.qrrestaurant.order.domain.OrderStatus;
-import com.qrrestaurant.shared.infrastructure.OrderEventPublisher;
+import com.qrrestaurant.shared.infrastructure.events.OrderEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

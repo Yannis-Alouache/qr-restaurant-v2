@@ -1,4 +1,6 @@
 package com.qrrestaurant.payment.infrastructure;
+import com.qrrestaurant.payment.infrastructure.gateway.StripeCheckoutSessionClient;
+import com.qrrestaurant.payment.infrastructure.gateway.StripePaymentGateway;
 
 import com.stripe.param.checkout.SessionCreateParams;
 import org.junit.jupiter.api.Test;

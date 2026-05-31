@@ -1,6 +1,6 @@
 package com.qrrestaurant.payment.presentation;
 
-import com.qrrestaurant.auth.infrastructure.JwtService;
+import com.qrrestaurant.auth.infrastructure.security.JwtService;
 import com.qrrestaurant.payment.application.CreateCheckoutSessionUseCase;
 import com.qrrestaurant.payment.domain.PaymentGateway;
 import com.qrrestaurant.shared.presentation.GlobalExceptionHandler;

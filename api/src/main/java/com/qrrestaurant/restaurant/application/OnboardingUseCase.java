@@ -1,4 +1,5 @@
 package com.qrrestaurant.restaurant.application;
+import com.qrrestaurant.restaurant.application.dto.OnboardingResponse;
 
 import com.qrrestaurant.restaurant.domain.Restaurant;
 import com.qrrestaurant.restaurant.domain.RestaurantRepository;

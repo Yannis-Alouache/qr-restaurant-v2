@@ -1,4 +1,5 @@
 package com.qrrestaurant.shared.infrastructure;
+import com.qrrestaurant.shared.infrastructure.storage.SeaweedFsStorageService;
 
 import com.qrrestaurant.shared.domain.StorageService;
 import org.junit.jupiter.api.Test;

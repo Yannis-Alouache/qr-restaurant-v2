@@ -1,11 +1,12 @@
 package com.qrrestaurant.menu.application;
+import com.qrrestaurant.menu.application.dto.MenuItemView;
 
 import com.qrrestaurant.menu.domain.Category;
 import com.qrrestaurant.menu.domain.MenuItem;
-import com.qrrestaurant.menu.infrastructure.persistence.InMemoryCategoryRepository;
-import com.qrrestaurant.menu.infrastructure.persistence.InMemoryMenuItemRepository;
+import com.qrrestaurant.menu.infrastructure.persistence.category.InMemoryCategoryRepository;
+import com.qrrestaurant.menu.infrastructure.persistence.item.InMemoryMenuItemRepository;
 import com.qrrestaurant.restaurant.domain.Restaurant;
-import com.qrrestaurant.restaurant.infrastructure.persistence.InMemoryRestaurantRepository;
+import com.qrrestaurant.restaurant.infrastructure.persistence.restaurant.InMemoryRestaurantRepository;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;

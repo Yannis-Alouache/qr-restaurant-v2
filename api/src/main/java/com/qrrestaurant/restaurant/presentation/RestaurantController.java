@@ -1,4 +1,6 @@
 package com.qrrestaurant.restaurant.presentation;
+import com.qrrestaurant.restaurant.application.dto.OnboardingResponse;
+import com.qrrestaurant.restaurant.application.dto.OnboardingRequest;
 
 import com.qrrestaurant.restaurant.application.*;
 import com.qrrestaurant.restaurant.domain.RestaurantTheme;

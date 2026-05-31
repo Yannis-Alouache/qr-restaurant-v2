@@ -1,6 +1,6 @@
 package com.qrrestaurant.order.presentation;
 
-import com.qrrestaurant.auth.infrastructure.JwtService;
+import com.qrrestaurant.auth.infrastructure.security.JwtService;
 import com.qrrestaurant.support.AbstractPostgresIntegrationTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,4 +1,5 @@
 package com.qrrestaurant.auth.application;
+import com.qrrestaurant.auth.application.dto.AuthResponse;
 
 import com.qrrestaurant.auth.domain.PasswordPolicy;
 import com.qrrestaurant.auth.domain.TokenService;

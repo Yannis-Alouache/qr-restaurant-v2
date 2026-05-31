@@ -1,4 +1,5 @@
 package com.qrrestaurant.shared.infrastructure;
+import com.qrrestaurant.shared.infrastructure.web.AllowedOriginResolver;
 
 import org.junit.jupiter.api.Test;
 

@@ -1,13 +1,14 @@
 package com.qrrestaurant.order.application;
+import com.qrrestaurant.order.application.dto.OrderStatusUpdate;
 
 import com.qrrestaurant.order.domain.Order;
 import com.qrrestaurant.order.domain.OrderStatus;
-import com.qrrestaurant.order.infrastructure.persistence.InMemoryOrderRepository;
+import com.qrrestaurant.order.infrastructure.persistence.order.InMemoryOrderRepository;
 import com.qrrestaurant.restaurant.domain.Restaurant;
-import com.qrrestaurant.shared.infrastructure.OrderEventPublisher;
-import com.qrrestaurant.shared.infrastructure.PublishedMessage;
-import com.qrrestaurant.shared.infrastructure.RecordingMessageChannel;
-import com.qrrestaurant.restaurant.infrastructure.persistence.InMemoryRestaurantRepository;
+import com.qrrestaurant.shared.infrastructure.events.OrderEventPublisher;
+import com.qrrestaurant.shared.infrastructure.events.PublishedMessage;
+import com.qrrestaurant.shared.infrastructure.events.RecordingMessageChannel;
+import com.qrrestaurant.restaurant.infrastructure.persistence.restaurant.InMemoryRestaurantRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 

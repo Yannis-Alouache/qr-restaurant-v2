@@ -1,6 +1,6 @@
 package com.qrrestaurant.auth.presentation;
 
-import com.qrrestaurant.auth.application.AuthResponse;
+import com.qrrestaurant.auth.application.dto.AuthResponse;
 import com.qrrestaurant.auth.application.AuthService;
 import com.qrrestaurant.auth.domain.PasswordPolicy;
 import jakarta.validation.Valid;

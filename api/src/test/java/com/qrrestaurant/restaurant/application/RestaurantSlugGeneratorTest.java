@@ -1,7 +1,7 @@
 package com.qrrestaurant.restaurant.application;
 
 import com.qrrestaurant.restaurant.domain.Restaurant;
-import com.qrrestaurant.restaurant.infrastructure.persistence.InMemoryRestaurantRepository;
+import com.qrrestaurant.restaurant.infrastructure.persistence.restaurant.InMemoryRestaurantRepository;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

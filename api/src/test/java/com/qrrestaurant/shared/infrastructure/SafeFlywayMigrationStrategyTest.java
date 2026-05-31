@@ -1,4 +1,5 @@
 package com.qrrestaurant.shared.infrastructure;
+import com.qrrestaurant.shared.infrastructure.db.SafeFlywayMigrationStrategy;
 
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.BeforeEach;

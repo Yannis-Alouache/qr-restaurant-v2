@@ -1,7 +1,7 @@
 package com.qrrestaurant.menu.presentation;
 
 import com.qrrestaurant.menu.application.GetMenuUseCase;
-import com.qrrestaurant.menu.application.MenuView;
+import com.qrrestaurant.menu.application.dto.MenuView;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

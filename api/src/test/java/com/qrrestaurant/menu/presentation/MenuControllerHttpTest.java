@@ -2,7 +2,7 @@ package com.qrrestaurant.menu.presentation;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.qrrestaurant.auth.infrastructure.JwtService;
+import com.qrrestaurant.auth.infrastructure.security.JwtService;
 import com.qrrestaurant.support.AbstractPostgresIntegrationTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
