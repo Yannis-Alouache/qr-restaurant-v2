@@ -12,5 +12,6 @@ public record OnboardingRequest(
         @Max(value = 50, message = "Le nombre de tables ne peut pas dépasser 50")
         int tableCount,
         @Pattern(regexp = RestaurantTheme.VALIDATION_PATTERN, message = "Thème invalide")
-        String themeId
+        String themeId,
+        String logoPath
 ) {}

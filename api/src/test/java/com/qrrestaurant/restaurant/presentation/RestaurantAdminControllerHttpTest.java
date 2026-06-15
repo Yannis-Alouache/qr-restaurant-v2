@@ -14,6 +14,7 @@ import java.util.UUID;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -78,6 +79,42 @@ class RestaurantAdminControllerHttpTest extends AbstractPostgresIntegrationTest 
                         .content(payload))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.message").value("Cet utilisateur possède déjà un restaurant"));
+    }
+
+    @Test
+    void shouldPersistLogoPathProvidedDuringOnboarding() throws Exception {
+        UUID userId = UUID.randomUUID();
+        String email = "onboarding-with-logo@test.com";
+        jdbcTemplate.update(
+                "INSERT INTO app_user (id, email, password) VALUES (?, ?, ?)",
+                userId,
+                email,
+                "encoded-password");
+
+        String logoPath = "http://localhost:8333/logos/abc-bistro-bruno.png";
+
+        String payload = """
+                {
+                  "name": "Bistro Bruno",
+                  "tableCount": 4,
+                  "themeId": "chaud",
+                  "logoPath": "%s"
+                }
+                """.formatted(logoPath);
+
+        mockMvc.perform(post("/api/admin/restaurants")
+                        .header("Authorization", bearerToken(userId, email))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.logoPath").value(logoPath));
+
+        Integer matchingRestaurants = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM restaurant WHERE user_id = ? AND logo_path = ?",
+                Integer.class,
+                userId,
+                logoPath);
+        assertThat(matchingRestaurants).isEqualTo(1);
     }
 
     @Test
