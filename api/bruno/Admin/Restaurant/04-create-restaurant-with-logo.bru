@@ -1,0 +1,80 @@
+meta {
+  name: Create restaurant with logo
+  type: http
+  seq: 4
+  tags: [
+    admin
+  ]
+}
+
+post {
+  url: {{baseUrl}}/api/admin/restaurants
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+}
+
+auth:bearer {
+  token: {{adminToken}}
+}
+
+body:json {
+  {
+    "name": "Bistro Bruno",
+    "tableCount": 4,
+    "themeId": "chaud",
+    "logoPath": "http://localhost:8333/logos/your-uploaded-logo.png"
+  }
+}
+
+docs {
+  # Onboarding avec logo (photo du restaurant)
+
+  Le champ `logoPath` est **optionnel** sur la création de restaurant.
+
+  Flow recommandé en 2 étapes (pattern existant, séparé de la transaction d'onboarding) :
+
+  1. Uploader d'abord l'image via `POST {{baseUrl}}/api/admin/images/logos` (multipart).
+     Réponse : `{ "url": "http://localhost:8333/logos/<key>.png" }`.
+  2. Passer cette URL dans `logoPath` lors de la création du restaurant.
+
+  La photo est stockée sur le champ existant `logo_path` (réutilisé, pas de nouvelle colonne).
+  Comme `01-create`, cette requête renvoie 201 (créé) ou 409 (l'admin a déjà un restaurant).
+}
+
+script:post-response {
+  const status = res.getStatus();
+  const body = res.getBody();
+
+  if (status === 201) {
+    bru.setEnvVar("restaurantId", body.id);
+    bru.setEnvVar("restaurantSlug", body.slug);
+
+    if (Array.isArray(body.tables) && body.tables.length > 0) {
+      bru.setEnvVar("tableId", body.tables[0].id);
+    }
+  }
+}
+
+tests {
+  test("restaurant onboarding with logo returns created or conflict on rerun", function() {
+    expect([201, 409]).to.include(res.getStatus());
+  });
+
+  test("onboarding echoes the logoPath when created", function() {
+    const status = res.getStatus();
+    const body = res.getBody();
+
+    if (status === 201) {
+      expect(body.id).to.be.a("string");
+      expect(body.slug).to.be.a("string");
+      expect(body.logoPath).to.be.a("string");
+      expect(body.logoPath).to.include("logos/");
+    } else {
+      expect(body.message).to.equal("Cet utilisateur possède déjà un restaurant");
+    }
+  });
+}

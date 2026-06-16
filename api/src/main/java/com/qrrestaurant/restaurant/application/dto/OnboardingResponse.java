@@ -7,7 +7,8 @@ public record OnboardingResponse(
     UUID id,
     String slug,
     String name,
-    List<TableView> tables
+    List<TableView> tables,
+    String logoPath
 ) {
     public record TableView(UUID id, int number) {}
 }

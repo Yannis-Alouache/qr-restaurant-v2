@@ -37,7 +37,7 @@ public class RestaurantController {
             @Valid @RequestBody OnboardingRequest request) {
         UUID userId = extractUserId(authentication);
         OnboardingResponse response = onboardingUseCase.execute(
-                userId, request.name(), request.tableCount(), request.themeId());
+                userId, request.name(), request.tableCount(), request.themeId(), request.logoPath());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 

@@ -30,7 +30,7 @@ public class OnboardingUseCase {
         this.restaurantRepository = restaurantRepository;
     }
 
-    public OnboardingResponse execute(UUID userId, String name, int tableCount, String themeId) {
+    public OnboardingResponse execute(UUID userId, String name, int tableCount, String themeId, String logoPath) {
         restaurantRepository.findByUserId(userId).ifPresent(existing -> {
             throw new OwnerAlreadyHasRestaurantException();
         });
@@ -42,6 +42,9 @@ public class OnboardingUseCase {
         restaurant.setName(name);
         restaurant.setSlug(slug);
         restaurant.setThemeId(RestaurantTheme.normalizeOrDefault(themeId));
+        if (logoPath != null) {
+            restaurant.setLogoPath(logoPath);
+        }
         Restaurant saved;
         try {
             saved = restaurantRepository.save(restaurant);
@@ -58,7 +61,7 @@ public class OnboardingUseCase {
             tables.add(new OnboardingResponse.TableView(savedTable.getId(), i));
         }
 
-        return new OnboardingResponse(saved.getId(), slug, name, tables);
+        return new OnboardingResponse(saved.getId(), slug, name, tables, saved.getLogoPath());
     }
 
     public static class OwnerAlreadyHasRestaurantException extends RuntimeException {
