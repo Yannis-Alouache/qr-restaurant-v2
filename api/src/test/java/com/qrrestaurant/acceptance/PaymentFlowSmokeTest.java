@@ -60,11 +60,11 @@ class PaymentFlowSmokeTest extends AcceptanceTestBase {
     @Test
     void shouldExposeTheSeededOrderToAdminOnlyAfterPaymentIsConfirmed() throws Exception {
         restoreSeedDemoState();
-        String ownerToken = seedOwnerBearerToken();
+        String ownerJwt = seedOwnerJwt();
 
         JsonNode createdOrder = createSeedDemoOrder();
 
-        JsonNode unpaidAdminOrders = getAuthorizedJson("/api/admin/orders", ownerToken);
+        JsonNode unpaidAdminOrders = getAuthorizedJson("/api/admin/orders", ownerJwt);
         assertTrue(!containsOrder(unpaidAdminOrders, createdOrder.path("id").asText()));
 
         postJson("/api/public/payments/checkout", """
@@ -74,7 +74,7 @@ class PaymentFlowSmokeTest extends AcceptanceTestBase {
                 """.formatted(createdOrder.path("id").asText()), status().isOk());
         postStripeWebhook(checkoutCompletedPayload(createdOrder.path("id").asText(), "pi_admin_visible"));
 
-        JsonNode adminOrders = getAuthorizedJson("/api/admin/orders", ownerToken);
+        JsonNode adminOrders = getAuthorizedJson("/api/admin/orders", ownerJwt);
         JsonNode paidOrder = findOrder(adminOrders, createdOrder.path("id").asText());
         assertTrue(paidOrder != null);
         assertEquals("nouvelle", paidOrder.path("status").asText());
@@ -102,7 +102,7 @@ class PaymentFlowSmokeTest extends AcceptanceTestBase {
     @Test
     void shouldAllowRetryingAStripeExpiredPaymentUntilTheOrderBecomesExploitableAgain() throws Exception {
         restoreSeedDemoState();
-        String ownerToken = seedOwnerBearerToken();
+        String ownerJwt = seedOwnerJwt();
 
         JsonNode createdOrder = createSeedDemoOrder();
         postJson("/api/public/payments/checkout", """
@@ -114,7 +114,7 @@ class PaymentFlowSmokeTest extends AcceptanceTestBase {
 
         JsonNode failedOrder = getJson("/api/public/orders/" + createdOrder.path("id").asText());
         assertEquals("paiement_echoue", failedOrder.path("status").asText());
-        assertTrue(!containsOrder(getAuthorizedJson("/api/admin/orders", ownerToken), createdOrder.path("id").asText()));
+        assertTrue(!containsOrder(getAuthorizedJson("/api/admin/orders", ownerJwt), createdOrder.path("id").asText()));
 
         JsonNode retryCheckout = postJson("/api/public/payments/checkout", """
                 {
@@ -128,13 +128,13 @@ class PaymentFlowSmokeTest extends AcceptanceTestBase {
 
         JsonNode reopenedOrder = getJson("/api/public/orders/" + createdOrder.path("id").asText());
         assertEquals("en_attente_paiement", reopenedOrder.path("status").asText());
-        assertTrue(!containsOrder(getAuthorizedJson("/api/admin/orders", ownerToken), createdOrder.path("id").asText()));
+        assertTrue(!containsOrder(getAuthorizedJson("/api/admin/orders", ownerJwt), createdOrder.path("id").asText()));
 
         postStripeWebhook(checkoutCompletedPayload(createdOrder.path("id").asText(), "pi_retry_success"));
 
         JsonNode paidOrder = getJson("/api/public/orders/" + createdOrder.path("id").asText());
         assertEquals("nouvelle", paidOrder.path("status").asText());
-        JsonNode adminOrders = getAuthorizedJson("/api/admin/orders", ownerToken);
+        JsonNode adminOrders = getAuthorizedJson("/api/admin/orders", ownerJwt);
         JsonNode visibleOrder = findOrder(adminOrders, createdOrder.path("id").asText());
         assertTrue(visibleOrder != null);
         assertEquals("nouvelle", visibleOrder.path("status").asText());
@@ -143,10 +143,10 @@ class PaymentFlowSmokeTest extends AcceptanceTestBase {
     @Test
     void shouldApplyPaymentSettingsChangesToPublicCheckoutExploitability() throws Exception {
         restoreSeedDemoState();
-        String ownerToken = seedOwnerBearerToken();
+        String ownerJwt = seedOwnerJwt();
         JsonNode createdOrder = createSeedDemoOrder();
 
-        JsonNode clearedRestaurant = putAuthorizedJson("/api/admin/restaurant", ownerToken, """
+        JsonNode clearedRestaurant = putAuthorizedJson("/api/admin/restaurant", ownerJwt, """
                 {
                   "paymentProviderAccountId": "   "
                 }
@@ -162,7 +162,7 @@ class PaymentFlowSmokeTest extends AcceptanceTestBase {
                 "Ce restaurant n'a pas configuré les paiements en ligne",
                 checkoutBlocked.path("message").asText());
 
-        JsonNode restoredRestaurant = putAuthorizedJson("/api/admin/restaurant", ownerToken, """
+        JsonNode restoredRestaurant = putAuthorizedJson("/api/admin/restaurant", ownerJwt, """
                 {
                   "paymentProviderAccountId": "acct_reconfigured_test"
                 }

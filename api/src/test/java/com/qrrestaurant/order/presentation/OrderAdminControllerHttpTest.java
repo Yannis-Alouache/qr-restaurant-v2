@@ -1,4 +1,5 @@
 package com.qrrestaurant.order.presentation;
+import jakarta.servlet.http.Cookie;
 
 import com.qrrestaurant.auth.infrastructure.security.JwtService;
 import com.qrrestaurant.support.AbstractPostgresIntegrationTest;
@@ -56,7 +57,7 @@ class OrderAdminControllerHttpTest extends AbstractPostgresIntegrationTest {
                 new BigDecimal("12.00"));
 
         mockMvc.perform(get("/api/admin/orders")
-                        .header("Authorization", ownerBearerToken()))
+                        .cookie(new Cookie("jwt", ownerJwt())))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].tableNumber").value(1))
                 .andExpect(jsonPath("$[0].tableId").doesNotExist());
@@ -78,7 +79,7 @@ class OrderAdminControllerHttpTest extends AbstractPostgresIntegrationTest {
                 null);
 
         mockMvc.perform(patch("/api/admin/orders/{id}/status", orderId)
-                        .header("Authorization", ownerBearerToken())
+                        .cookie(new Cookie("jwt", ownerJwt()))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -89,7 +90,7 @@ class OrderAdminControllerHttpTest extends AbstractPostgresIntegrationTest {
                 .andExpect(jsonPath("$.message").value("Paiement non confirmé pour cette commande"));
     }
 
-    private String ownerBearerToken() {
-        return "Bearer " + jwtService.generateToken(OWNER_ID, "owner@test.com");
+    private String ownerJwt() {
+        return jwtService.generateToken(OWNER_ID, "owner@test.com");
     }
 }

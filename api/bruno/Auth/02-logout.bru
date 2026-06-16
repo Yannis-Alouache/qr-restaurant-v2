@@ -1,0 +1,28 @@
+meta {
+  name: Logout
+  type: http
+  seq: 3
+  tags: [
+    auth
+  ]
+}
+
+post {
+  url: {{baseUrl}}/api/auth/logout
+  body: none
+  auth: none
+}
+
+tests {
+  test("logout returns 204", function() {
+    expect(res.getStatus()).to.equal(204);
+  });
+
+  test("logout expires the jwt cookie", function() {
+    const setCookie = res.getHeader("Set-Cookie");
+
+    expect(setCookie).to.be.a("string");
+    expect(setCookie).to.include("jwt=");
+    expect(setCookie).to.include("Max-Age=0");
+  });
+}

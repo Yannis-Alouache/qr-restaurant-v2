@@ -1,4 +1,5 @@
 package com.qrrestaurant.restaurant.presentation;
+import jakarta.servlet.http.Cookie;
 
 import com.qrrestaurant.auth.infrastructure.security.JwtService;
 import com.qrrestaurant.support.AbstractPostgresIntegrationTest;
@@ -41,7 +42,7 @@ class RestaurantAdminControllerHttpTest extends AbstractPostgresIntegrationTest 
                 "encoded-password");
 
         mockMvc.perform(get("/api/admin/restaurant")
-                        .header("Authorization", bearerToken(userId, email)))
+                        .cookie(new Cookie("jwt", jwt(userId, email))))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value("Aucun restaurant trouvé"));
     }
@@ -65,7 +66,7 @@ class RestaurantAdminControllerHttpTest extends AbstractPostgresIntegrationTest 
                 """;
 
         mockMvc.perform(post("/api/admin/restaurants")
-                        .header("Authorization", bearerToken(userId, email))
+                        .cookie(new Cookie("jwt", jwt(userId, email)))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(payload))
                 .andExpect(status().isCreated())
@@ -74,7 +75,7 @@ class RestaurantAdminControllerHttpTest extends AbstractPostgresIntegrationTest 
                 .andExpect(jsonPath("$.tables.length()").value(4));
 
         mockMvc.perform(post("/api/admin/restaurants")
-                        .header("Authorization", bearerToken(userId, email))
+                        .cookie(new Cookie("jwt", jwt(userId, email)))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(payload))
                 .andExpect(status().isConflict())
@@ -103,7 +104,7 @@ class RestaurantAdminControllerHttpTest extends AbstractPostgresIntegrationTest 
                 """.formatted(logoPath);
 
         mockMvc.perform(post("/api/admin/restaurants")
-                        .header("Authorization", bearerToken(userId, email))
+                        .cookie(new Cookie("jwt", jwt(userId, email)))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(payload))
                 .andExpect(status().isCreated())
@@ -125,7 +126,7 @@ class RestaurantAdminControllerHttpTest extends AbstractPostgresIntegrationTest 
                 RESTAURANT_ID);
 
         mockMvc.perform(get("/api/admin/restaurant")
-                        .header("Authorization", bearerToken(OWNER_ID, "owner@test.com")))
+                        .cookie(new Cookie("jwt", jwt(OWNER_ID, "owner@test.com"))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(RESTAURANT_ID.toString()))
                 .andExpect(jsonPath("$.slug").value("naia-burger"))
@@ -136,7 +137,7 @@ class RestaurantAdminControllerHttpTest extends AbstractPostgresIntegrationTest 
     @Test
     void shouldKeepConfiguredClientBaseUrlWhenUpdatingRestaurantSettings() throws Exception {
         mockMvc.perform(put("/api/admin/restaurant")
-                        .header("Authorization", bearerToken(OWNER_ID, "owner@test.com"))
+                        .cookie(new Cookie("jwt", jwt(OWNER_ID, "owner@test.com")))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -157,7 +158,7 @@ class RestaurantAdminControllerHttpTest extends AbstractPostgresIntegrationTest 
     @Test
     void shouldAllowClearingPaymentConfigurationFromRestaurantSettings() throws Exception {
         mockMvc.perform(put("/api/admin/restaurant")
-                        .header("Authorization", bearerToken(OWNER_ID, "owner@test.com"))
+                        .cookie(new Cookie("jwt", jwt(OWNER_ID, "owner@test.com")))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -168,7 +169,7 @@ class RestaurantAdminControllerHttpTest extends AbstractPostgresIntegrationTest 
                 .andExpect(jsonPath("$.paymentProviderAccountId").isEmpty());
     }
 
-    private String bearerToken(UUID userId, String email) {
-        return "Bearer " + jwtService.generateToken(userId, email);
+    private String jwt(UUID userId, String email) {
+        return jwtService.generateToken(userId, email);
     }
 }

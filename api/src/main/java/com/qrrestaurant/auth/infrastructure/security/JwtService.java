@@ -54,4 +54,9 @@ public class JwtService implements TokenService {
             return false;
         }
     }
+
+    @Override
+    public long expirationMillis() {
+        return expirationMs;
+    }
 }

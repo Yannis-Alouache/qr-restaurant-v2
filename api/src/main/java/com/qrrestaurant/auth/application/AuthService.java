@@ -1,5 +1,5 @@
 package com.qrrestaurant.auth.application;
-import com.qrrestaurant.auth.application.dto.AuthResponse;
+import com.qrrestaurant.auth.application.dto.AuthResult;
 
 import com.qrrestaurant.auth.domain.PasswordPolicy;
 import com.qrrestaurant.auth.domain.TokenService;
@@ -34,7 +34,7 @@ public class AuthService {
         this.passwordPolicy = passwordPolicy;
     }
 
-    public AuthResponse signup(String email, String password) {
+    public AuthResult signup(String email, String password) {
         passwordPolicy.validate(password);
         if (userRepository.existsByEmail(email)) {
             throw new EmailAlreadyRegisteredException();
@@ -45,11 +45,10 @@ public class AuthService {
         user.setPassword(passwordEncoder.encode(password));
         User saved = userRepository.save(user);
 
-        String token = tokenService.generateToken(saved.getId(), saved.getEmail());
-        return new AuthResponse(token, saved.getId().toString());
+        return issue(saved);
     }
 
-    public AuthResponse login(String email, String password) {
+    public AuthResult login(String email, String password) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(InvalidCredentialsException::new);
 
@@ -57,8 +56,12 @@ public class AuthService {
             throw new InvalidCredentialsException();
         }
 
+        return issue(user);
+    }
+
+    private AuthResult issue(User user) {
         String token = tokenService.generateToken(user.getId(), user.getEmail());
-        return new AuthResponse(token, user.getId().toString());
+        return new AuthResult(token, user.getId().toString(), tokenService.expirationMillis() / 1000);
     }
 
     public static class EmailAlreadyRegisteredException extends RuntimeException {

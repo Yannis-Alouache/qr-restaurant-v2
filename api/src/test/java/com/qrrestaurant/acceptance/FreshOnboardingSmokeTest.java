@@ -14,8 +14,8 @@ class FreshOnboardingSmokeTest extends AcceptanceTestBase {
 
     @Test
     void shouldSupportOwnerToCustomerCriticalJourneyWithCurrentContracts() throws Exception {
-        String ownerToken = signUpAndLogin("phase8-smoke");
-        RestaurantSetup setup = onboardRestaurantWithMenu(ownerToken, "Smoke Bistro");
+        String ownerJwt = signUpAndLogin("phase8-smoke");
+        RestaurantSetup setup = onboardRestaurantWithMenu(ownerJwt, "Smoke Bistro");
 
         JsonNode publicMenu = getJson("/api/public/menu/" + setup.slug);
         assertEquals(setup.slug, publicMenu.path("restaurant").path("slug").asText());
@@ -64,13 +64,13 @@ class FreshOnboardingSmokeTest extends AcceptanceTestBase {
 
     @Test
     void shouldLetANewlyOnboardedOwnerConfigurePaymentsAndReachPublicCheckout() throws Exception {
-        String ownerToken = signUpAndLogin("phase8-payment");
-        RestaurantSetup setup = onboardRestaurantWithMenu(ownerToken, "Payment Ready Bistro");
+        String ownerJwt = signUpAndLogin("phase8-payment");
+        RestaurantSetup setup = onboardRestaurantWithMenu(ownerJwt, "Payment Ready Bistro");
 
-        JsonNode restaurantBeforeConfig = getAuthorizedJson("/api/admin/restaurant", ownerToken);
+        JsonNode restaurantBeforeConfig = getAuthorizedJson("/api/admin/restaurant", ownerJwt);
         assertTrue(restaurantBeforeConfig.path("paymentProviderAccountId").isNull());
 
-        JsonNode restaurantAfterConfig = putAuthorizedJson("/api/admin/restaurant", ownerToken, """
+        JsonNode restaurantAfterConfig = putAuthorizedJson("/api/admin/restaurant", ownerJwt, """
                 {
                   "paymentProviderAccountId": "acct_onboarded_smoke"
                 }
@@ -121,10 +121,10 @@ class FreshOnboardingSmokeTest extends AcceptanceTestBase {
 
     @Test
     void shouldLetANewlyOnboardedOwnerReachServedStatusAfterConfiguringPayments() throws Exception {
-        String ownerToken = signUpAndLogin("phase8-served");
-        RestaurantSetup setup = onboardRestaurantWithMenu(ownerToken, "Served Journey Bistro");
+        String ownerJwt = signUpAndLogin("phase8-served");
+        RestaurantSetup setup = onboardRestaurantWithMenu(ownerJwt, "Served Journey Bistro");
 
-        putAuthorizedJson("/api/admin/restaurant", ownerToken, """
+        putAuthorizedJson("/api/admin/restaurant", ownerJwt, """
                 {
                   "paymentProviderAccountId": "acct_onboarded_served"
                 }
@@ -172,19 +172,19 @@ class FreshOnboardingSmokeTest extends AcceptanceTestBase {
 
         postStripeWebhook(checkoutCompletedPayload(createdOrder.path("id").asText(), "pi_onboarded_served"));
 
-        JsonNode adminOrders = getAuthorizedJson("/api/admin/orders", ownerToken);
+        JsonNode adminOrders = getAuthorizedJson("/api/admin/orders", ownerJwt);
         JsonNode paidOrder = findOrder(adminOrders, createdOrder.path("id").asText());
         assertTrue(paidOrder != null);
         assertEquals("nouvelle", paidOrder.path("status").asText());
 
         String orderPath = "/api/admin/orders/" + createdOrder.path("id").asText() + "/status";
-        patchAuthorizedStatus(orderPath, ownerToken, "en_preparation");
-        patchAuthorizedStatus(orderPath, ownerToken, "prete");
-        patchAuthorizedStatus(orderPath, ownerToken, "servie");
+        patchAuthorizedStatus(orderPath, ownerJwt, "en_preparation");
+        patchAuthorizedStatus(orderPath, ownerJwt, "prete");
+        patchAuthorizedStatus(orderPath, ownerJwt, "servie");
 
         JsonNode servedOrder = getJson("/api/public/orders/" + createdOrder.path("id").asText());
         assertEquals("servie", servedOrder.path("status").asText());
-        assertTrue(!containsOrder(getAuthorizedJson("/api/admin/orders", ownerToken), createdOrder.path("id").asText()));
+        assertTrue(!containsOrder(getAuthorizedJson("/api/admin/orders", ownerJwt), createdOrder.path("id").asText()));
     }
 
     // ── Setup helpers ─────────────────────────────────────────────────
@@ -205,18 +205,12 @@ class FreshOnboardingSmokeTest extends AcceptanceTestBase {
                   "password": "%s"
                 }
                 """.formatted(email, password), status().isCreated());
-        JsonNode login = postJson("/api/auth/login", """
-                {
-                  "email": "%s",
-                  "password": "%s"
-                }
-                """.formatted(email, password), status().isOk());
 
-        return "Bearer " + login.path("token").asText();
+        return loginJwt(email, password);
     }
 
-    private RestaurantSetup onboardRestaurantWithMenu(String ownerToken, String restaurantName) throws Exception {
-        JsonNode onboarding = postAuthorizedJson("/api/admin/restaurants", ownerToken, """
+    private RestaurantSetup onboardRestaurantWithMenu(String ownerJwt, String restaurantName) throws Exception {
+        JsonNode onboarding = postAuthorizedJson("/api/admin/restaurants", ownerJwt, """
                 {
                   "name": "%s",
                   "tableCount": 3,
@@ -226,14 +220,14 @@ class FreshOnboardingSmokeTest extends AcceptanceTestBase {
         String slug = onboarding.path("slug").asText();
         String tableId = onboarding.path("tables").get(0).path("id").asText();
 
-        String categoryId = postAuthorizedJson("/api/admin/categories", ownerToken, """
+        String categoryId = postAuthorizedJson("/api/admin/categories", ownerJwt, """
                 {
                   "name": "Burgers signature",
                   "hasMenu": true
                 }
                 """).path("id").asText();
 
-        String baseItemId = postAuthorizedJson("/api/admin/menu-items", ownerToken, """
+        String baseItemId = postAuthorizedJson("/api/admin/menu-items", ownerJwt, """
                 {
                   "categoryId": "%s",
                   "name": "Burger fumé",
@@ -242,7 +236,7 @@ class FreshOnboardingSmokeTest extends AcceptanceTestBase {
                 }
                 """.formatted(categoryId)).path("id").asText();
 
-        String variantId = postAuthorizedJson("/api/admin/menu-items", ownerToken, """
+        String variantId = postAuthorizedJson("/api/admin/menu-items", ownerJwt, """
                 {
                   "categoryId": "%s",
                   "name": "Menu Burger fumé",
@@ -251,7 +245,7 @@ class FreshOnboardingSmokeTest extends AcceptanceTestBase {
                 }
                 """.formatted(categoryId, baseItemId)).path("id").asText();
 
-        String sideItemId = postAuthorizedJson("/api/admin/menu-items", ownerToken, """
+        String sideItemId = postAuthorizedJson("/api/admin/menu-items", ownerJwt, """
                 {
                   "categoryId": "%s",
                   "name": "Potatoes maison",
@@ -259,7 +253,7 @@ class FreshOnboardingSmokeTest extends AcceptanceTestBase {
                 }
                 """.formatted(categoryId)).path("id").asText();
 
-        String drinkItemId = postAuthorizedJson("/api/admin/menu-items", ownerToken, """
+        String drinkItemId = postAuthorizedJson("/api/admin/menu-items", ownerJwt, """
                 {
                   "categoryId": "%s",
                   "name": "Thé glacé",
@@ -267,14 +261,14 @@ class FreshOnboardingSmokeTest extends AcceptanceTestBase {
                 }
                 """.formatted(categoryId)).path("id").asText();
 
-        postAuthorizedJson("/api/admin/compositions", ownerToken, """
+        postAuthorizedJson("/api/admin/compositions", ownerJwt, """
                 {
                   "compositionType": "accompagnement",
                   "menuItemId": "%s",
                   "supplementPrice": 0
                 }
                 """.formatted(sideItemId));
-        postAuthorizedJson("/api/admin/compositions", ownerToken, """
+        postAuthorizedJson("/api/admin/compositions", ownerJwt, """
                 {
                   "compositionType": "boisson",
                   "menuItemId": "%s",

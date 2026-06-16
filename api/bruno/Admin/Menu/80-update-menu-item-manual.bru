@@ -11,15 +11,10 @@ meta {
 put {
   url: {{baseUrl}}/api/admin/menu-items/{{dessertItemId}}
   body: json
-  auth: bearer
 }
 
 headers {
   Content-Type: application/json
-}
-
-auth:bearer {
-  token: {{adminToken}}
 }
 
 body:json {

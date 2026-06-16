@@ -11,11 +11,6 @@ meta {
 post {
   url: {{baseUrl}}/api/admin/images/{{imageBucket}}
   body: multipart-form
-  auth: bearer
-}
-
-auth:bearer {
-  token: {{adminToken}}
 }
 
 body:multipart-form {

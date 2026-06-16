@@ -24,27 +24,23 @@ body:json {
   }
 }
 
-script:post-response {
-  const status = res.getStatus();
-  const body = res.getBody();
-
-  if (status === 201 && body && body.token) {
-    bru.setEnvVar("adminToken", body.token);
-  }
-}
-
 tests {
   test("signup returns created or conflict on rerun", function() {
     expect([201, 409]).to.include(res.getStatus());
   });
 
-  test("signup returns auth payload or rerun message", function() {
+  test("signup issues an httpOnly jwt cookie and no token in body", function() {
     const status = res.getStatus();
     const body = res.getBody();
 
     if (status === 201) {
-      expect(body.token).to.be.a("string");
       expect(body.userId).to.be.a("string");
+      expect(body.token).to.be.undefined;
+
+      const setCookie = res.getHeader("Set-Cookie");
+      expect(setCookie).to.be.a("string");
+      expect(setCookie).to.include("jwt=");
+      expect(setCookie).to.include("HttpOnly");
     } else {
       expect(body.message).to.equal("Cette adresse email est déjà enregistrée");
     }

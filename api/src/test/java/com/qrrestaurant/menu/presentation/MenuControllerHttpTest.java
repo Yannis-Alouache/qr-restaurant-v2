@@ -1,4 +1,5 @@
 package com.qrrestaurant.menu.presentation;
+import jakarta.servlet.http.Cookie;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -42,7 +43,7 @@ class MenuControllerHttpTest extends AbstractPostgresIntegrationTest {
     @Test
     void shouldHideUnavailableItemsAndInvalidCompositionsFromPublicMenu() throws Exception {
         mockMvc.perform(patch("/api/admin/menu-items/{id}/availability", BROWNIE_ID)
-                        .header("Authorization", ownerBearerToken())
+                        .cookie(new Cookie("jwt", ownerJwt()))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -52,7 +53,7 @@ class MenuControllerHttpTest extends AbstractPostgresIntegrationTest {
                 .andExpect(status().isNoContent());
 
         mockMvc.perform(patch("/api/admin/menu-items/{id}/availability", FRIES_ID)
-                        .header("Authorization", ownerBearerToken())
+                        .cookie(new Cookie("jwt", ownerJwt()))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -81,7 +82,7 @@ class MenuControllerHttpTest extends AbstractPostgresIntegrationTest {
                 email,
                 "encoded-password");
 
-        String token = bearerToken(userId, email);
+        String token = jwt(userId, email);
         JsonNode restaurant = postJson("/api/admin/restaurants", token, """
                 {
                   "name": "Bistro Phase Trois",
@@ -168,9 +169,9 @@ class MenuControllerHttpTest extends AbstractPostgresIntegrationTest {
         return objectMapper.readTree(result.getResponse().getContentAsString());
     }
 
-    private JsonNode postJson(String path, String token, String payload) throws Exception {
+    private JsonNode postJson(String path, String jwt, String payload) throws Exception {
         MvcResult result = mockMvc.perform(post(path)
-                        .header("Authorization", token)
+                        .cookie(new Cookie("jwt", jwt))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(payload))
                 .andExpect(status().isCreated())
@@ -191,11 +192,11 @@ class MenuControllerHttpTest extends AbstractPostgresIntegrationTest {
                 .toList();
     }
 
-    private String ownerBearerToken() {
-        return bearerToken(OWNER_ID, "owner@test.com");
+    private String ownerJwt() {
+        return jwt(OWNER_ID, "owner@test.com");
     }
 
-    private String bearerToken(UUID userId, String email) {
-        return "Bearer " + jwtService.generateToken(userId, email);
+    private String jwt(UUID userId, String email) {
+        return jwtService.generateToken(userId, email);
     }
 }

@@ -38,6 +38,9 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            // CSRF désactivé : l'authentification repose désormais sur le cookie httpOnly
+            // "jwt" (SameSite=Lax), qui bloque les requêtes cross-site modifiant l'état.
+            // Une stratégie CSRF explicite (token dédié) reste à trancher (issue #4 / ADR).
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth

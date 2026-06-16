@@ -25,23 +25,20 @@ body:json {
   }
 }
 
-script:post-response {
-  const body = res.getBody();
-
-  if (res.getStatus() === 200 && body && body.token) {
-    bru.setEnvVar("adminToken", body.token);
-  }
-}
-
 tests {
   test("login returns 200", function() {
     expect(res.getStatus()).to.equal(200);
   });
 
-  test("login returns token and userId", function() {
+  test("login issues an httpOnly jwt cookie and returns userId without token", function() {
     const body = res.getBody();
 
-    expect(body.token).to.be.a("string");
     expect(body.userId).to.be.a("string");
+    expect(body.token).to.be.undefined;
+
+    const setCookie = res.getHeader("Set-Cookie");
+    expect(setCookie).to.be.a("string");
+    expect(setCookie).to.include("jwt=");
+    expect(setCookie).to.include("HttpOnly");
   });
 }

@@ -1,5 +1,5 @@
 package com.qrrestaurant.auth.application;
-import com.qrrestaurant.auth.application.dto.AuthResponse;
+import com.qrrestaurant.auth.application.dto.AuthResult;
 
 import com.qrrestaurant.auth.domain.User;
 import com.qrrestaurant.auth.infrastructure.token.DeterministicTokenService;
@@ -23,13 +23,20 @@ class AuthServiceTest {
     }
 
     @Test
-    void shouldSignupWithEncodedPasswordAndGeneratedToken() {
-        AuthResponse response = authService.signup("chef@example.com", "Secret123!");
+    void shouldSignupWithEncodedPasswordAndIssuedToken() {
+        AuthResult result = authService.signup("chef@example.com", "Secret123!");
         User savedUser = userRepository.findByEmail("chef@example.com").orElseThrow();
 
-        assertEquals(savedUser.getId().toString(), response.userId());
+        assertEquals(savedUser.getId().toString(), result.userId());
         assertEquals("encoded::Secret123!", savedUser.getPassword());
-        assertEquals("token:%s:chef@example.com".formatted(savedUser.getId()), response.token());
+        assertEquals("token:%s:chef@example.com".formatted(savedUser.getId()), result.token());
+    }
+
+    @Test
+    void shouldAlignCookieExpirationOnTokenExpiration() {
+        AuthResult result = authService.signup("chef@example.com", "Secret123!");
+
+        assertEquals(new DeterministicTokenService().expirationMillis() / 1000, result.expiresInSeconds());
     }
 
     @Test
@@ -42,12 +49,12 @@ class AuthServiceTest {
 
     @Test
     void shouldLoginWhenCredentialsMatchStoredPassword() {
-        AuthResponse signupResponse = authService.signup("chef@example.com", "Secret123!");
+        AuthResult signupResult = authService.signup("chef@example.com", "Secret123!");
 
-        AuthResponse loginResponse = authService.login("chef@example.com", "Secret123!");
+        AuthResult loginResult = authService.login("chef@example.com", "Secret123!");
 
-        assertEquals(signupResponse.userId(), loginResponse.userId());
-        assertEquals(signupResponse.token(), loginResponse.token());
+        assertEquals(signupResult.userId(), loginResult.userId());
+        assertEquals(signupResult.token(), loginResult.token());
     }
 
     @Test

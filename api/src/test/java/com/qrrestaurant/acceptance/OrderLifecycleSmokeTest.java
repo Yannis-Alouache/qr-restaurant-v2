@@ -12,7 +12,7 @@ class OrderLifecycleSmokeTest extends AcceptanceTestBase {
     @Test
     void shouldKeepThePaidOrderTrackablePubliclyUntilServedWhileRemovingItFromAdminActiveBoard() throws Exception {
         restoreSeedDemoState();
-        String ownerToken = seedOwnerBearerToken();
+        String ownerJwt = seedOwnerJwt();
 
         JsonNode createdOrder = createSeedDemoOrder();
         postJson("/api/public/payments/checkout", """
@@ -24,19 +24,19 @@ class OrderLifecycleSmokeTest extends AcceptanceTestBase {
 
         String orderStatusPath = "/api/admin/orders/" + createdOrder.path("id").asText() + "/status";
 
-        patchAuthorizedStatus(orderStatusPath, ownerToken, "en_preparation");
+        patchAuthorizedStatus(orderStatusPath, ownerJwt, "en_preparation");
         JsonNode preparingOrder = getJson("/api/public/orders/" + createdOrder.path("id").asText());
         assertEquals("en_preparation", preparingOrder.path("status").asText());
 
-        patchAuthorizedStatus(orderStatusPath, ownerToken, "prete");
+        patchAuthorizedStatus(orderStatusPath, ownerJwt, "prete");
         JsonNode readyOrder = getJson("/api/public/orders/" + createdOrder.path("id").asText());
         assertEquals("prete", readyOrder.path("status").asText());
 
-        patchAuthorizedStatus(orderStatusPath, ownerToken, "servie");
+        patchAuthorizedStatus(orderStatusPath, ownerJwt, "servie");
         JsonNode servedOrder = getJson("/api/public/orders/" + createdOrder.path("id").asText());
         assertEquals("servie", servedOrder.path("status").asText());
 
-        JsonNode adminOrders = getAuthorizedJson("/api/admin/orders", ownerToken);
+        JsonNode adminOrders = getAuthorizedJson("/api/admin/orders", ownerJwt);
         assertTrue(!containsOrder(adminOrders, createdOrder.path("id").asText()));
     }
 }

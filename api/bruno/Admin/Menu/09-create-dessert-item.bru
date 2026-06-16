@@ -11,15 +11,10 @@ meta {
 post {
   url: {{baseUrl}}/api/admin/menu-items
   body: json
-  auth: bearer
 }
 
 headers {
   Content-Type: application/json
-}
-
-auth:bearer {
-  token: {{adminToken}}
 }
 
 body:json {

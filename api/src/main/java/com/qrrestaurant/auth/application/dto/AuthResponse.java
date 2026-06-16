@@ -1,3 +1,7 @@
 package com.qrrestaurant.auth.application.dto;
 
-public record AuthResponse(String token, String userId) {}
+/**
+ * Charge utile renvoyée au client après authentification. Le JWT n'y figure
+ * jamais : il voyage exclusivement dans un cookie httpOnly (cf. issue #4).
+ */
+public record AuthResponse(String userId) {}

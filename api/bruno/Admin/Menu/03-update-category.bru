@@ -10,15 +10,10 @@ meta {
 put {
   url: {{baseUrl}}/api/admin/categories/{{categoryId}}
   body: json
-  auth: bearer
 }
 
 headers {
   Content-Type: application/json
-}
-
-auth:bearer {
-  token: {{adminToken}}
 }
 
 body:json {

@@ -7,7 +7,6 @@ import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class SeedDataValidationSmokeTest extends AcceptanceTestBase {
 
@@ -15,15 +14,9 @@ class SeedDataValidationSmokeTest extends AcceptanceTestBase {
     void shouldKeepSeededDevelopmentDataUsableForDemoJourney() throws Exception {
         restoreSeedDemoState();
 
-        JsonNode login = postJson("/api/auth/login", """
-                {
-                  "email": "owner@test.com",
-                  "password": "Secret123!"
-                }
-                """, status().isOk());
-        String ownerToken = "Bearer " + login.path("token").asText();
+        String ownerJwt = seedOwnerJwt();
 
-        JsonNode restaurant = getAuthorizedJson("/api/admin/restaurant", ownerToken);
+        JsonNode restaurant = getAuthorizedJson("/api/admin/restaurant", ownerJwt);
         assertEquals("Naia Burger", restaurant.path("name").asText());
         assertEquals("naia-burger", restaurant.path("slug").asText());
         assertEquals("acct_seed_test", restaurant.path("paymentProviderAccountId").asText());
