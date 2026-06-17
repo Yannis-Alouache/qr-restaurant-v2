@@ -66,7 +66,7 @@ public class RateLimitingFilter extends OncePerRequestFilter {
             response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             objectMapper.writeValue(response.getWriter(),
-                    new ApiErrorResponse("Trop de requêtes, veuillez réessayer plus tard", HttpStatus.TOO_MANY_REQUESTS.value()));
+                    new ApiErrorResponse(HttpStatus.TOO_MANY_REQUESTS.value(), "Trop de requêtes, veuillez réessayer plus tard"));
             return;
         }
 

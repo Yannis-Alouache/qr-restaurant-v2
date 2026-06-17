@@ -31,6 +31,18 @@ class GlobalExceptionHandlerTest {
                 .andExpect(jsonPath("$.message").value("Commande déjà traitée: " + OrderStatus.nouvelle));
     }
 
+    @Test
+    void shouldExposeOnlyStatusCodeAndMessageInErrorResponse() throws Exception {
+        mockMvc.perform(get("/test/conflict"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.statusCode").value(409))
+                .andExpect(jsonPath("$.message").value("Commande déjà traitée: " + OrderStatus.nouvelle))
+                .andExpect(jsonPath("$.timestamp").doesNotExist())
+                .andExpect(jsonPath("$.error").doesNotExist())
+                .andExpect(jsonPath("$.status").doesNotExist())
+                .andExpect(jsonPath("$.details").doesNotExist());
+    }
+
     @RestController
     static class ThrowingController {
         @GetMapping("/test/conflict")
