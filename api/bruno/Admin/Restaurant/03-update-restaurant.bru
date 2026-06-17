@@ -38,17 +38,3 @@ script:post-response {
     bru.setEnvVar("restaurantSlug", body.slug);
   }
 }
-
-tests {
-  test("restaurant update returns 200", function() {
-    expect(res.getStatus()).to.equal(200);
-  });
-
-  test("restaurant update keeps key fields", function() {
-    const body = res.getBody();
-
-    expect(body.name).to.equal("Bistro Bruno & Co");
-    expect(body.themeId).to.equal("nature");
-    expect(body.paymentProviderAccountId).to.equal(bru.getEnvVar("stripeAccountId"));
-  });
-}

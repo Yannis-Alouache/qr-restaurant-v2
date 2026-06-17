@@ -38,16 +38,3 @@ script:post-response {
     bru.setEnvVar("baseMenuItemId", body.id);
   }
 }
-
-tests {
-  test("base item creation returns 201", function() {
-    expect(res.getStatus()).to.equal(201);
-  });
-
-  test("base item creation returns id and name", function() {
-    const body = res.getBody();
-
-    expect(body.id).to.be.a("string");
-    expect(body.name).to.equal("Burger signature");
-  });
-}

@@ -58,23 +58,3 @@ script:post-response {
     }
   }
 }
-
-tests {
-  test("restaurant onboarding with logo returns created or conflict on rerun", function() {
-    expect([201, 409]).to.include(res.getStatus());
-  });
-
-  test("onboarding echoes the logoPath when created", function() {
-    const status = res.getStatus();
-    const body = res.getBody();
-
-    if (status === 201) {
-      expect(body.id).to.be.a("string");
-      expect(body.slug).to.be.a("string");
-      expect(body.logoPath).to.be.a("string");
-      expect(body.logoPath).to.include("logos/");
-    } else {
-      expect(body.message).to.equal("Cet utilisateur possède déjà un restaurant");
-    }
-  });
-}

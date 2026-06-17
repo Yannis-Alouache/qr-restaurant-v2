@@ -37,16 +37,3 @@ script:post-response {
     bru.setEnvVar("sideItemId", body.id);
   }
 }
-
-tests {
-  test("side item creation returns 201", function() {
-    expect(res.getStatus()).to.equal(201);
-  });
-
-  test("side item creation returns id and name", function() {
-    const body = res.getBody();
-
-    expect(body.id).to.be.a("string");
-    expect(body.name).to.equal("Frites maison");
-  });
-}

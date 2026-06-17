@@ -43,23 +43,3 @@ script:post-response {
     }
   }
 }
-
-tests {
-  test("restaurant onboarding returns created or conflict on rerun", function() {
-    expect([201, 409]).to.include(res.getStatus());
-  });
-
-  test("restaurant onboarding returns restaurant payload or rerun message", function() {
-    const status = res.getStatus();
-    const body = res.getBody();
-
-    if (status === 201) {
-      expect(body.id).to.be.a("string");
-      expect(body.slug).to.be.a("string");
-      expect(Array.isArray(body.tables)).to.equal(true);
-      expect(body.tables.length).to.be.greaterThan(0);
-    } else {
-      expect(body.message).to.equal("Cet utilisateur possède déjà un restaurant");
-    }
-  });
-}

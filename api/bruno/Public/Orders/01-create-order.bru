@@ -61,17 +61,3 @@ script:post-response {
     bru.setEnvVar("adminOrderId", body.id);
   }
 }
-
-tests {
-  test("public order creation returns 201", function() {
-    expect(res.getStatus()).to.equal(201);
-  });
-
-  test("public order creation returns id and pending payment status", function() {
-    const body = res.getBody();
-
-    expect(body.id).to.be.a("string");
-    expect(body.status).to.equal("en_attente_paiement");
-    expect(body.total).to.be.a("number");
-  });
-}

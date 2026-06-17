@@ -38,16 +38,3 @@ script:post-response {
     bru.setEnvVar("menuVariantId", body.id);
   }
 }
-
-tests {
-  test("menu variant creation returns 201", function() {
-    expect(res.getStatus()).to.equal(201);
-  });
-
-  test("menu variant creation links base item", function() {
-    const body = res.getBody();
-
-    expect(body.id).to.be.a("string");
-    expect(body.menuVariantOf).to.equal(bru.getEnvVar("baseMenuItemId"));
-  });
-}

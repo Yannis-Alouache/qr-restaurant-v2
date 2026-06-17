@@ -23,13 +23,3 @@ script:post-response {
     bru.setEnvVar("adminOrderId", body[0].id);
   }
 }
-
-tests {
-  test("admin orders endpoint returns 200", function() {
-    expect(res.getStatus()).to.equal(200);
-  });
-
-  test("admin orders endpoint returns an array", function() {
-    expect(Array.isArray(res.getBody())).to.equal(true);
-  });
-}

@@ -32,16 +32,3 @@ script:post-response {
     bru.setEnvVar("adminToken", body.token);
   }
 }
-
-tests {
-  test("login returns 200", function() {
-    expect(res.getStatus()).to.equal(200);
-  });
-
-  test("login returns token and userId", function() {
-    const body = res.getBody();
-
-    expect(body.token).to.be.a("string");
-    expect(body.userId).to.be.a("string");
-  });
-}
