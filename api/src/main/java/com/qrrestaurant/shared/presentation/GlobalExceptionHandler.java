@@ -22,9 +22,6 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -133,13 +130,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiErrorResponse> handleValidation(MethodArgumentNotValidException ex) {
-        Map<String, String> details = new LinkedHashMap<>();
-        for (FieldError error : ex.getBindingResult().getFieldErrors()) {
-            details.put(error.getField(), error.getDefaultMessage());
-        }
-
-        String message = details.values().stream().findFirst().orElse("Requête invalide");
-        return respond(HttpStatus.BAD_REQUEST, message, details);
+        String message = ex.getBindingResult().getFieldErrors().stream()
+                .map(FieldError::getDefaultMessage)
+                .findFirst()
+                .orElse("Requête invalide");
+        return respond(HttpStatus.BAD_REQUEST, message);
     }
 
     @ExceptionHandler(MissingRequestHeaderException.class)
@@ -166,10 +161,6 @@ public class GlobalExceptionHandler {
     }
 
     private ResponseEntity<ApiErrorResponse> respond(HttpStatus status, String message) {
-        return ResponseEntity.status(status).body(new ApiErrorResponse(message, status.value()));
-    }
-
-    private ResponseEntity<ApiErrorResponse> respond(HttpStatus status, String message, Map<String, String> details) {
-        return ResponseEntity.status(status).body(new ApiErrorResponse(message, status.value(), details));
+        return ResponseEntity.status(status).body(new ApiErrorResponse(status.value(), message));
     }
 }
