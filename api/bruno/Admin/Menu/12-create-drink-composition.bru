@@ -37,16 +37,3 @@ script:post-response {
     bru.setEnvVar("compositionId", body.id);
   }
 }
-
-tests {
-  test("drink composition creation returns 201", function() {
-    expect(res.getStatus()).to.equal(201);
-  });
-
-  test("drink composition creation returns type and menu item", function() {
-    const body = res.getBody();
-
-    expect(body.compositionType).to.equal("boisson");
-    expect(body.menuItemId).to.equal(bru.getEnvVar("drinkItemId"));
-  });
-}

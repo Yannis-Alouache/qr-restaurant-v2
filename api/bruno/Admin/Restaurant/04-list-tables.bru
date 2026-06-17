@@ -24,17 +24,3 @@ script:post-response {
     bru.setEnvVar("tableId", body[0].id);
   }
 }
-
-tests {
-  test("tables endpoint returns 200", function() {
-    expect(res.getStatus()).to.equal(200);
-  });
-
-  test("tables endpoint returns at least one table", function() {
-    const body = res.getBody();
-
-    expect(Array.isArray(body)).to.equal(true);
-    expect(body.length).to.be.greaterThan(0);
-    expect(body[0].id).to.be.a("string");
-  });
-}

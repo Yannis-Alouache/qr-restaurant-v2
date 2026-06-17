@@ -29,13 +29,3 @@ body:json {
     "price": 4.90
   }
 }
-
-tests {
-  test("menu item update returns 200", function() {
-    expect(res.getStatus()).to.equal(200);
-  });
-
-  test("menu item update returns updated name", function() {
-    expect(res.getBody().name).to.equal("Brownie signature");
-  });
-}

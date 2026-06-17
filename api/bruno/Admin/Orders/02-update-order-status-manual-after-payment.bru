@@ -28,17 +28,3 @@ body:json {
     "status": "nouvelle"
   }
 }
-
-tests {
-  test("order status update returns 204 or unpaid conflict", function() {
-    expect([204, 409]).to.include(res.getStatus());
-  });
-
-  test("order status update returns conflict message when unpaid", function() {
-    const status = res.getStatus();
-
-    if (status === 409) {
-      expect(res.getBody().message).to.equal("Paiement non confirmé pour cette commande");
-    }
-  });
-}

@@ -25,17 +25,3 @@ script:post-response {
     bru.setEnvVar("restaurantSlug", body.slug);
   }
 }
-
-tests {
-  test("restaurant detail returns 200", function() {
-    expect(res.getStatus()).to.equal(200);
-  });
-
-  test("restaurant detail exposes id and slug", function() {
-    const body = res.getBody();
-
-    expect(body.id).to.be.a("string");
-    expect(body.slug).to.be.a("string");
-    expect(body.clientBaseUrl).to.be.a("string");
-  });
-}

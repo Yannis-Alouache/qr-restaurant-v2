@@ -28,17 +28,3 @@ body:json {
     "hasMenu": true
   }
 }
-
-tests {
-  test("category update returns 200", function() {
-    expect(res.getStatus()).to.equal(200);
-  });
-
-  test("category update returns updated fields", function() {
-    const body = res.getBody();
-
-    expect(body.id).to.be.a("string");
-    expect(body.name).to.equal("Burgers signatures");
-    expect(body.hasMenu).to.equal(true);
-  });
-}

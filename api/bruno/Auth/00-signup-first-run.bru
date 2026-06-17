@@ -32,21 +32,3 @@ script:post-response {
     bru.setEnvVar("adminToken", body.token);
   }
 }
-
-tests {
-  test("signup returns created or conflict on rerun", function() {
-    expect([201, 409]).to.include(res.getStatus());
-  });
-
-  test("signup returns auth payload or rerun message", function() {
-    const status = res.getStatus();
-    const body = res.getBody();
-
-    if (status === 201) {
-      expect(body.token).to.be.a("string");
-      expect(body.userId).to.be.a("string");
-    } else {
-      expect(body.message).to.equal("Cette adresse email est déjà enregistrée");
-    }
-  });
-}

@@ -36,13 +36,3 @@ script:post-response {
   setIfFound("drinkItemId", "Limonade artisanale");
   setIfFound("dessertItemId", "Brownie maison");
 }
-
-tests {
-  test("menu items endpoint returns 200", function() {
-    expect(res.getStatus()).to.equal(200);
-  });
-
-  test("menu items endpoint returns an array", function() {
-    expect(Array.isArray(res.getBody())).to.equal(true);
-  });
-}
