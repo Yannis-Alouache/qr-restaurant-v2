@@ -55,7 +55,7 @@ class CreateOrderUseCaseIntegrationTest {
         restaurant.setSlug("naia-burger");
         restaurantRepository.save(restaurant);
 
-        tableRepository.save(new RestaurantTable(tableId, restaurantId, 1));
+        tableRepository.save(RestaurantTable.from(tableId, restaurantId, 1));
         categoryRepository.save(new Category(categoryId, restaurantId, "Menus", null, 0, true));
 
         UUID burgerMenuId = UUID.randomUUID();

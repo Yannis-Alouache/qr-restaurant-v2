@@ -54,9 +54,7 @@ public class OnboardingUseCase {
 
         List<OnboardingResponse.TableView> tables = new ArrayList<>();
         for (int i = 1; i <= tableCount; i++) {
-            RestaurantTable table = new RestaurantTable();
-            table.setRestaurantId(saved.getId());
-            table.setNumber(i);
+            RestaurantTable table = RestaurantTable.create(saved.getId(), i);
             RestaurantTable savedTable = tableRepository.save(table);
             tables.add(new OnboardingResponse.TableView(savedTable.getId(), i));
         }
