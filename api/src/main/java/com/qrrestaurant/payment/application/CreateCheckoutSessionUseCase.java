@@ -61,7 +61,7 @@ public class CreateCheckoutSessionUseCase {
         try {
             orderItemRepository.saveAll(repriced.items());
             if (repriced.total().compareTo(order.getTotal()) != 0) {
-                order.setTotal(repriced.total());
+                order.updateTotal(repriced.total());
                 orderRepository.save(order);
             }
         } catch (DataAccessException ex) {

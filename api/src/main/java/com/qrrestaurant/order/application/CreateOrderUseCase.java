@@ -44,10 +44,7 @@ public class CreateOrderUseCase {
 
         OrderPricingService.PricingResult pricing = orderPricingService.priceNewOrder(restaurant.getId(), items);
 
-        Order order = new Order();
-        order.setRestaurantId(restaurant.getId());
-        order.setTableId(tableId);
-        order.setTotal(pricing.total());
+        Order order = Order.create(restaurant.getId(), tableId, pricing.total());
         Order savedOrder = orderRepository.save(order);
 
         for (OrderItem item : pricing.items()) {

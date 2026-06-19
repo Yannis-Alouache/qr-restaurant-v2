@@ -88,7 +88,7 @@ class CreateCheckoutSessionUseCaseIntegrationTest {
         orderItemRepository.saveAll(tamperedItems);
 
         Order tamperedOrder = orderRepository.findById(orderId).orElseThrow();
-        tamperedOrder.setTotal(new BigDecimal("299.97"));
+        tamperedOrder.updateTotal(new BigDecimal("299.97"));
         orderRepository.save(tamperedOrder);
 
         CreateCheckoutSessionUseCase.CheckoutSessionResponse response = createCheckoutSessionUseCase.execute(orderId);

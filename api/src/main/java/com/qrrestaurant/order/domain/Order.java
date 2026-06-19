@@ -2,22 +2,21 @@ package com.qrrestaurant.order.domain;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Objects;
 import java.util.UUID;
 
 public class Order {
 
-    private UUID id;
-    private UUID restaurantId;
-    private UUID tableId;
-    private OrderStatus status = OrderStatus.en_attente_paiement;
+    private final UUID id;
+    private final UUID restaurantId;
+    private final UUID tableId;
+    private OrderStatus status;
     private BigDecimal total;
     private String paymentTransactionId;
-    private Instant createdAt;
+    private final Instant createdAt;
 
-    public Order() {}
-
-    public Order(UUID id, UUID restaurantId, UUID tableId, OrderStatus status,
-                 BigDecimal total, String paymentTransactionId, Instant createdAt) {
+    private Order(UUID id, UUID restaurantId, UUID tableId, OrderStatus status,
+                  BigDecimal total, String paymentTransactionId, Instant createdAt) {
         this.id = id;
         this.restaurantId = restaurantId;
         this.tableId = tableId;
@@ -25,6 +24,23 @@ public class Order {
         this.total = total;
         this.paymentTransactionId = paymentTransactionId;
         this.createdAt = createdAt;
+    }
+
+    public static Order create(UUID restaurantId, UUID tableId, BigDecimal total) {
+        Objects.requireNonNull(restaurantId, "restaurantId");
+        Objects.requireNonNull(tableId, "tableId");
+        Objects.requireNonNull(total, "total");
+        return new Order(UUID.randomUUID(), restaurantId, tableId, OrderStatus.en_attente_paiement,
+                total, null, Instant.now());
+    }
+
+    public static Order from(UUID id, UUID restaurantId, UUID tableId, OrderStatus status,
+                             BigDecimal total, String paymentTransactionId, Instant createdAt) {
+        return new Order(id, restaurantId, tableId, status, total, paymentTransactionId, createdAt);
+    }
+
+    public void updateTotal(BigDecimal total) {
+        this.total = total;
     }
 
     public void transitionTo(OrderStatus target) {
@@ -63,25 +79,12 @@ public class Order {
     }
 
     public UUID getId() { return id; }
-    public void setId(UUID id) { this.id = id; }
-
     public UUID getRestaurantId() { return restaurantId; }
-    public void setRestaurantId(UUID restaurantId) { this.restaurantId = restaurantId; }
-
     public UUID getTableId() { return tableId; }
-    public void setTableId(UUID tableId) { this.tableId = tableId; }
-
     public OrderStatus getStatus() { return status; }
-    public void setStatus(OrderStatus status) { this.status = status; }
-
     public BigDecimal getTotal() { return total; }
-    public void setTotal(BigDecimal total) { this.total = total; }
-
     public String getPaymentTransactionId() { return paymentTransactionId; }
-    public void setPaymentTransactionId(String paymentTransactionId) { this.paymentTransactionId = paymentTransactionId; }
-
     public Instant getCreatedAt() { return createdAt; }
-    public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
 
     public static class InvalidStatusTransitionException extends RuntimeException {
         public InvalidStatusTransitionException(OrderStatus from, OrderStatus to) {

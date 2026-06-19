@@ -25,11 +25,8 @@ class OrderPersistenceIntegrationTest extends AbstractPostgresIntegrationTest {
 
     @Test
     void shouldPersistAndReloadOrdersAndOrderItemsWithPostgres() {
-        Order order = new Order();
-        order.setRestaurantId(RESTAURANT_ID);
-        order.setTableId(TABLE_1_ID);
-        order.setStatus(OrderStatus.nouvelle);
-        order.setTotal(new BigDecimal("14.90"));
+        Order order = Order.from(null, RESTAURANT_ID, TABLE_1_ID, OrderStatus.nouvelle,
+                new BigDecimal("14.90"), null, null);
         Order savedOrder = orderRepository.save(order);
 
         OrderItem brownie = OrderItem.create(BROWNIE_ID, "Brownie maison", 2, new BigDecimal("4.50"), null, null);

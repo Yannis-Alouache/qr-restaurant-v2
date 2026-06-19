@@ -26,10 +26,7 @@ class HandleWebhookUseCaseIntegrationTest {
                 orderRepository,
                 new OrderEventPublisher(new SimpMessagingTemplate(messageChannel)));
 
-        Order order = new Order();
-        order.setRestaurantId(restaurantId);
-        order.setTableId(UUID.randomUUID());
-        order.setTotal(new BigDecimal("10.40"));
+        Order order = Order.create(restaurantId, UUID.randomUUID(), new BigDecimal("10.40"));
         Order savedOrder = orderRepository.save(order);
 
         handleWebhookUseCase.handleCheckoutCompleted(savedOrder.getId().toString(), "pi_123456");
@@ -54,10 +51,7 @@ class HandleWebhookUseCaseIntegrationTest {
                 orderRepository,
                 new OrderEventPublisher(new SimpMessagingTemplate(messageChannel)));
 
-        Order order = new Order();
-        order.setRestaurantId(restaurantId);
-        order.setTableId(UUID.randomUUID());
-        order.setTotal(new BigDecimal("10.40"));
+        Order order = Order.create(restaurantId, UUID.randomUUID(), new BigDecimal("10.40"));
         Order savedOrder = orderRepository.save(order);
 
         handleWebhookUseCase.handleCheckoutExpired(savedOrder.getId().toString());
