@@ -1,63 +1,50 @@
 # Engineering Standards
 
-Always write code as a senior software engineer. Follow SOLID, clean architecture, TDD, and clean code principles for every task. Detailed references are in `.claude/rules/`.
+Write code like a senior engineer who respects this codebase: calibrate process to task size, favor simplicity, match existing patterns over imposing theory.
 
-**Tradeoff:** These guidelines bias toward caution over speed. For trivial tasks, use judgment.
+## Calibrate process to task size
 
-## 1. Think Before Coding
+Don't apply heavy ceremony to light work.
 
-- State assumptions explicitly. If uncertain, ask.
-- If multiple interpretations exist, present them — don't pick silently.
-- If a simpler approach exists, say so. Push back when warranted.
-- If something is unclear, stop. Name what's confusing. Ask.
+| Task | Process |
+|------|---------|
+| **Trivial** (typo, rename, constant, formatting, pure log/text) | Just do it. Run the relevant existing tests. No new test, no refactor. |
+| **Bug / behavior change** | Write a failing test that reproduces it, then fix. |
+| **New feature / non-trivial logic** | Full TDD (red → green → refactor). |
+| **Refactor** | Behavior unchanged. Tests green before and after. |
 
-## 2. Simplicity First
+Open a deep-reference doc only when the task actually needs it — not by default.
 
-- No features beyond what was asked. No abstractions for single-use code.
-- No "flexibility" or "configurability" that wasn't requested.
-- No error handling for impossible scenarios.
-- If you write 200 lines and it could be 50, rewrite it.
+## Core principles (always apply)
 
-## 3. Boy Scout Rule
+- **Read before write.** Understand existing code and patterns first; match them.
+- **Simplicity first.** No features, abstractions, or "flexibility" beyond what was asked. If 50 lines replace 200, rewrite.
+- **Be explicit.** State assumptions. When ambiguous, ask or present options instead of guessing silently. Push back when a simpler approach exists.
+- **Boy scout, in proportion.** Leave code better than you found it, scaled to the task. Remove only the orphans *your* changes create — not pre-existing dead code.
+- **Make it verifiable.** Turn the task into a check: "add validation" → invalid-input tests pass; "fix bug" → reproducing test passes. For multi-step work, state a short plan with a verify step each.
 
-> "Leave the code better than you found it."
+> A little duplication is 10× better than the wrong abstraction. Wait for the rule of three before extracting.
 
-Every time you touch code:
-- Improve one small thing
-- Fix one naming issue
-- Extract one method
-- Add one missing test
+## Project map
 
-When your changes create orphans, remove imports/variables/functions that YOUR changes made unused. Don't remove pre-existing dead code unless asked.
+Monorepo `qr-restaurant-v2` — three apps + supporting dirs.
 
-## 4. Goal-Driven Execution
+| Path | Stack | Notes |
+|------|-------|-------|
+| `admin/` | Angular 21 + Tailwind | Admin panel. UI rules: `admin/DESIGN.ADMIN.md` |
+| `client/` | Angular 21 + Tailwind | Customer-facing. UI rules: `client/DESIGN.CLIENT.{THEME}.md` (current theme: `CHAUD`) |
+| `api/` | Spring Boot 3 + Java 21 (Maven) | REST + WebSocket/STOMP, Security (JWT), JPA, Validation, PostgreSQL, Flyway migrations, Stripe. API requests: `api/bruno/` |
+| `e2e/` | Playwright | Config: `playwright.config.ts` |
+| `docker/` | Docker | Local infra |
 
-Transform tasks into verifiable goals:
-- "Add validation" → "Write tests for invalid inputs, then make them pass"
-- "Fix the bug" → "Write a test that reproduces it, then make it pass"
-- "Refactor X" → "Ensure tests pass before and after"
+**Commands:** `npm run reset-db` · `npm run test:e2e` / `test:e2e:headed` (root) · per app: `npm test` / `npm start` (`admin/`, `client/`), `mvn test` / `mvn spring-boot:run` (`api/`).
 
-For multi-step tasks, state a brief plan:
-```
-1. [Step] → verify: [check]
-2. [Step] → verify: [check]
-```
+**UI rule:** admin work → read `admin/DESIGN.ADMIN.md` first; client work → read `client/DESIGN.CLIENT.{THEME}.md` first.
 
-## Technical Principles
+## Deep references (read on demand — not loaded automatically)
 
-All details, examples, and code snippets in `.claude/rules/`:
+Open the relevant doc(s) only when doing that kind of work:
 
-- **TDD**: Red-Green-Refactor. No production code without a failing test. Rule of Three before extracting.
-- **SOLID**: SRP, OCP, LSP, ISP, DIP — see `solid-principles.md`
-- **Clean Code**: naming conventions, object calisthenics, structure rules — see `clean-code.md`
-- **Architecture**: vertical slicing, horizontal layers, dependency rule — see `architecture.md`
-- **Testing**: pyramid (unit > integration > e2e), AAA pattern — see `testing.md`
-- **Design patterns**: use only when they emerge from refactoring — see `design-patterns.md`
-
-> "A little bit of duplication is 10x better than the wrong abstraction."
-
-## Design Principles 
-
-For the UI of the admin panel you should use the design principle located in `admin/DESIGN.ADMIN.md`
-
-For the UI of the client side of the application you should use the design principle located in `client/DESIGN.CLIENT.{THEME}.md`
+- **Writing code / design:** `docs/standards/solid-principles.md`, `clean-code.md`, `object-design.md`, `code-smells.md`, `complexity.md`
+- **Testing:** `docs/standards/tdd.md`, `testing.md`
+- **Architecture & patterns:** `docs/standards/architecture.md`, `design-patterns.md`
