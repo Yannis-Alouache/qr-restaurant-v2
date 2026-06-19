@@ -1,5 +1,5 @@
 package com.qrrestaurant.auth.application;
-import com.qrrestaurant.auth.application.dto.AuthResponse;
+import com.qrrestaurant.auth.application.dto.AuthSession;
 
 import com.qrrestaurant.auth.domain.User;
 import com.qrrestaurant.auth.infrastructure.token.DeterministicTokenService;
@@ -24,7 +24,7 @@ class AuthServiceTest {
 
     @Test
     void shouldSignupWithEncodedPasswordAndGeneratedToken() {
-        AuthResponse response = authService.signup("chef@example.com", "Secret123!");
+        AuthSession response = authService.signup("chef@example.com", "Secret123!");
         User savedUser = userRepository.findByEmail("chef@example.com").orElseThrow();
 
         assertEquals(savedUser.getId().toString(), response.userId());
@@ -42,9 +42,9 @@ class AuthServiceTest {
 
     @Test
     void shouldLoginWhenCredentialsMatchStoredPassword() {
-        AuthResponse signupResponse = authService.signup("chef@example.com", "Secret123!");
+        AuthSession signupResponse = authService.signup("chef@example.com", "Secret123!");
 
-        AuthResponse loginResponse = authService.login("chef@example.com", "Secret123!");
+        AuthSession loginResponse = authService.login("chef@example.com", "Secret123!");
 
         assertEquals(signupResponse.userId(), loginResponse.userId());
         assertEquals(signupResponse.token(), loginResponse.token());

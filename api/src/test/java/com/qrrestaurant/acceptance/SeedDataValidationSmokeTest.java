@@ -1,6 +1,7 @@
 package com.qrrestaurant.acceptance;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -15,13 +16,7 @@ class SeedDataValidationSmokeTest extends AcceptanceTestBase {
     void shouldKeepSeededDevelopmentDataUsableForDemoJourney() throws Exception {
         restoreSeedDemoState();
 
-        JsonNode login = postJson("/api/auth/login", """
-                {
-                  "email": "owner@test.com",
-                  "password": "Secret123!"
-                }
-                """, status().isOk());
-        String ownerToken = "Bearer " + login.path("token").asText();
+        Cookie ownerToken = loginJwtCookie("owner@test.com", "Secret123!");
 
         JsonNode restaurant = getAuthorizedJson("/api/admin/restaurant", ownerToken);
         assertEquals("Naia Burger", restaurant.path("name").asText());

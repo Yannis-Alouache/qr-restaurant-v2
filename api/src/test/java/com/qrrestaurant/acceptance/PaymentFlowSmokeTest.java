@@ -1,6 +1,7 @@
 package com.qrrestaurant.acceptance;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -60,7 +61,7 @@ class PaymentFlowSmokeTest extends AcceptanceTestBase {
     @Test
     void shouldExposeTheSeededOrderToAdminOnlyAfterPaymentIsConfirmed() throws Exception {
         restoreSeedDemoState();
-        String ownerToken = seedOwnerBearerToken();
+        Cookie ownerToken = seedOwnerJwtCookie();
 
         JsonNode createdOrder = createSeedDemoOrder();
 
@@ -102,7 +103,7 @@ class PaymentFlowSmokeTest extends AcceptanceTestBase {
     @Test
     void shouldAllowRetryingAStripeExpiredPaymentUntilTheOrderBecomesExploitableAgain() throws Exception {
         restoreSeedDemoState();
-        String ownerToken = seedOwnerBearerToken();
+        Cookie ownerToken = seedOwnerJwtCookie();
 
         JsonNode createdOrder = createSeedDemoOrder();
         postJson("/api/public/payments/checkout", """
@@ -143,7 +144,7 @@ class PaymentFlowSmokeTest extends AcceptanceTestBase {
     @Test
     void shouldApplyPaymentSettingsChangesToPublicCheckoutExploitability() throws Exception {
         restoreSeedDemoState();
-        String ownerToken = seedOwnerBearerToken();
+        Cookie ownerToken = seedOwnerJwtCookie();
         JsonNode createdOrder = createSeedDemoOrder();
 
         JsonNode clearedRestaurant = putAuthorizedJson("/api/admin/restaurant", ownerToken, """

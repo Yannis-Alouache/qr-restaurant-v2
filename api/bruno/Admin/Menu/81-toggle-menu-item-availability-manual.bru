@@ -11,16 +11,13 @@ meta {
 patch {
   url: {{baseUrl}}/api/admin/menu-items/{{baseMenuItemId}}/availability
   body: json
-  auth: bearer
+  auth: none
 }
 
 headers {
   Content-Type: application/json
 }
 
-auth:bearer {
-  token: {{adminToken}}
-}
 
 body:json {
   {

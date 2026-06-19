@@ -23,12 +23,3 @@ body:json {
     "password": "{{adminPassword}}"
   }
 }
-
-script:post-response {
-  const status = res.getStatus();
-  const body = res.getBody();
-
-  if (status === 201 && body && body.token) {
-    bru.setEnvVar("adminToken", body.token);
-  }
-}

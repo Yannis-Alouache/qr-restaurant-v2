@@ -44,6 +44,9 @@ storage:
 jwt:
   secret: ${JWT_SECRET:dGhpcy1pcy1hLWRldmVsb3BtZW50LWp3dC1zZWNyZXQta2V5LWZvci1xci1yZXN0YXVyYW50LXYy}
   expiration: 86400000
+  cookie:
+    secure: ${JWT_COOKIE_SECURE:false} # true en production (HTTPS uniquement)
+    same-site: Lax
 
 app:
   client-base-url: ${CLIENT_BASE_URL:http://localhost:4300}

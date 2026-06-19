@@ -1,6 +1,7 @@
 package com.qrrestaurant.acceptance;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -12,7 +13,7 @@ class OrderLifecycleSmokeTest extends AcceptanceTestBase {
     @Test
     void shouldKeepThePaidOrderTrackablePubliclyUntilServedWhileRemovingItFromAdminActiveBoard() throws Exception {
         restoreSeedDemoState();
-        String ownerToken = seedOwnerBearerToken();
+        Cookie ownerToken = seedOwnerJwtCookie();
 
         JsonNode createdOrder = createSeedDemoOrder();
         postJson("/api/public/payments/checkout", """
