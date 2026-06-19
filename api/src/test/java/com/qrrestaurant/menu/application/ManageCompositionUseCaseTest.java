@@ -59,7 +59,7 @@ class ManageCompositionUseCaseTest {
         InMemoryMenuCompositionRepository compositionRepository = new InMemoryMenuCompositionRepository();
 
         restaurantRepository.save(restaurant(ownerId, restaurantId));
-        MenuComposition foreignComposition = compositionRepository.save(new MenuComposition(
+        MenuComposition foreignComposition = compositionRepository.save(MenuComposition.from(
                 UUID.randomUUID(),
                 otherRestaurantId,
                 MenuComposition.CompositionType.accompagnement,

@@ -230,6 +230,6 @@ class OrderPricingPolicyTest {
     }
 
     private MenuComposition composition(MenuComposition.CompositionType type, UUID menuItemId, BigDecimal supplementPrice) {
-        return new MenuComposition(UUID.randomUUID(), restaurantId, type, menuItemId, supplementPrice);
+        return MenuComposition.from(UUID.randomUUID(), restaurantId, type, menuItemId, supplementPrice);
     }
 }

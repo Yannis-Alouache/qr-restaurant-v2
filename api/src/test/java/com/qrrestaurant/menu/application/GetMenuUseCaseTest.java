@@ -39,16 +39,16 @@ class GetMenuUseCaseTest {
         MenuItem menuVariantDrink = menuItemRepository.save(new MenuItem(
                 UUID.randomUUID(), sidesCategoryId, "Menu Coca-Cola", null, new BigDecimal("3.00"), null, true, burgerId));
 
-        compositionRepository.save(new MenuComposition(
+        compositionRepository.save(MenuComposition.from(
                 UUID.randomUUID(), restaurantId, MenuComposition.CompositionType.accompagnement,
                 availableFries.getId(), BigDecimal.ZERO));
-        compositionRepository.save(new MenuComposition(
+        compositionRepository.save(MenuComposition.from(
                 UUID.randomUUID(), restaurantId, MenuComposition.CompositionType.accompagnement,
                 unavailableSalad.getId(), new BigDecimal("1.00")));
-        compositionRepository.save(new MenuComposition(
+        compositionRepository.save(MenuComposition.from(
                 UUID.randomUUID(), restaurantId, MenuComposition.CompositionType.accompagnement,
                 UUID.randomUUID(), new BigDecimal("2.00")));
-        compositionRepository.save(new MenuComposition(
+        compositionRepository.save(MenuComposition.from(
                 UUID.randomUUID(), restaurantId, MenuComposition.CompositionType.boisson,
                 menuVariantDrink.getId(), BigDecimal.ZERO));
 

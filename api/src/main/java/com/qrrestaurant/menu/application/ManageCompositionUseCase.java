@@ -37,11 +37,11 @@ public class ManageCompositionUseCase {
     public CompositionView create(UUID userId, String compositionType, UUID menuItemId, BigDecimal supplementPrice) {
         Restaurant restaurant = getRestaurantByOwner(userId);
         validateMenuItemOwnership(menuItemId, restaurant);
-        MenuComposition composition = new MenuComposition();
-        composition.setRestaurantId(restaurant.getId());
-        composition.setCompositionType(MenuComposition.CompositionType.valueOf(compositionType));
-        composition.setMenuItemId(menuItemId);
-        composition.setSupplementPrice(supplementPrice != null ? supplementPrice : BigDecimal.ZERO);
+        MenuComposition composition = MenuComposition.create(
+                restaurant.getId(),
+                MenuComposition.CompositionType.valueOf(compositionType),
+                menuItemId,
+                supplementPrice);
         MenuComposition saved = compositionRepository.save(composition);
         return toView(saved);
     }

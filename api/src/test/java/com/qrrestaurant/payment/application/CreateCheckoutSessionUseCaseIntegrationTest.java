@@ -71,9 +71,9 @@ class CreateCheckoutSessionUseCaseIntegrationTest {
                 new BigDecimal("4.00"), null, true, null));
         menuItemRepository.save(new MenuItem(cokeId, categoryId, "Coca", null,
                 new BigDecimal("2.50"), null, true, null));
-        compositionRepository.save(new MenuComposition(UUID.randomUUID(), restaurantId,
+        compositionRepository.save(MenuComposition.from(UUID.randomUUID(), restaurantId,
                 MenuComposition.CompositionType.accompagnement, nuggetsId, new BigDecimal("1.50")));
-        compositionRepository.save(new MenuComposition(UUID.randomUUID(), restaurantId,
+        compositionRepository.save(MenuComposition.from(UUID.randomUUID(), restaurantId,
                 MenuComposition.CompositionType.boisson, cokeId, BigDecimal.ZERO));
 
         CreateOrderUseCase.OrderResponse orderResponse = createOrderUseCase.execute("naia-burger", tableId, List.of(

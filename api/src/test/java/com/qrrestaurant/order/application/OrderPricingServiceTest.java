@@ -50,9 +50,9 @@ class OrderPricingServiceTest {
         menuItemRepository.save(fries);
         menuItemRepository.save(drink);
         categoryRepository.save(category);
-        menuCompositionRepository.save(new MenuComposition(UUID.randomUUID(), restaurantId,
+        menuCompositionRepository.save(MenuComposition.from(UUID.randomUUID(), restaurantId,
                 MenuComposition.CompositionType.accompagnement, fries.getId(), new BigDecimal("0.50")));
-        menuCompositionRepository.save(new MenuComposition(UUID.randomUUID(), restaurantId,
+        menuCompositionRepository.save(MenuComposition.from(UUID.randomUUID(), restaurantId,
                 MenuComposition.CompositionType.boisson, drink.getId(), BigDecimal.ZERO));
 
         OrderPricingService.PricingResult result = orderPricingService.priceNewOrder(restaurantId, List.of(
@@ -84,9 +84,9 @@ class OrderPricingServiceTest {
         menuItemRepository.save(menuMain);
         menuItemRepository.save(nuggets);
         menuItemRepository.save(drink);
-        menuCompositionRepository.save(new MenuComposition(UUID.randomUUID(), restaurantId,
+        menuCompositionRepository.save(MenuComposition.from(UUID.randomUUID(), restaurantId,
                 MenuComposition.CompositionType.accompagnement, nuggets.getId(), new BigDecimal("1.50")));
-        menuCompositionRepository.save(new MenuComposition(UUID.randomUUID(), restaurantId,
+        menuCompositionRepository.save(MenuComposition.from(UUID.randomUUID(), restaurantId,
                 MenuComposition.CompositionType.boisson, drink.getId(), BigDecimal.ZERO));
 
         OrderItem mainItem = OrderItem.from(UUID.randomUUID(), UUID.randomUUID(), menuMain.getId(),

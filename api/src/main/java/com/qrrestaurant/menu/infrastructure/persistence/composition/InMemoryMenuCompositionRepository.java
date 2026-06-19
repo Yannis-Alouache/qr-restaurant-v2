@@ -13,8 +13,8 @@ public class InMemoryMenuCompositionRepository implements MenuCompositionReposit
 
     @Override
     public MenuComposition save(MenuComposition composition) {
-        UUID id = composition.getId() != null ? composition.getId() : UUID.randomUUID();
-        MenuComposition saved = new MenuComposition(id, composition.getRestaurantId(), composition.getCompositionType(),
+        UUID id = composition.getId();
+        MenuComposition saved = MenuComposition.from(id, composition.getRestaurantId(), composition.getCompositionType(),
                 composition.getMenuItemId(), composition.getSupplementPrice());
         compositions.put(id, saved);
         return copy(saved);
@@ -43,7 +43,7 @@ public class InMemoryMenuCompositionRepository implements MenuCompositionReposit
     }
 
     private MenuComposition copy(MenuComposition composition) {
-        return new MenuComposition(composition.getId(), composition.getRestaurantId(), composition.getCompositionType(),
+        return MenuComposition.from(composition.getId(), composition.getRestaurantId(), composition.getCompositionType(),
                 composition.getMenuItemId(), composition.getSupplementPrice());
     }
 }

@@ -40,7 +40,7 @@ public class MenuCompositionRepositoryAdapter implements MenuCompositionReposito
     }
 
     private MenuComposition toDomain(MenuCompositionJpaEntity e) {
-        return new MenuComposition(e.getId(), e.getRestaurantId(),
+        return MenuComposition.from(e.getId(), e.getRestaurantId(),
                 MenuComposition.CompositionType.valueOf(e.getCompositionType()),
                 e.getMenuItemId(), e.getSupplementPrice());
     }
