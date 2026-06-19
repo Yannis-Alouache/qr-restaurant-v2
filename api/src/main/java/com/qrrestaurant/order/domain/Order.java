@@ -30,8 +30,8 @@ public class Order {
         Objects.requireNonNull(restaurantId, "restaurantId");
         Objects.requireNonNull(tableId, "tableId");
         Objects.requireNonNull(total, "total");
-        return new Order(UUID.randomUUID(), restaurantId, tableId, OrderStatus.en_attente_paiement,
-                total, null, Instant.now());
+        return new Order(null, restaurantId, tableId, OrderStatus.en_attente_paiement,
+                total, null, null);
     }
 
     public static Order from(UUID id, UUID restaurantId, UUID tableId, OrderStatus status,

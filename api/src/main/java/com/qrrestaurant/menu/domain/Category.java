@@ -24,7 +24,7 @@ public class Category {
     public static Category create(UUID restaurantId, String name, String imagePath, Integer position, boolean hasMenu) {
         Objects.requireNonNull(restaurantId, "restaurantId");
         Objects.requireNonNull(name, "name");
-        return new Category(UUID.randomUUID(), restaurantId, name, imagePath,
+        return new Category(null, restaurantId, name, imagePath,
                 position != null ? position : 0, hasMenu);
     }
 

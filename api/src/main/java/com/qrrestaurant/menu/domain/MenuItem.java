@@ -32,7 +32,7 @@ public class MenuItem {
         Objects.requireNonNull(categoryId, "categoryId");
         Objects.requireNonNull(name, "name");
         Objects.requireNonNull(price, "price");
-        return new MenuItem(UUID.randomUUID(), categoryId, name, normalizeDescription(description),
+        return new MenuItem(null, categoryId, name, normalizeDescription(description),
                 price, imagePath, true, menuVariantOf);
     }
 

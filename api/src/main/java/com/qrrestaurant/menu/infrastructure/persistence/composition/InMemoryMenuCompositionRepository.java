@@ -13,7 +13,7 @@ public class InMemoryMenuCompositionRepository implements MenuCompositionReposit
 
     @Override
     public MenuComposition save(MenuComposition composition) {
-        UUID id = composition.getId();
+        UUID id = composition.getId() != null ? composition.getId() : UUID.randomUUID();
         MenuComposition saved = MenuComposition.from(id, composition.getRestaurantId(), composition.getCompositionType(),
                 composition.getMenuItemId(), composition.getSupplementPrice());
         compositions.put(id, saved);

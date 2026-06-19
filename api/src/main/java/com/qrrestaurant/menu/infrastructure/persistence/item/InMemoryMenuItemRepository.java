@@ -14,7 +14,7 @@ public class InMemoryMenuItemRepository implements MenuItemRepository {
 
     @Override
     public MenuItem save(MenuItem item) {
-        UUID id = item.getId();
+        UUID id = item.getId() != null ? item.getId() : UUID.randomUUID();
         MenuItem saved = MenuItem.from(id, item.getCategoryId(), item.getName(), item.getDescription(),
                 item.getPrice(), item.getImagePath(), item.isAvailable(), item.getMenuVariantOf());
         items.put(id, saved);

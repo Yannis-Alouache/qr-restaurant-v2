@@ -33,8 +33,8 @@ public class Restaurant {
         Objects.requireNonNull(userId, "userId");
         Objects.requireNonNull(name, "name");
         Objects.requireNonNull(slug, "slug");
-        return new Restaurant(UUID.randomUUID(), userId, name, slug, null, logoPath,
-                RestaurantTheme.normalizeOrDefault(themeId), null, LocalDateTime.now());
+        return new Restaurant(null, userId, name, slug, null, logoPath,
+                RestaurantTheme.normalizeOrDefault(themeId), null, null);
     }
 
     public static Restaurant from(UUID id, UUID userId, String name, String slug, String address,

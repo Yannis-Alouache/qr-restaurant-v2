@@ -32,7 +32,7 @@ public class OrderItem {
         Objects.requireNonNull(menuItemId, "menuItemId");
         Objects.requireNonNull(name, "name");
         Objects.requireNonNull(unitPrice, "unitPrice");
-        return new OrderItem(UUID.randomUUID(), null, menuItemId, name, quantity, unitPrice, menuGroupId, menuRole);
+        return new OrderItem(null, null, menuItemId, name, quantity, unitPrice, menuGroupId, menuRole);
     }
 
     public static OrderItem from(UUID id, UUID orderId, UUID menuItemId, String name,

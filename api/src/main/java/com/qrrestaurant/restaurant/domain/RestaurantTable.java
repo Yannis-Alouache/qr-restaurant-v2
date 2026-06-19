@@ -17,7 +17,7 @@ public class RestaurantTable {
 
     public static RestaurantTable create(UUID restaurantId, Integer number) {
         Objects.requireNonNull(restaurantId, "restaurantId");
-        return new RestaurantTable(UUID.randomUUID(), restaurantId, number);
+        return new RestaurantTable(null, restaurantId, number);
     }
 
     public static RestaurantTable from(UUID id, UUID restaurantId, Integer number) {

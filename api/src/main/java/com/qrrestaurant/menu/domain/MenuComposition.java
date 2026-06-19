@@ -31,7 +31,7 @@ public class MenuComposition {
         Objects.requireNonNull(compositionType, "compositionType");
         Objects.requireNonNull(menuItemId, "menuItemId");
         BigDecimal price = supplementPrice != null ? supplementPrice : BigDecimal.ZERO;
-        return new MenuComposition(UUID.randomUUID(), restaurantId, compositionType, menuItemId, price);
+        return new MenuComposition(null, restaurantId, compositionType, menuItemId, price);
     }
 
     public static MenuComposition from(UUID id, UUID restaurantId, CompositionType compositionType,

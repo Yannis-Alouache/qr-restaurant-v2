@@ -18,8 +18,9 @@ public class InMemoryOrderItemRepository implements OrderItemRepository {
         List<OrderItem> saved = new ArrayList<>();
 
         for (OrderItem item : items) {
-            UUID id = item.getId();
-            OrderItem stored = copy(item);
+            UUID id = item.getId() != null ? item.getId() : UUID.randomUUID();
+            OrderItem stored = OrderItem.from(id, item.getOrderId(), item.getMenuItemId(), item.getName(),
+                    item.getQuantity(), item.getUnitPrice(), item.getMenuGroupId(), item.getMenuRole());
 
             itemsById.put(id, stored);
             itemIdsByOrderId.computeIfAbsent(stored.getOrderId(), ignored -> new ArrayList<>());

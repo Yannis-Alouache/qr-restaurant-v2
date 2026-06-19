@@ -15,7 +15,7 @@ public class InMemoryCategoryRepository implements CategoryRepository {
 
     @Override
     public Category save(Category category) {
-        UUID id = category.getId();
+        UUID id = category.getId() != null ? category.getId() : UUID.randomUUID();
         Category saved = Category.from(id, category.getRestaurantId(), category.getName(), category.getImagePath(),
                 category.getPosition(), category.isHasMenu());
         categories.put(id, saved);

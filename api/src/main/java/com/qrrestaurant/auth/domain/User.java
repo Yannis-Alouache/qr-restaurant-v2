@@ -21,7 +21,7 @@ public class User {
     public static User create(String email, String password) {
         Objects.requireNonNull(email, "email");
         Objects.requireNonNull(password, "password");
-        return new User(UUID.randomUUID(), email, password, LocalDateTime.now());
+        return new User(null, email, password, null);
     }
 
     public static User from(UUID id, String email, String password, LocalDateTime createdAt) {
