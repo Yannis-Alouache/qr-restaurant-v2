@@ -15,7 +15,7 @@ public class InMemoryRestaurantTableRepository implements RestaurantTableReposit
     @Override
     public RestaurantTable save(RestaurantTable table) {
         UUID id = table.getId() != null ? table.getId() : UUID.randomUUID();
-        RestaurantTable saved = new RestaurantTable(id, table.getRestaurantId(), table.getNumber());
+        RestaurantTable saved = RestaurantTable.from(id, table.getRestaurantId(), table.getNumber());
         tables.put(id, saved);
         return copy(saved);
     }
@@ -30,6 +30,6 @@ public class InMemoryRestaurantTableRepository implements RestaurantTableReposit
     }
 
     private RestaurantTable copy(RestaurantTable table) {
-        return new RestaurantTable(table.getId(), table.getRestaurantId(), table.getNumber());
+        return RestaurantTable.from(table.getId(), table.getRestaurantId(), table.getNumber());
     }
 }

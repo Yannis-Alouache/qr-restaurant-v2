@@ -16,7 +16,7 @@ public class InMemoryCategoryRepository implements CategoryRepository {
     @Override
     public Category save(Category category) {
         UUID id = category.getId() != null ? category.getId() : UUID.randomUUID();
-        Category saved = new Category(id, category.getRestaurantId(), category.getName(), category.getImagePath(),
+        Category saved = Category.from(id, category.getRestaurantId(), category.getName(), category.getImagePath(),
                 category.getPosition(), category.isHasMenu());
         categories.put(id, saved);
         return copy(saved);
@@ -42,7 +42,7 @@ public class InMemoryCategoryRepository implements CategoryRepository {
     }
 
     private Category copy(Category category) {
-        return new Category(category.getId(), category.getRestaurantId(), category.getName(), category.getImagePath(),
+        return Category.from(category.getId(), category.getRestaurantId(), category.getName(), category.getImagePath(),
                 category.getPosition(), category.isHasMenu());
     }
 }

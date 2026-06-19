@@ -30,25 +30,25 @@ class GetMenuUseCaseTest {
         InMemoryMenuCompositionRepository compositionRepository = new InMemoryMenuCompositionRepository();
 
         restaurantRepository.save(restaurant(restaurantId));
-        categoryRepository.save(new Category(sidesCategoryId, restaurantId, "Sides", null, 0, false));
+        categoryRepository.save(Category.from(sidesCategoryId, restaurantId, "Sides", null, 0, false));
 
-        MenuItem availableFries = menuItemRepository.save(new MenuItem(
+        MenuItem availableFries = menuItemRepository.save(MenuItem.from(
                 UUID.randomUUID(), sidesCategoryId, "Frites", null, new BigDecimal("3.50"), null, true, null));
-        MenuItem unavailableSalad = menuItemRepository.save(new MenuItem(
+        MenuItem unavailableSalad = menuItemRepository.save(MenuItem.from(
                 UUID.randomUUID(), sidesCategoryId, "Salade", null, new BigDecimal("4.00"), null, false, null));
-        MenuItem menuVariantDrink = menuItemRepository.save(new MenuItem(
+        MenuItem menuVariantDrink = menuItemRepository.save(MenuItem.from(
                 UUID.randomUUID(), sidesCategoryId, "Menu Coca-Cola", null, new BigDecimal("3.00"), null, true, burgerId));
 
-        compositionRepository.save(new MenuComposition(
+        compositionRepository.save(MenuComposition.from(
                 UUID.randomUUID(), restaurantId, MenuComposition.CompositionType.accompagnement,
                 availableFries.getId(), BigDecimal.ZERO));
-        compositionRepository.save(new MenuComposition(
+        compositionRepository.save(MenuComposition.from(
                 UUID.randomUUID(), restaurantId, MenuComposition.CompositionType.accompagnement,
                 unavailableSalad.getId(), new BigDecimal("1.00")));
-        compositionRepository.save(new MenuComposition(
+        compositionRepository.save(MenuComposition.from(
                 UUID.randomUUID(), restaurantId, MenuComposition.CompositionType.accompagnement,
                 UUID.randomUUID(), new BigDecimal("2.00")));
-        compositionRepository.save(new MenuComposition(
+        compositionRepository.save(MenuComposition.from(
                 UUID.randomUUID(), restaurantId, MenuComposition.CompositionType.boisson,
                 menuVariantDrink.getId(), BigDecimal.ZERO));
 
@@ -63,11 +63,6 @@ class GetMenuUseCaseTest {
     }
 
     private Restaurant restaurant(UUID restaurantId) {
-        Restaurant restaurant = new Restaurant();
-        restaurant.setId(restaurantId);
-        restaurant.setSlug("naia-burger");
-        restaurant.setName("Naia Burger");
-        restaurant.setThemeId("chaud");
-        return restaurant;
+        return Restaurant.from(restaurantId, null, "Naia Burger", "naia-burger", null, null, "chaud", null, null);
     }
 }

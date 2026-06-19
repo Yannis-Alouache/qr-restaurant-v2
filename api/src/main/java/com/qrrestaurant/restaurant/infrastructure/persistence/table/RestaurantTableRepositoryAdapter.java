@@ -30,7 +30,7 @@ public class RestaurantTableRepositoryAdapter implements RestaurantTableReposito
     }
 
     private RestaurantTable toDomain(RestaurantTableJpaEntity e) {
-        return new RestaurantTable(e.getId(), e.getRestaurantId(), e.getNumber());
+        return RestaurantTable.from(e.getId(), e.getRestaurantId(), e.getNumber());
     }
 
     private RestaurantTableJpaEntity toEntity(RestaurantTable d) {

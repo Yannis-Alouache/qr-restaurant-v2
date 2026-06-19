@@ -17,7 +17,7 @@ public class InMemoryUserRepository implements UserRepository {
         UUID id = user.getId() != null ? user.getId() : UUID.randomUUID();
         LocalDateTime createdAt = user.getCreatedAt() != null ? user.getCreatedAt() : LocalDateTime.now();
 
-        User saved = new User(id, user.getEmail(), user.getPassword(), createdAt);
+        User saved = User.from(id, user.getEmail(), user.getPassword(), createdAt);
         usersByEmail.put(saved.getEmail(), saved);
         return copy(saved);
     }
@@ -33,6 +33,6 @@ public class InMemoryUserRepository implements UserRepository {
     }
 
     private User copy(User user) {
-        return new User(user.getId(), user.getEmail(), user.getPassword(), user.getCreatedAt());
+        return User.from(user.getId(), user.getEmail(), user.getPassword(), user.getCreatedAt());
     }
 }

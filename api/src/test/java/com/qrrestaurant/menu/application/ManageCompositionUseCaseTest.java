@@ -31,8 +31,8 @@ class ManageCompositionUseCaseTest {
         InMemoryMenuCompositionRepository compositionRepository = new InMemoryMenuCompositionRepository();
 
         restaurantRepository.save(restaurant(ownerId, restaurantId));
-        categoryRepository.save(new Category(otherCategoryId, otherRestaurantId, "Sides", null, 0, false));
-        MenuItem foreignItem = menuItemRepository.save(new MenuItem(
+        categoryRepository.save(Category.from(otherCategoryId, otherRestaurantId, "Sides", null, 0, false));
+        MenuItem foreignItem = menuItemRepository.save(MenuItem.from(
                 UUID.randomUUID(), otherCategoryId, "Frites", null, new BigDecimal("3.00"), null, true, null));
 
         ManageCompositionUseCase useCase = new ManageCompositionUseCase(
@@ -59,7 +59,7 @@ class ManageCompositionUseCaseTest {
         InMemoryMenuCompositionRepository compositionRepository = new InMemoryMenuCompositionRepository();
 
         restaurantRepository.save(restaurant(ownerId, restaurantId));
-        MenuComposition foreignComposition = compositionRepository.save(new MenuComposition(
+        MenuComposition foreignComposition = compositionRepository.save(MenuComposition.from(
                 UUID.randomUUID(),
                 otherRestaurantId,
                 MenuComposition.CompositionType.accompagnement,
@@ -90,8 +90,8 @@ class ManageCompositionUseCaseTest {
         InMemoryMenuCompositionRepository compositionRepository = new InMemoryMenuCompositionRepository();
 
         restaurantRepository.save(restaurant(ownerId, restaurantId));
-        categoryRepository.save(new Category(categoryId, restaurantId, "Burgers", null, 0, true));
-        MenuItem menuVariant = menuItemRepository.save(new MenuItem(
+        categoryRepository.save(Category.from(categoryId, restaurantId, "Burgers", null, 0, true));
+        MenuItem menuVariant = menuItemRepository.save(MenuItem.from(
                 UUID.randomUUID(), categoryId, "Menu Burger", null, new BigDecimal("10.00"), null, true, baseItemId));
 
         ManageCompositionUseCase useCase = new ManageCompositionUseCase(
@@ -107,10 +107,6 @@ class ManageCompositionUseCaseTest {
     }
 
     private Restaurant restaurant(UUID ownerId, UUID restaurantId) {
-        Restaurant restaurant = new Restaurant();
-        restaurant.setId(restaurantId);
-        restaurant.setUserId(ownerId);
-        restaurant.setSlug("naia-burger");
-        return restaurant;
+        return Restaurant.from(restaurantId, ownerId, null, "naia-burger", null, null, "classique", null, null);
     }
 }

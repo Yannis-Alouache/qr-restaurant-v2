@@ -33,7 +33,7 @@ public class UserRepositoryAdapter implements UserRepository {
     }
 
     private User toDomain(UserJpaEntity e) {
-        return new User(e.getId(), e.getEmail(), e.getPassword(), e.getCreatedAt());
+        return User.from(e.getId(), e.getEmail(), e.getPassword(), e.getCreatedAt());
     }
 
     private UserJpaEntity toEntity(User d) {

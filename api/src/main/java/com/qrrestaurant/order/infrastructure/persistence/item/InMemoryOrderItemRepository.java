@@ -19,8 +19,8 @@ public class InMemoryOrderItemRepository implements OrderItemRepository {
 
         for (OrderItem item : items) {
             UUID id = item.getId() != null ? item.getId() : UUID.randomUUID();
-            OrderItem stored = copy(item);
-            stored.setId(id);
+            OrderItem stored = OrderItem.from(id, item.getOrderId(), item.getMenuItemId(), item.getName(),
+                    item.getQuantity(), item.getUnitPrice(), item.getMenuGroupId(), item.getMenuRole());
 
             itemsById.put(id, stored);
             itemIdsByOrderId.computeIfAbsent(stored.getOrderId(), ignored -> new ArrayList<>());
@@ -43,7 +43,7 @@ public class InMemoryOrderItemRepository implements OrderItemRepository {
     }
 
     private OrderItem copy(OrderItem item) {
-        return new OrderItem(item.getId(), item.getOrderId(), item.getMenuItemId(), item.getName(),
+        return OrderItem.from(item.getId(), item.getOrderId(), item.getMenuItemId(), item.getName(),
                 item.getQuantity(), item.getUnitPrice(), item.getMenuGroupId(), item.getMenuRole());
     }
 }

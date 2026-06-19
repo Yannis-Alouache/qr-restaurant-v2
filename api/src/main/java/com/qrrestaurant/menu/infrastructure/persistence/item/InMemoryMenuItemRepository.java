@@ -15,7 +15,7 @@ public class InMemoryMenuItemRepository implements MenuItemRepository {
     @Override
     public MenuItem save(MenuItem item) {
         UUID id = item.getId() != null ? item.getId() : UUID.randomUUID();
-        MenuItem saved = new MenuItem(id, item.getCategoryId(), item.getName(), item.getDescription(),
+        MenuItem saved = MenuItem.from(id, item.getCategoryId(), item.getName(), item.getDescription(),
                 item.getPrice(), item.getImagePath(), item.isAvailable(), item.getMenuVariantOf());
         items.put(id, saved);
         return copy(saved);
@@ -49,7 +49,7 @@ public class InMemoryMenuItemRepository implements MenuItemRepository {
     }
 
     private MenuItem copy(MenuItem item) {
-        return new MenuItem(item.getId(), item.getCategoryId(), item.getName(), item.getDescription(),
+        return MenuItem.from(item.getId(), item.getCategoryId(), item.getName(), item.getDescription(),
                 item.getPrice(), item.getImagePath(), item.isAvailable(), item.getMenuVariantOf());
     }
 }

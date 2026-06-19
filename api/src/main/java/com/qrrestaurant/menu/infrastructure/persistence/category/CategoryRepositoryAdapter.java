@@ -41,7 +41,7 @@ public class CategoryRepositoryAdapter implements CategoryRepository {
     }
 
     private Category toDomain(CategoryJpaEntity e) {
-        return new Category(e.getId(), e.getRestaurantId(), e.getName(),
+        return Category.from(e.getId(), e.getRestaurantId(), e.getName(),
                 e.getImagePath(), e.getPosition(), e.isHasMenu());
     }
 

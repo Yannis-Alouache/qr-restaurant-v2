@@ -59,21 +59,21 @@ class CreateCheckoutSessionUseCaseIntegrationTest {
                 "http://localhost:4300");
 
         restaurantRepository.save(newRestaurant(restaurantId, "naia-burger", "acct_seed_test"));
-        tableRepository.save(new com.qrrestaurant.restaurant.domain.RestaurantTable(tableId, restaurantId, 1));
-        categoryRepository.save(new Category(categoryId, restaurantId, "Menus", null, 0, true));
+        tableRepository.save(com.qrrestaurant.restaurant.domain.RestaurantTable.from(tableId, restaurantId, 1));
+        categoryRepository.save(Category.from(categoryId, restaurantId, "Menus", null, 0, true));
 
         UUID baconMenuId = UUID.randomUUID();
         UUID nuggetsId = UUID.randomUUID();
         UUID cokeId = UUID.randomUUID();
-        menuItemRepository.save(new MenuItem(baconMenuId, categoryId, "Menu bacon", null,
+        menuItemRepository.save(MenuItem.from(baconMenuId, categoryId, "Menu bacon", null,
                 new BigDecimal("12.00"), null, true, UUID.randomUUID()));
-        menuItemRepository.save(new MenuItem(nuggetsId, categoryId, "Nuggets", null,
+        menuItemRepository.save(MenuItem.from(nuggetsId, categoryId, "Nuggets", null,
                 new BigDecimal("4.00"), null, true, null));
-        menuItemRepository.save(new MenuItem(cokeId, categoryId, "Coca", null,
+        menuItemRepository.save(MenuItem.from(cokeId, categoryId, "Coca", null,
                 new BigDecimal("2.50"), null, true, null));
-        compositionRepository.save(new MenuComposition(UUID.randomUUID(), restaurantId,
+        compositionRepository.save(MenuComposition.from(UUID.randomUUID(), restaurantId,
                 MenuComposition.CompositionType.accompagnement, nuggetsId, new BigDecimal("1.50")));
-        compositionRepository.save(new MenuComposition(UUID.randomUUID(), restaurantId,
+        compositionRepository.save(MenuComposition.from(UUID.randomUUID(), restaurantId,
                 MenuComposition.CompositionType.boisson, cokeId, BigDecimal.ZERO));
 
         CreateOrderUseCase.OrderResponse orderResponse = createOrderUseCase.execute("naia-burger", tableId, List.of(
@@ -84,11 +84,11 @@ class CreateCheckoutSessionUseCaseIntegrationTest {
 
         UUID orderId = UUID.fromString(orderResponse.id());
         List<OrderItem> tamperedItems = orderItemRepository.findByOrderId(orderId);
-        tamperedItems.forEach(item -> item.setUnitPrice(new BigDecimal("99.99")));
+        tamperedItems.forEach(item -> item.reprice(new BigDecimal("99.99")));
         orderItemRepository.saveAll(tamperedItems);
 
         Order tamperedOrder = orderRepository.findById(orderId).orElseThrow();
-        tamperedOrder.setTotal(new BigDecimal("299.97"));
+        tamperedOrder.updateTotal(new BigDecimal("299.97"));
         orderRepository.save(tamperedOrder);
 
         CreateCheckoutSessionUseCase.CheckoutSessionResponse response = createCheckoutSessionUseCase.execute(orderId);
@@ -131,11 +131,11 @@ class CreateCheckoutSessionUseCaseIntegrationTest {
                 "http://localhost:4300");
 
         restaurantRepository.save(newRestaurant(restaurantId, "naia-burger", "acct_seed_test"));
-        tableRepository.save(new com.qrrestaurant.restaurant.domain.RestaurantTable(tableId, restaurantId, 1));
-        categoryRepository.save(new Category(categoryId, restaurantId, "Burgers", null, 0, true));
+        tableRepository.save(com.qrrestaurant.restaurant.domain.RestaurantTable.from(tableId, restaurantId, 1));
+        categoryRepository.save(Category.from(categoryId, restaurantId, "Burgers", null, 0, true));
 
         UUID burgerId = UUID.randomUUID();
-        menuItemRepository.save(new MenuItem(burgerId, categoryId, "Burger", null,
+        menuItemRepository.save(MenuItem.from(burgerId, categoryId, "Burger", null,
                 new BigDecimal("12.00"), null, true, null));
 
         CreateOrderUseCase.OrderResponse orderResponse = createOrderUseCase.execute("naia-burger", tableId, List.of(
@@ -181,11 +181,11 @@ class CreateCheckoutSessionUseCaseIntegrationTest {
                 "http://localhost:4300");
 
         restaurantRepository.save(newRestaurant(restaurantId, "naia-burger", null));
-        tableRepository.save(new com.qrrestaurant.restaurant.domain.RestaurantTable(tableId, restaurantId, 1));
-        categoryRepository.save(new Category(categoryId, restaurantId, "Burgers", null, 0, true));
+        tableRepository.save(com.qrrestaurant.restaurant.domain.RestaurantTable.from(tableId, restaurantId, 1));
+        categoryRepository.save(Category.from(categoryId, restaurantId, "Burgers", null, 0, true));
 
         UUID burgerId = UUID.randomUUID();
-        menuItemRepository.save(new MenuItem(burgerId, categoryId, "Burger", null,
+        menuItemRepository.save(MenuItem.from(burgerId, categoryId, "Burger", null,
                 new BigDecimal("12.00"), null, true, null));
 
         CreateOrderUseCase.OrderResponse orderResponse = createOrderUseCase.execute("naia-burger", tableId, List.of(
@@ -197,10 +197,7 @@ class CreateCheckoutSessionUseCaseIntegrationTest {
     }
 
     private com.qrrestaurant.restaurant.domain.Restaurant newRestaurant(UUID restaurantId, String slug, String accountId) {
-        com.qrrestaurant.restaurant.domain.Restaurant restaurant = new com.qrrestaurant.restaurant.domain.Restaurant();
-        restaurant.setId(restaurantId);
-        restaurant.setSlug(slug);
-        restaurant.setPaymentProviderAccountId(accountId);
-        return restaurant;
+        return com.qrrestaurant.restaurant.domain.Restaurant.from(restaurantId, null, null, slug, null, null,
+                "classique", accountId, null);
     }
 }

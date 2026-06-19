@@ -19,7 +19,7 @@ public class InMemoryOrderRepository implements OrderRepository {
         UUID id = order.getId() != null ? order.getId() : UUID.randomUUID();
         Instant createdAt = order.getCreatedAt() != null ? order.getCreatedAt() : Instant.now();
 
-        Order saved = new Order(id, order.getRestaurantId(), order.getTableId(), order.getStatus(),
+        Order saved = Order.from(id, order.getRestaurantId(), order.getTableId(), order.getStatus(),
                 order.getTotal(), order.getPaymentTransactionId(), createdAt);
         orders.put(id, saved);
         return copy(saved);
@@ -40,7 +40,7 @@ public class InMemoryOrderRepository implements OrderRepository {
     }
 
     private Order copy(Order order) {
-        return new Order(order.getId(), order.getRestaurantId(), order.getTableId(), order.getStatus(),
+        return Order.from(order.getId(), order.getRestaurantId(), order.getTableId(), order.getStatus(),
                 order.getTotal(), order.getPaymentTransactionId(), order.getCreatedAt());
     }
 }

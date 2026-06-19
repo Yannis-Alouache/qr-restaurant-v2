@@ -221,15 +221,15 @@ class OrderPricingPolicyTest {
     }
 
     private MenuItem menuItem(String name, BigDecimal price, boolean menuVariant, boolean available) {
-        return new MenuItem(UUID.randomUUID(), categoryId, name, null, price, null, available,
+        return MenuItem.from(UUID.randomUUID(), categoryId, name, null, price, null, available,
                 menuVariant ? UUID.randomUUID() : null);
     }
 
     private Category category(UUID ownerRestaurantId) {
-        return new Category(categoryId, ownerRestaurantId, "Burgers", null, 0, true);
+        return Category.from(categoryId, ownerRestaurantId, "Burgers", null, 0, true);
     }
 
     private MenuComposition composition(MenuComposition.CompositionType type, UUID menuItemId, BigDecimal supplementPrice) {
-        return new MenuComposition(UUID.randomUUID(), restaurantId, type, menuItemId, supplementPrice);
+        return MenuComposition.from(UUID.randomUUID(), restaurantId, type, menuItemId, supplementPrice);
     }
 }

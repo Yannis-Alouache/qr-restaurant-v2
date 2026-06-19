@@ -38,21 +38,21 @@ class OrderPricingServiceTest {
         UUID categoryId = UUID.randomUUID();
         UUID groupId = UUID.randomUUID();
 
-        MenuItem menuMain = new MenuItem(UUID.randomUUID(), categoryId, "Menu burger", null,
+        MenuItem menuMain = MenuItem.from(UUID.randomUUID(), categoryId, "Menu burger", null,
                 new BigDecimal("10.00"), null, true, UUID.randomUUID());
-        MenuItem fries = new MenuItem(UUID.randomUUID(), categoryId, "Frites", null,
+        MenuItem fries = MenuItem.from(UUID.randomUUID(), categoryId, "Frites", null,
                 new BigDecimal("3.50"), null, true, null);
-        MenuItem drink = new MenuItem(UUID.randomUUID(), categoryId, "Coca", null,
+        MenuItem drink = MenuItem.from(UUID.randomUUID(), categoryId, "Coca", null,
                 new BigDecimal("2.50"), null, true, null);
-        Category category = new Category(categoryId, restaurantId, "Burgers", null, 0, true);
+        Category category = Category.from(categoryId, restaurantId, "Burgers", null, 0, true);
 
         menuItemRepository.save(menuMain);
         menuItemRepository.save(fries);
         menuItemRepository.save(drink);
         categoryRepository.save(category);
-        menuCompositionRepository.save(new MenuComposition(UUID.randomUUID(), restaurantId,
+        menuCompositionRepository.save(MenuComposition.from(UUID.randomUUID(), restaurantId,
                 MenuComposition.CompositionType.accompagnement, fries.getId(), new BigDecimal("0.50")));
-        menuCompositionRepository.save(new MenuComposition(UUID.randomUUID(), restaurantId,
+        menuCompositionRepository.save(MenuComposition.from(UUID.randomUUID(), restaurantId,
                 MenuComposition.CompositionType.boisson, drink.getId(), BigDecimal.ZERO));
 
         OrderPricingService.PricingResult result = orderPricingService.priceNewOrder(restaurantId, List.of(
@@ -74,26 +74,26 @@ class OrderPricingServiceTest {
         UUID categoryId = UUID.randomUUID();
         UUID menuGroupId = UUID.randomUUID();
 
-        MenuItem menuMain = new MenuItem(UUID.randomUUID(), categoryId, "Menu bacon", null,
+        MenuItem menuMain = MenuItem.from(UUID.randomUUID(), categoryId, "Menu bacon", null,
                 new BigDecimal("12.00"), null, true, UUID.randomUUID());
-        MenuItem nuggets = new MenuItem(UUID.randomUUID(), categoryId, "Nuggets", null,
+        MenuItem nuggets = MenuItem.from(UUID.randomUUID(), categoryId, "Nuggets", null,
                 new BigDecimal("4.00"), null, true, null);
-        MenuItem drink = new MenuItem(UUID.randomUUID(), categoryId, "Coca", null,
+        MenuItem drink = MenuItem.from(UUID.randomUUID(), categoryId, "Coca", null,
                 new BigDecimal("2.50"), null, true, null);
-        categoryRepository.save(new Category(categoryId, restaurantId, "Menus", null, 0, true));
+        categoryRepository.save(Category.from(categoryId, restaurantId, "Menus", null, 0, true));
         menuItemRepository.save(menuMain);
         menuItemRepository.save(nuggets);
         menuItemRepository.save(drink);
-        menuCompositionRepository.save(new MenuComposition(UUID.randomUUID(), restaurantId,
+        menuCompositionRepository.save(MenuComposition.from(UUID.randomUUID(), restaurantId,
                 MenuComposition.CompositionType.accompagnement, nuggets.getId(), new BigDecimal("1.50")));
-        menuCompositionRepository.save(new MenuComposition(UUID.randomUUID(), restaurantId,
+        menuCompositionRepository.save(MenuComposition.from(UUID.randomUUID(), restaurantId,
                 MenuComposition.CompositionType.boisson, drink.getId(), BigDecimal.ZERO));
 
-        OrderItem mainItem = new OrderItem(UUID.randomUUID(), UUID.randomUUID(), menuMain.getId(),
+        OrderItem mainItem = OrderItem.from(UUID.randomUUID(), UUID.randomUUID(), menuMain.getId(),
                 "Menu bacon", 1, new BigDecimal("99.99"), menuGroupId, "plat");
-        OrderItem nuggetsItem = new OrderItem(UUID.randomUUID(), mainItem.getOrderId(), nuggets.getId(),
+        OrderItem nuggetsItem = OrderItem.from(UUID.randomUUID(), mainItem.getOrderId(), nuggets.getId(),
                 "Nuggets", 1, new BigDecimal("99.99"), menuGroupId, "accompagnement");
-        OrderItem drinkItem = new OrderItem(UUID.randomUUID(), mainItem.getOrderId(), drink.getId(),
+        OrderItem drinkItem = OrderItem.from(UUID.randomUUID(), mainItem.getOrderId(), drink.getId(),
                 "Coca", 1, new BigDecimal("99.99"), menuGroupId, "boisson");
 
         OrderPricingService.PricingResult result =

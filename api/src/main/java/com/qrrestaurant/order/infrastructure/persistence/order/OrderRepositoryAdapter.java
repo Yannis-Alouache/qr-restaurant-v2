@@ -38,7 +38,7 @@ public class OrderRepositoryAdapter implements OrderRepository {
     }
 
     private Order toDomain(OrderJpaEntity e) {
-        return new Order(e.getId(), e.getRestaurantId(), e.getTableId(),
+        return Order.from(e.getId(), e.getRestaurantId(), e.getTableId(),
                 OrderStatus.valueOf(e.getStatus()), e.getTotal(),
                 e.getPaymentTransactionId(), e.getCreatedAt());
     }

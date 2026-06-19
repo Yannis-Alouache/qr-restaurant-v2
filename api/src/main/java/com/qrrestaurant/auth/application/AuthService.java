@@ -40,9 +40,7 @@ public class AuthService {
             throw new EmailAlreadyRegisteredException();
         }
 
-        User user = new User();
-        user.setEmail(email);
-        user.setPassword(passwordEncoder.encode(password));
+        User user = User.create(email, passwordEncoder.encode(password));
         User saved = userRepository.save(user);
 
         String token = tokenService.generateToken(saved.getId(), saved.getEmail());

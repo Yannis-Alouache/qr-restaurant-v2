@@ -38,17 +38,12 @@ class RestaurantPersistenceIntegrationTest extends AbstractPostgresIntegrationTe
                 "bistro-verde-owner@test.com",
                 "encoded-password");
 
-        Restaurant restaurant = new Restaurant();
-        restaurant.setUserId(ownerId);
-        restaurant.setName("Bistro Verde");
-        restaurant.setSlug("bistro-verde");
-        restaurant.setAddress("10 rue des Jardins");
-        restaurant.setThemeId("classique");
-        restaurant.setPaymentProviderAccountId("acct_bistro_verde");
+        Restaurant restaurant = Restaurant.from(null, ownerId, "Bistro Verde", "bistro-verde",
+                "10 rue des Jardins", null, "classique", "acct_bistro_verde", null);
         Restaurant savedRestaurant = restaurantRepository.save(restaurant);
 
-        restaurantTableRepository.save(new RestaurantTable(null, savedRestaurant.getId(), 8));
-        restaurantTableRepository.save(new RestaurantTable(null, savedRestaurant.getId(), 3));
+        restaurantTableRepository.save(RestaurantTable.create(savedRestaurant.getId(), 8));
+        restaurantTableRepository.save(RestaurantTable.create(savedRestaurant.getId(), 3));
 
         Restaurant bySlug = restaurantRepository.findBySlug("bistro-verde").orElseThrow();
         Restaurant byUserId = restaurantRepository.findByUserId(ownerId).orElseThrow();

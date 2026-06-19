@@ -23,9 +23,7 @@ public class OrderPricingPolicy {
 
         CalculatedPricing calculated = calculate(restaurantId, inputs, catalog);
         List<OrderItem> pricedItems = calculated.items().stream()
-                .map(item -> new OrderItem(
-                        null,
-                        null,
+                .map(item -> OrderItem.create(
                         item.menuItem().getId(),
                         item.menuItem().getName(),
                         item.input().quantity(),
@@ -48,7 +46,7 @@ public class OrderPricingPolicy {
         for (int index = 0; index < existingItems.size(); index++) {
             OrderItem original = existingItems.get(index);
             CalculatedItem repriced = calculated.items().get(index);
-            original.setUnitPrice(repriced.unitPrice());
+            original.reprice(repriced.unitPrice());
             repricedItems.add(original);
         }
 

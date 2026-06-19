@@ -50,30 +50,28 @@ class CreateOrderUseCaseIntegrationTest {
                 tableRepository,
                 new OrderPricingService(menuItemRepository, compositionRepository, categoryRepository));
 
-        Restaurant restaurant = new Restaurant();
-        restaurant.setId(restaurantId);
-        restaurant.setSlug("naia-burger");
-        restaurantRepository.save(restaurant);
+        restaurantRepository.save(Restaurant.from(restaurantId, null, null, "naia-burger",
+                null, null, "classique", null, null));
 
-        tableRepository.save(new RestaurantTable(tableId, restaurantId, 1));
-        categoryRepository.save(new Category(categoryId, restaurantId, "Menus", null, 0, true));
+        tableRepository.save(RestaurantTable.from(tableId, restaurantId, 1));
+        categoryRepository.save(Category.from(categoryId, restaurantId, "Menus", null, 0, true));
 
         UUID burgerMenuId = UUID.randomUUID();
         UUID friesId = UUID.randomUUID();
         UUID cokeId = UUID.randomUUID();
         UUID brownieId = UUID.randomUUID();
 
-        menuItemRepository.save(new MenuItem(burgerMenuId, categoryId, "Menu burger", null,
+        menuItemRepository.save(MenuItem.from(burgerMenuId, categoryId, "Menu burger", null,
                 new BigDecimal("10.40"), null, true, UUID.randomUUID()));
-        menuItemRepository.save(new MenuItem(friesId, categoryId, "Frites", null,
+        menuItemRepository.save(MenuItem.from(friesId, categoryId, "Frites", null,
                 new BigDecimal("3.00"), null, true, null));
-        menuItemRepository.save(new MenuItem(cokeId, categoryId, "Coca", null,
+        menuItemRepository.save(MenuItem.from(cokeId, categoryId, "Coca", null,
                 new BigDecimal("2.50"), null, true, null));
-        menuItemRepository.save(new MenuItem(brownieId, categoryId, "Brownie", null,
+        menuItemRepository.save(MenuItem.from(brownieId, categoryId, "Brownie", null,
                 new BigDecimal("4.50"), null, true, null));
-        compositionRepository.save(new MenuComposition(UUID.randomUUID(), restaurantId,
+        compositionRepository.save(MenuComposition.from(UUID.randomUUID(), restaurantId,
                 MenuComposition.CompositionType.accompagnement, friesId, BigDecimal.ZERO));
-        compositionRepository.save(new MenuComposition(UUID.randomUUID(), restaurantId,
+        compositionRepository.save(MenuComposition.from(UUID.randomUUID(), restaurantId,
                 MenuComposition.CompositionType.boisson, cokeId, BigDecimal.ZERO));
 
         CreateOrderUseCase.OrderResponse response = createOrderUseCase.execute("naia-burger", tableId, List.of(
@@ -111,10 +109,8 @@ class CreateOrderUseCaseIntegrationTest {
                 tableRepository,
                 new OrderPricingService(menuItemRepository, compositionRepository, categoryRepository));
 
-        Restaurant restaurant = new Restaurant();
-        restaurant.setId(UUID.randomUUID());
-        restaurant.setSlug("naia-burger");
-        restaurantRepository.save(restaurant);
+        restaurantRepository.save(Restaurant.from(UUID.randomUUID(), null, null, "naia-burger",
+                null, null, "classique", null, null));
 
         assertThrows(IllegalArgumentException.class, () -> createOrderUseCase.execute(
                 "naia-burger",

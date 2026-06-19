@@ -34,16 +34,11 @@ class UpdateOrderStatusUseCaseTest {
                 restaurantRepository,
                 new OrderEventPublisher(new SimpMessagingTemplate(messageChannel)));
 
-        Restaurant restaurant = new Restaurant();
-        restaurant.setId(restaurantId);
-        restaurant.setUserId(userId);
+        Restaurant restaurant = Restaurant.from(restaurantId, userId, null, null, null, null, "classique", null, null);
         restaurantRepository.save(restaurant);
 
-        Order order = new Order();
-        order.setRestaurantId(restaurantId);
-        order.setTableId(UUID.randomUUID());
-        order.setStatus(OrderStatus.nouvelle);
-        order.setTotal(new BigDecimal("14.90"));
+        Order order = Order.from(null, restaurantId, UUID.randomUUID(), OrderStatus.nouvelle,
+                new BigDecimal("14.90"), null, null);
         Order savedOrder = orderRepository.save(order);
 
         useCase.execute(userId, savedOrder.getId(), OrderStatus.en_preparation.name());
@@ -73,15 +68,10 @@ class UpdateOrderStatusUseCaseTest {
                 restaurantRepository,
                 new OrderEventPublisher(new SimpMessagingTemplate(new RecordingMessageChannel())));
 
-        Restaurant restaurant = new Restaurant();
-        restaurant.setId(UUID.randomUUID());
-        restaurant.setUserId(UUID.randomUUID());
+        Restaurant restaurant = Restaurant.from(UUID.randomUUID(), UUID.randomUUID(), null, null, null, null, "classique", null, null);
         restaurantRepository.save(restaurant);
 
-        Order order = new Order();
-        order.setRestaurantId(UUID.randomUUID());
-        order.setTableId(UUID.randomUUID());
-        order.setTotal(new BigDecimal("14.90"));
+        Order order = Order.create(UUID.randomUUID(), UUID.randomUUID(), new BigDecimal("14.90"));
         Order savedOrder = orderRepository.save(order);
 
         assertThrows(UpdateOrderStatusUseCase.OrderNotFoundException.class,
@@ -100,15 +90,10 @@ class UpdateOrderStatusUseCaseTest {
                 restaurantRepository,
                 new OrderEventPublisher(new SimpMessagingTemplate(new RecordingMessageChannel())));
 
-        Restaurant restaurant = new Restaurant();
-        restaurant.setId(restaurantId);
-        restaurant.setUserId(userId);
+        Restaurant restaurant = Restaurant.from(restaurantId, userId, null, null, null, null, "classique", null, null);
         restaurantRepository.save(restaurant);
 
-        Order order = new Order();
-        order.setRestaurantId(restaurantId);
-        order.setTableId(UUID.randomUUID());
-        order.setTotal(new BigDecimal("14.90"));
+        Order order = Order.create(restaurantId, UUID.randomUUID(), new BigDecimal("14.90"));
         Order savedOrder = orderRepository.save(order);
 
         assertThrows(Order.UnpaidOrderStatusUpdateException.class,

@@ -3,7 +3,6 @@ import com.qrrestaurant.restaurant.application.dto.OnboardingResponse;
 
 import com.qrrestaurant.restaurant.domain.Restaurant;
 import com.qrrestaurant.restaurant.domain.RestaurantRepository;
-import com.qrrestaurant.restaurant.domain.RestaurantTheme;
 import com.qrrestaurant.restaurant.domain.RestaurantTable;
 import com.qrrestaurant.restaurant.domain.RestaurantTableRepository;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -37,14 +36,7 @@ public class OnboardingUseCase {
 
         String slug = restaurantSlugGenerator.generate(name);
 
-        Restaurant restaurant = new Restaurant();
-        restaurant.setUserId(userId);
-        restaurant.setName(name);
-        restaurant.setSlug(slug);
-        restaurant.setThemeId(RestaurantTheme.normalizeOrDefault(themeId));
-        if (logoPath != null) {
-            restaurant.setLogoPath(logoPath);
-        }
+        Restaurant restaurant = Restaurant.create(userId, name, slug, themeId, logoPath);
         Restaurant saved;
         try {
             saved = restaurantRepository.save(restaurant);
@@ -54,9 +46,7 @@ public class OnboardingUseCase {
 
         List<OnboardingResponse.TableView> tables = new ArrayList<>();
         for (int i = 1; i <= tableCount; i++) {
-            RestaurantTable table = new RestaurantTable();
-            table.setRestaurantId(saved.getId());
-            table.setNumber(i);
+            RestaurantTable table = RestaurantTable.create(saved.getId(), i);
             RestaurantTable savedTable = tableRepository.save(table);
             tables.add(new OnboardingResponse.TableView(savedTable.getId(), i));
         }

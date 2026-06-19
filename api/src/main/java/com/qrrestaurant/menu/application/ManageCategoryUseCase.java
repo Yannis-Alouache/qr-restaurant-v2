@@ -25,12 +25,7 @@ public class ManageCategoryUseCase {
 
     public CategoryView create(UUID userId, String name, String imagePath, Integer position, boolean hasMenu) {
         Restaurant restaurant = getRestaurantByOwner(userId);
-        Category category = new Category();
-        category.setRestaurantId(restaurant.getId());
-        category.setName(name);
-        category.setImagePath(imagePath);
-        category.setPosition(position != null ? position : 0);
-        category.setHasMenu(hasMenu);
+        Category category = Category.create(restaurant.getId(), name, imagePath, position, hasMenu);
         Category saved = categoryRepository.save(category);
         return toView(saved);
     }
@@ -40,10 +35,7 @@ public class ManageCategoryUseCase {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(CategoryNotFoundException::new);
         verifyOwnership(category, restaurant);
-        if (name != null) category.setName(name);
-        if (imagePath != null) category.setImagePath(imagePath);
-        if (position != null) category.setPosition(position);
-        if (hasMenu != null) category.setHasMenu(hasMenu);
+        category.update(name, imagePath, position, hasMenu);
         Category saved = categoryRepository.save(category);
         return toView(saved);
     }
