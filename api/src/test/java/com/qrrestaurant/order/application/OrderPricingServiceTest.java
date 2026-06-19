@@ -44,7 +44,7 @@ class OrderPricingServiceTest {
                 new BigDecimal("3.50"), null, true, null);
         MenuItem drink = MenuItem.from(UUID.randomUUID(), categoryId, "Coca", null,
                 new BigDecimal("2.50"), null, true, null);
-        Category category = new Category(categoryId, restaurantId, "Burgers", null, 0, true);
+        Category category = Category.from(categoryId, restaurantId, "Burgers", null, 0, true);
 
         menuItemRepository.save(menuMain);
         menuItemRepository.save(fries);
@@ -80,7 +80,7 @@ class OrderPricingServiceTest {
                 new BigDecimal("4.00"), null, true, null);
         MenuItem drink = MenuItem.from(UUID.randomUUID(), categoryId, "Coca", null,
                 new BigDecimal("2.50"), null, true, null);
-        categoryRepository.save(new Category(categoryId, restaurantId, "Menus", null, 0, true));
+        categoryRepository.save(Category.from(categoryId, restaurantId, "Menus", null, 0, true));
         menuItemRepository.save(menuMain);
         menuItemRepository.save(nuggets);
         menuItemRepository.save(drink);

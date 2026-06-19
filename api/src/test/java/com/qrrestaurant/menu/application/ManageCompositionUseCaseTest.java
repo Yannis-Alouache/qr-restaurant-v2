@@ -31,7 +31,7 @@ class ManageCompositionUseCaseTest {
         InMemoryMenuCompositionRepository compositionRepository = new InMemoryMenuCompositionRepository();
 
         restaurantRepository.save(restaurant(ownerId, restaurantId));
-        categoryRepository.save(new Category(otherCategoryId, otherRestaurantId, "Sides", null, 0, false));
+        categoryRepository.save(Category.from(otherCategoryId, otherRestaurantId, "Sides", null, 0, false));
         MenuItem foreignItem = menuItemRepository.save(MenuItem.from(
                 UUID.randomUUID(), otherCategoryId, "Frites", null, new BigDecimal("3.00"), null, true, null));
 
@@ -90,7 +90,7 @@ class ManageCompositionUseCaseTest {
         InMemoryMenuCompositionRepository compositionRepository = new InMemoryMenuCompositionRepository();
 
         restaurantRepository.save(restaurant(ownerId, restaurantId));
-        categoryRepository.save(new Category(categoryId, restaurantId, "Burgers", null, 0, true));
+        categoryRepository.save(Category.from(categoryId, restaurantId, "Burgers", null, 0, true));
         MenuItem menuVariant = menuItemRepository.save(MenuItem.from(
                 UUID.randomUUID(), categoryId, "Menu Burger", null, new BigDecimal("10.00"), null, true, baseItemId));
 

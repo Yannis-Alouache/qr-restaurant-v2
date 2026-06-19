@@ -30,7 +30,7 @@ class GetMenuUseCaseTest {
         InMemoryMenuCompositionRepository compositionRepository = new InMemoryMenuCompositionRepository();
 
         restaurantRepository.save(restaurant(restaurantId));
-        categoryRepository.save(new Category(sidesCategoryId, restaurantId, "Sides", null, 0, false));
+        categoryRepository.save(Category.from(sidesCategoryId, restaurantId, "Sides", null, 0, false));
 
         MenuItem availableFries = menuItemRepository.save(MenuItem.from(
                 UUID.randomUUID(), sidesCategoryId, "Frites", null, new BigDecimal("3.50"), null, true, null));

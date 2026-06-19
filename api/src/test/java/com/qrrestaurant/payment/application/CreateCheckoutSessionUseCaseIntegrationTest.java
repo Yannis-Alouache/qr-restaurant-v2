@@ -60,7 +60,7 @@ class CreateCheckoutSessionUseCaseIntegrationTest {
 
         restaurantRepository.save(newRestaurant(restaurantId, "naia-burger", "acct_seed_test"));
         tableRepository.save(com.qrrestaurant.restaurant.domain.RestaurantTable.from(tableId, restaurantId, 1));
-        categoryRepository.save(new Category(categoryId, restaurantId, "Menus", null, 0, true));
+        categoryRepository.save(Category.from(categoryId, restaurantId, "Menus", null, 0, true));
 
         UUID baconMenuId = UUID.randomUUID();
         UUID nuggetsId = UUID.randomUUID();
@@ -132,7 +132,7 @@ class CreateCheckoutSessionUseCaseIntegrationTest {
 
         restaurantRepository.save(newRestaurant(restaurantId, "naia-burger", "acct_seed_test"));
         tableRepository.save(com.qrrestaurant.restaurant.domain.RestaurantTable.from(tableId, restaurantId, 1));
-        categoryRepository.save(new Category(categoryId, restaurantId, "Burgers", null, 0, true));
+        categoryRepository.save(Category.from(categoryId, restaurantId, "Burgers", null, 0, true));
 
         UUID burgerId = UUID.randomUUID();
         menuItemRepository.save(MenuItem.from(burgerId, categoryId, "Burger", null,
@@ -182,7 +182,7 @@ class CreateCheckoutSessionUseCaseIntegrationTest {
 
         restaurantRepository.save(newRestaurant(restaurantId, "naia-burger", null));
         tableRepository.save(com.qrrestaurant.restaurant.domain.RestaurantTable.from(tableId, restaurantId, 1));
-        categoryRepository.save(new Category(categoryId, restaurantId, "Burgers", null, 0, true));
+        categoryRepository.save(Category.from(categoryId, restaurantId, "Burgers", null, 0, true));
 
         UUID burgerId = UUID.randomUUID();
         menuItemRepository.save(MenuItem.from(burgerId, categoryId, "Burger", null,

@@ -226,7 +226,7 @@ class OrderPricingPolicyTest {
     }
 
     private Category category(UUID ownerRestaurantId) {
-        return new Category(categoryId, ownerRestaurantId, "Burgers", null, 0, true);
+        return Category.from(categoryId, ownerRestaurantId, "Burgers", null, 0, true);
     }
 
     private MenuComposition composition(MenuComposition.CompositionType type, UUID menuItemId, BigDecimal supplementPrice) {

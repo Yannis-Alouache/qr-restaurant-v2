@@ -28,7 +28,7 @@ class ManageMenuItemUseCaseTest {
         InMemoryMenuItemRepository menuItemRepository = new InMemoryMenuItemRepository();
 
         restaurantRepository.save(restaurant(ownerId, restaurantId));
-        categoryRepository.save(new Category(categoryId, restaurantId, "Burgers", null, 0, false));
+        categoryRepository.save(Category.from(categoryId, restaurantId, "Burgers", null, 0, false));
         MenuItem baseItem = menuItemRepository.save(MenuItem.from(
                 UUID.randomUUID(), categoryId, "Burger", null, new BigDecimal("12.00"), null, true, null));
 
@@ -59,8 +59,8 @@ class ManageMenuItemUseCaseTest {
         InMemoryMenuItemRepository menuItemRepository = new InMemoryMenuItemRepository();
 
         restaurantRepository.save(restaurant(ownerId, restaurantId));
-        categoryRepository.save(new Category(burgersCategoryId, restaurantId, "Burgers", null, 0, true));
-        categoryRepository.save(new Category(dessertsCategoryId, restaurantId, "Desserts", null, 1, true));
+        categoryRepository.save(Category.from(burgersCategoryId, restaurantId, "Burgers", null, 0, true));
+        categoryRepository.save(Category.from(dessertsCategoryId, restaurantId, "Desserts", null, 1, true));
         MenuItem baseItem = menuItemRepository.save(MenuItem.from(
                 UUID.randomUUID(), dessertsCategoryId, "Brownie", null, new BigDecimal("5.00"), null, true, null));
 
@@ -90,7 +90,7 @@ class ManageMenuItemUseCaseTest {
         InMemoryMenuItemRepository menuItemRepository = new InMemoryMenuItemRepository();
 
         restaurantRepository.save(restaurant(ownerId, restaurantId));
-        categoryRepository.save(new Category(categoryId, restaurantId, "Burgers", null, 0, true));
+        categoryRepository.save(Category.from(categoryId, restaurantId, "Burgers", null, 0, true));
         MenuItem item = menuItemRepository.save(MenuItem.from(
                 UUID.randomUUID(), categoryId, "Burger", "Description initiale",
                 new BigDecimal("12.00"), null, true, null));
