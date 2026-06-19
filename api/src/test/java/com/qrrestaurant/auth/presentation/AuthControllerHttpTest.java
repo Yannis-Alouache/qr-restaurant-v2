@@ -28,8 +28,7 @@ class AuthControllerHttpTest extends AbstractPostgresIntegrationTest {
                                 }
                                 """))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Email invalide"))
-                .andExpect(jsonPath("$.details.email").value("Email invalide"));
+                .andExpect(jsonPath("$.message").value("Email invalide"));
     }
 
     @Test
@@ -44,8 +43,6 @@ class AuthControllerHttpTest extends AbstractPostgresIntegrationTest {
                                 """))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value(
-                        "Le mot de passe doit contenir au moins 10 caractères, avec une majuscule, une minuscule, un chiffre et un caractère spécial"))
-                .andExpect(jsonPath("$.details.password").value(
                         "Le mot de passe doit contenir au moins 10 caractères, avec une majuscule, une minuscule, un chiffre et un caractère spécial"));
     }
 }

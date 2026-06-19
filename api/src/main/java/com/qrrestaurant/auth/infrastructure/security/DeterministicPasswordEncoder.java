@@ -2,7 +2,7 @@ package com.qrrestaurant.auth.infrastructure.security;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-public class PrefixPasswordEncoder implements PasswordEncoder {
+public class DeterministicPasswordEncoder implements PasswordEncoder {
     @Override
     public String encode(CharSequence rawPassword) {
         return "encoded::" + rawPassword;

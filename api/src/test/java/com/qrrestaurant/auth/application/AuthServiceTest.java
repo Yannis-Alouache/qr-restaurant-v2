@@ -3,7 +3,7 @@ import com.qrrestaurant.auth.application.dto.AuthResponse;
 
 import com.qrrestaurant.auth.domain.User;
 import com.qrrestaurant.auth.infrastructure.token.DeterministicTokenService;
-import com.qrrestaurant.auth.infrastructure.security.PrefixPasswordEncoder;
+import com.qrrestaurant.auth.infrastructure.security.DeterministicPasswordEncoder;
 import com.qrrestaurant.auth.infrastructure.persistence.InMemoryUserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,7 +19,7 @@ class AuthServiceTest {
     @BeforeEach
     void setUp() {
         userRepository = new InMemoryUserRepository();
-        authService = new AuthService(userRepository, new PrefixPasswordEncoder(), new DeterministicTokenService());
+        authService = new AuthService(userRepository, new DeterministicPasswordEncoder(), new DeterministicTokenService());
     }
 
     @Test

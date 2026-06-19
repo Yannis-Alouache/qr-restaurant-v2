@@ -2,7 +2,6 @@ package com.qrrestaurant.restaurant.application;
 
 import com.qrrestaurant.restaurant.domain.Restaurant;
 import com.qrrestaurant.restaurant.domain.RestaurantRepository;
-import com.qrrestaurant.restaurant.domain.RestaurantTable;
 import com.qrrestaurant.restaurant.domain.RestaurantTableRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

@@ -5,7 +5,6 @@ import com.qrrestaurant.restaurant.application.dto.OnboardingRequest;
 import com.qrrestaurant.restaurant.application.*;
 import com.qrrestaurant.restaurant.domain.RestaurantTheme;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -7,8 +7,6 @@ import com.qrrestaurant.menu.infrastructure.persistence.category.InMemoryCategor
 import com.qrrestaurant.menu.infrastructure.persistence.composition.InMemoryMenuCompositionRepository;
 import com.qrrestaurant.menu.infrastructure.persistence.item.InMemoryMenuItemRepository;
 import com.qrrestaurant.order.domain.OrderItem;
-import com.qrrestaurant.order.domain.OrderItemRepository;
-import com.qrrestaurant.order.domain.OrderRepository;
 import com.qrrestaurant.order.infrastructure.persistence.item.InMemoryOrderItemRepository;
 import com.qrrestaurant.order.infrastructure.persistence.order.InMemoryOrderRepository;
 import com.qrrestaurant.restaurant.domain.Restaurant;

@@ -1,6 +1,5 @@
 package com.qrrestaurant.menu.application;
 import com.qrrestaurant.menu.application.dto.MenuView;
-import com.qrrestaurant.menu.application.dto.CategoryView;
 
 import com.qrrestaurant.menu.domain.*;
 import com.qrrestaurant.restaurant.domain.Restaurant;

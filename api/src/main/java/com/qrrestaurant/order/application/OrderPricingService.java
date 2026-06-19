@@ -2,7 +2,6 @@ package com.qrrestaurant.order.application;
 
 import com.qrrestaurant.menu.domain.Category;
 import com.qrrestaurant.menu.domain.CategoryRepository;
-import com.qrrestaurant.menu.domain.MenuComposition;
 import com.qrrestaurant.menu.domain.MenuCompositionRepository;
 import com.qrrestaurant.menu.domain.MenuItem;
 import com.qrrestaurant.menu.domain.MenuItemRepository;

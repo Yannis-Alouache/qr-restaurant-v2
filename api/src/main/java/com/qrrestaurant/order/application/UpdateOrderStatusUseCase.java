@@ -1,5 +1,4 @@
 package com.qrrestaurant.order.application;
-import com.qrrestaurant.order.application.dto.OrderStatusUpdate;
 
 import com.qrrestaurant.order.domain.Order;
 import com.qrrestaurant.order.domain.OrderRepository;

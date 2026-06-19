@@ -5,7 +5,6 @@ import com.qrrestaurant.auth.domain.UserRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
-import java.util.UUID;
 
 @Repository
 public class UserRepositoryAdapter implements UserRepository {
