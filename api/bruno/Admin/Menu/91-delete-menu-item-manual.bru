@@ -11,9 +11,6 @@ meta {
 
 delete {
   url: {{baseUrl}}/api/admin/menu-items/{{dessertItemId}}
-  auth: bearer
+  auth: none
 }
 
-auth:bearer {
-  token: {{adminToken}}
-}

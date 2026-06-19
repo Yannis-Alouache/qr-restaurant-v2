@@ -2,12 +2,14 @@ package com.qrrestaurant.auth.infrastructure.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.util.WebUtils;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -15,6 +17,8 @@ import java.util.UUID;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
+    static final String COOKIE_NAME = "jwt";
 
     private final JwtService jwtService;
 
@@ -26,10 +30,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-        String header = request.getHeader("Authorization");
+        Cookie jwtCookie = WebUtils.getCookie(request, COOKIE_NAME);
 
-        if (header != null && header.startsWith("Bearer ")) {
-            String token = header.substring(7);
+        if (jwtCookie != null) {
+            String token = jwtCookie.getValue();
             if (jwtService.isTokenValid(token)) {
                 UUID userId = jwtService.extractUserId(token);
                 UsernamePasswordAuthenticationToken auth =

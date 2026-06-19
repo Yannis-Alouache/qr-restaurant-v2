@@ -1,5 +1,5 @@
 package com.qrrestaurant.auth.application;
-import com.qrrestaurant.auth.application.dto.AuthResponse;
+import com.qrrestaurant.auth.application.dto.AuthSession;
 
 import com.qrrestaurant.auth.domain.PasswordPolicy;
 import com.qrrestaurant.auth.domain.TokenService;
@@ -34,7 +34,7 @@ public class AuthService {
         this.passwordPolicy = passwordPolicy;
     }
 
-    public AuthResponse signup(String email, String password) {
+    public AuthSession signup(String email, String password) {
         passwordPolicy.validate(password);
         if (userRepository.existsByEmail(email)) {
             throw new EmailAlreadyRegisteredException();
@@ -44,10 +44,10 @@ public class AuthService {
         User saved = userRepository.save(user);
 
         String token = tokenService.generateToken(saved.getId(), saved.getEmail());
-        return new AuthResponse(token, saved.getId().toString());
+        return new AuthSession(token, saved.getId().toString());
     }
 
-    public AuthResponse login(String email, String password) {
+    public AuthSession login(String email, String password) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(InvalidCredentialsException::new);
 
@@ -56,7 +56,7 @@ public class AuthService {
         }
 
         String token = tokenService.generateToken(user.getId(), user.getEmail());
-        return new AuthResponse(token, user.getId().toString());
+        return new AuthSession(token, user.getId().toString());
     }
 
     public static class EmailAlreadyRegisteredException extends RuntimeException {

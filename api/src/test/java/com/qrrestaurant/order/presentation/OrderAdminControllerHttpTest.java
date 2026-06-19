@@ -2,6 +2,8 @@ package com.qrrestaurant.order.presentation;
 
 import com.qrrestaurant.auth.infrastructure.security.JwtService;
 import com.qrrestaurant.support.AbstractPostgresIntegrationTest;
+import com.qrrestaurant.support.TestAuthCookies;
+import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -56,7 +58,7 @@ class OrderAdminControllerHttpTest extends AbstractPostgresIntegrationTest {
                 new BigDecimal("12.00"));
 
         mockMvc.perform(get("/api/admin/orders")
-                        .header("Authorization", ownerBearerToken()))
+                        .cookie(ownerBearerToken()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].tableNumber").value(1))
                 .andExpect(jsonPath("$[0].tableId").doesNotExist());
@@ -78,7 +80,7 @@ class OrderAdminControllerHttpTest extends AbstractPostgresIntegrationTest {
                 null);
 
         mockMvc.perform(patch("/api/admin/orders/{id}/status", orderId)
-                        .header("Authorization", ownerBearerToken())
+                        .cookie(ownerBearerToken())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -89,7 +91,7 @@ class OrderAdminControllerHttpTest extends AbstractPostgresIntegrationTest {
                 .andExpect(jsonPath("$.message").value("Paiement non confirmé pour cette commande"));
     }
 
-    private String ownerBearerToken() {
-        return "Bearer " + jwtService.generateToken(OWNER_ID, "owner@test.com");
+    private Cookie ownerBearerToken() {
+        return TestAuthCookies.jwt(jwtService, OWNER_ID, "owner@test.com");
     }
 }

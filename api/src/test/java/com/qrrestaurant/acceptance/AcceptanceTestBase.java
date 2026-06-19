@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.qrrestaurant.payment.domain.PaymentGateway;
 import com.qrrestaurant.payment.infrastructure.gateway.DeterministicPaymentGateway;
 import com.qrrestaurant.support.AbstractPostgresIntegrationTest;
+import com.qrrestaurant.support.TestAuthCookies;
 import com.stripe.Stripe;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -12,11 +13,13 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import jakarta.servlet.http.Cookie;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
@@ -62,9 +65,9 @@ abstract class AcceptanceTestBase extends AbstractPostgresIntegrationTest {
         return objectMapper.readTree(result.getResponse().getContentAsString());
     }
 
-    JsonNode postAuthorizedJson(String path, String token, String payload) throws Exception {
+    JsonNode postAuthorizedJson(String path, Cookie jwt, String payload) throws Exception {
         MvcResult result = mockMvc.perform(post(path)
-                        .header("Authorization", token)
+                        .cookie(jwt)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(payload))
                 .andExpect(status().isCreated())
@@ -72,17 +75,17 @@ abstract class AcceptanceTestBase extends AbstractPostgresIntegrationTest {
         return objectMapper.readTree(result.getResponse().getContentAsString());
     }
 
-    JsonNode getAuthorizedJson(String path, String token) throws Exception {
+    JsonNode getAuthorizedJson(String path, Cookie jwt) throws Exception {
         MvcResult result = mockMvc.perform(get(path)
-                        .header("Authorization", token))
+                        .cookie(jwt))
                 .andExpect(status().isOk())
                 .andReturn();
         return objectMapper.readTree(result.getResponse().getContentAsString());
     }
 
-    JsonNode putAuthorizedJson(String path, String token, String payload) throws Exception {
+    JsonNode putAuthorizedJson(String path, Cookie jwt, String payload) throws Exception {
         MvcResult result = mockMvc.perform(put(path)
-                        .header("Authorization", token)
+                        .cookie(jwt)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(payload))
                 .andExpect(status().isOk())
@@ -90,9 +93,9 @@ abstract class AcceptanceTestBase extends AbstractPostgresIntegrationTest {
         return objectMapper.readTree(result.getResponse().getContentAsString());
     }
 
-    void patchAuthorizedStatus(String path, String token, String nextStatus) throws Exception {
+    void patchAuthorizedStatus(String path, Cookie jwt, String nextStatus) throws Exception {
         mockMvc.perform(patch(path)
-                        .header("Authorization", token)
+                        .cookie(jwt)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -166,14 +169,22 @@ abstract class AcceptanceTestBase extends AbstractPostgresIntegrationTest {
                 status().isCreated());
     }
 
-    String seedOwnerBearerToken() throws Exception {
-        JsonNode login = postJson("/api/auth/login", """
-                {
-                  "email": "owner@test.com",
-                  "password": "Secret123!"
-                }
-                """, status().isOk());
-        return "Bearer " + login.path("token").asText();
+    Cookie seedOwnerJwtCookie() throws Exception {
+        return loginJwtCookie("owner@test.com", "Secret123!");
+    }
+
+    Cookie loginJwtCookie(String email, String password) throws Exception {
+        MvcResult login = mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "email": "%s",
+                                  "password": "%s"
+                                }
+                                """.formatted(email, password)))
+                .andExpect(status().isOk())
+                .andReturn();
+        return TestAuthCookies.fromResult(login);
     }
 
     // ── Assertion helpers ─────────────────────────────────────────────

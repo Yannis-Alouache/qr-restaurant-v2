@@ -11,9 +11,6 @@ meta {
 
 delete {
   url: {{baseUrl}}/api/admin/categories/{{categoryId}}
-  auth: bearer
+  auth: none
 }
 
-auth:bearer {
-  token: {{adminToken}}
-}

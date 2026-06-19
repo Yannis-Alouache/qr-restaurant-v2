@@ -10,12 +10,9 @@ meta {
 
 get {
   url: {{baseUrl}}/api/admin/restaurant/tables
-  auth: bearer
+  auth: none
 }
 
-auth:bearer {
-  token: {{adminToken}}
-}
 
 script:post-response {
   const body = res.getBody();

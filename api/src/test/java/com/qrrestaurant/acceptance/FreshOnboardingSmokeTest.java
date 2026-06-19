@@ -1,6 +1,7 @@
 package com.qrrestaurant.acceptance;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -14,7 +15,7 @@ class FreshOnboardingSmokeTest extends AcceptanceTestBase {
 
     @Test
     void shouldSupportOwnerToCustomerCriticalJourneyWithCurrentContracts() throws Exception {
-        String ownerToken = signUpAndLogin("phase8-smoke");
+        Cookie ownerToken = signUpAndLogin("phase8-smoke");
         RestaurantSetup setup = onboardRestaurantWithMenu(ownerToken, "Smoke Bistro");
 
         JsonNode publicMenu = getJson("/api/public/menu/" + setup.slug);
@@ -64,7 +65,7 @@ class FreshOnboardingSmokeTest extends AcceptanceTestBase {
 
     @Test
     void shouldLetANewlyOnboardedOwnerConfigurePaymentsAndReachPublicCheckout() throws Exception {
-        String ownerToken = signUpAndLogin("phase8-payment");
+        Cookie ownerToken = signUpAndLogin("phase8-payment");
         RestaurantSetup setup = onboardRestaurantWithMenu(ownerToken, "Payment Ready Bistro");
 
         JsonNode restaurantBeforeConfig = getAuthorizedJson("/api/admin/restaurant", ownerToken);
@@ -121,7 +122,7 @@ class FreshOnboardingSmokeTest extends AcceptanceTestBase {
 
     @Test
     void shouldLetANewlyOnboardedOwnerReachServedStatusAfterConfiguringPayments() throws Exception {
-        String ownerToken = signUpAndLogin("phase8-served");
+        Cookie ownerToken = signUpAndLogin("phase8-served");
         RestaurantSetup setup = onboardRestaurantWithMenu(ownerToken, "Served Journey Bistro");
 
         putAuthorizedJson("/api/admin/restaurant", ownerToken, """
@@ -195,7 +196,7 @@ class FreshOnboardingSmokeTest extends AcceptanceTestBase {
             String sideItemId, String drinkItemId
     ) {}
 
-    private String signUpAndLogin(String prefix) throws Exception {
+    private Cookie signUpAndLogin(String prefix) throws Exception {
         String email = prefix + "-" + UUID.randomUUID() + "@test.com";
         String password = "Secret123!";
 
@@ -205,17 +206,10 @@ class FreshOnboardingSmokeTest extends AcceptanceTestBase {
                   "password": "%s"
                 }
                 """.formatted(email, password), status().isCreated());
-        JsonNode login = postJson("/api/auth/login", """
-                {
-                  "email": "%s",
-                  "password": "%s"
-                }
-                """.formatted(email, password), status().isOk());
-
-        return "Bearer " + login.path("token").asText();
+        return loginJwtCookie(email, password);
     }
 
-    private RestaurantSetup onboardRestaurantWithMenu(String ownerToken, String restaurantName) throws Exception {
+    private RestaurantSetup onboardRestaurantWithMenu(Cookie ownerToken, String restaurantName) throws Exception {
         JsonNode onboarding = postAuthorizedJson("/api/admin/restaurants", ownerToken, """
                 {
                   "name": "%s",

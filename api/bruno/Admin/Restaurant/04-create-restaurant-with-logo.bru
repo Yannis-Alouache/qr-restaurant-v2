@@ -10,16 +10,13 @@ meta {
 post {
   url: {{baseUrl}}/api/admin/restaurants
   body: json
-  auth: bearer
+  auth: none
 }
 
 headers {
   Content-Type: application/json
 }
 
-auth:bearer {
-  token: {{adminToken}}
-}
 
 body:json {
   {
