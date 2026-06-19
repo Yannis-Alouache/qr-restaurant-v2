@@ -197,10 +197,7 @@ class CreateCheckoutSessionUseCaseIntegrationTest {
     }
 
     private com.qrrestaurant.restaurant.domain.Restaurant newRestaurant(UUID restaurantId, String slug, String accountId) {
-        com.qrrestaurant.restaurant.domain.Restaurant restaurant = new com.qrrestaurant.restaurant.domain.Restaurant();
-        restaurant.setId(restaurantId);
-        restaurant.setSlug(slug);
-        restaurant.setPaymentProviderAccountId(accountId);
-        return restaurant;
+        return com.qrrestaurant.restaurant.domain.Restaurant.from(restaurantId, null, null, slug, null, null,
+                "classique", accountId, null);
     }
 }

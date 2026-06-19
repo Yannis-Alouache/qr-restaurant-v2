@@ -34,9 +34,7 @@ class UpdateOrderStatusUseCaseTest {
                 restaurantRepository,
                 new OrderEventPublisher(new SimpMessagingTemplate(messageChannel)));
 
-        Restaurant restaurant = new Restaurant();
-        restaurant.setId(restaurantId);
-        restaurant.setUserId(userId);
+        Restaurant restaurant = Restaurant.from(restaurantId, userId, null, null, null, null, "classique", null, null);
         restaurantRepository.save(restaurant);
 
         Order order = new Order();
@@ -73,9 +71,7 @@ class UpdateOrderStatusUseCaseTest {
                 restaurantRepository,
                 new OrderEventPublisher(new SimpMessagingTemplate(new RecordingMessageChannel())));
 
-        Restaurant restaurant = new Restaurant();
-        restaurant.setId(UUID.randomUUID());
-        restaurant.setUserId(UUID.randomUUID());
+        Restaurant restaurant = Restaurant.from(UUID.randomUUID(), UUID.randomUUID(), null, null, null, null, "classique", null, null);
         restaurantRepository.save(restaurant);
 
         Order order = new Order();
@@ -100,9 +96,7 @@ class UpdateOrderStatusUseCaseTest {
                 restaurantRepository,
                 new OrderEventPublisher(new SimpMessagingTemplate(new RecordingMessageChannel())));
 
-        Restaurant restaurant = new Restaurant();
-        restaurant.setId(restaurantId);
-        restaurant.setUserId(userId);
+        Restaurant restaurant = Restaurant.from(restaurantId, userId, null, null, null, null, "classique", null, null);
         restaurantRepository.save(restaurant);
 
         Order order = new Order();

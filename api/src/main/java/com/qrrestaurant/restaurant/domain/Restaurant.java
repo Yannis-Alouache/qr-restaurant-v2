@@ -1,25 +1,23 @@
 package com.qrrestaurant.restaurant.domain;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.UUID;
 
 public class Restaurant {
 
-    private UUID id;
-    private UUID userId;
+    private final UUID id;
+    private final UUID userId;
     private String name;
-    private String slug;
+    private final String slug;
     private String address;
     private String logoPath;
-    private String themeId = "classique";
+    private String themeId;
     private String paymentProviderAccountId;
-    private LocalDateTime createdAt;
+    private final LocalDateTime createdAt;
 
-    public Restaurant() {}
-
-    public Restaurant(UUID id, UUID userId, String name, String slug, String address,
-                      String logoPath, String themeId, String paymentProviderAccountId,
-                      LocalDateTime createdAt) {
+    private Restaurant(UUID id, UUID userId, String name, String slug, String address,
+                       String logoPath, String themeId, String paymentProviderAccountId, LocalDateTime createdAt) {
         this.id = id;
         this.userId = userId;
         this.name = name;
@@ -31,46 +29,52 @@ public class Restaurant {
         this.createdAt = createdAt;
     }
 
+    public static Restaurant create(UUID userId, String name, String slug, String themeId, String logoPath) {
+        Objects.requireNonNull(userId, "userId");
+        Objects.requireNonNull(name, "name");
+        Objects.requireNonNull(slug, "slug");
+        return new Restaurant(UUID.randomUUID(), userId, name, slug, null, logoPath,
+                RestaurantTheme.normalizeOrDefault(themeId), null, LocalDateTime.now());
+    }
+
+    public static Restaurant from(UUID id, UUID userId, String name, String slug, String address,
+                                   String logoPath, String themeId, String paymentProviderAccountId, LocalDateTime createdAt) {
+        return new Restaurant(id, userId, name, slug, address, logoPath, themeId, paymentProviderAccountId, createdAt);
+    }
+
+    public void update(String name, String address, String logoPath, String themeId, String paymentProviderAccountId) {
+        if (name != null) this.name = name;
+        if (address != null) this.address = address;
+        if (logoPath != null) this.logoPath = logoPath;
+        if (themeId != null) this.themeId = RestaurantTheme.normalizeOrDefault(themeId);
+        if (paymentProviderAccountId != null) {
+            this.paymentProviderAccountId = normalizePaymentProviderAccountId(paymentProviderAccountId);
+        }
+    }
+
     public void assertCanAcceptOnlinePayments() {
         if (paymentProviderAccountId == null || paymentProviderAccountId.isBlank()) {
             throw new PaymentNotConfiguredException();
         }
     }
 
-    public UUID getId() { return id; }
-    public void setId(UUID id) { this.id = id; }
-
-    public UUID getUserId() { return userId; }
-    public void setUserId(UUID userId) { this.userId = userId; }
-
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-
-    public String getSlug() { return slug; }
-    public void setSlug(String slug) { this.slug = slug; }
-
-    public String getAddress() { return address; }
-    public void setAddress(String address) { this.address = address; }
-
-    public String getLogoPath() { return logoPath; }
-    public void setLogoPath(String logoPath) { this.logoPath = logoPath; }
-
-    public String getThemeId() { return themeId; }
-    public void setThemeId(String themeId) { this.themeId = themeId; }
-
-    public String getPaymentProviderAccountId() { return paymentProviderAccountId; }
-    public void setPaymentProviderAccountId(String paymentProviderAccountId) {
+    private static String normalizePaymentProviderAccountId(String paymentProviderAccountId) {
         if (paymentProviderAccountId == null) {
-            this.paymentProviderAccountId = null;
-            return;
+            return null;
         }
-
-        String normalizedAccountId = paymentProviderAccountId.trim();
-        this.paymentProviderAccountId = normalizedAccountId.isEmpty() ? null : normalizedAccountId;
+        String normalized = paymentProviderAccountId.trim();
+        return normalized.isEmpty() ? null : normalized;
     }
 
+    public UUID getId() { return id; }
+    public UUID getUserId() { return userId; }
+    public String getName() { return name; }
+    public String getSlug() { return slug; }
+    public String getAddress() { return address; }
+    public String getLogoPath() { return logoPath; }
+    public String getThemeId() { return themeId; }
+    public String getPaymentProviderAccountId() { return paymentProviderAccountId; }
     public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
     public static class PaymentNotConfiguredException extends IllegalArgumentException {
         public PaymentNotConfiguredException() {

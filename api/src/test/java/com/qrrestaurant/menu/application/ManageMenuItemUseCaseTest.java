@@ -111,10 +111,6 @@ class ManageMenuItemUseCaseTest {
     }
 
     private Restaurant restaurant(UUID ownerId, UUID restaurantId) {
-        Restaurant restaurant = new Restaurant();
-        restaurant.setId(restaurantId);
-        restaurant.setUserId(ownerId);
-        restaurant.setSlug("naia-burger");
-        return restaurant;
+        return Restaurant.from(restaurantId, ownerId, null, "naia-burger", null, null, "classique", null, null);
     }
 }

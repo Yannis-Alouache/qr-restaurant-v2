@@ -17,7 +17,7 @@ public class InMemoryRestaurantRepository implements RestaurantRepository {
         UUID id = restaurant.getId() != null ? restaurant.getId() : UUID.randomUUID();
         LocalDateTime createdAt = restaurant.getCreatedAt() != null ? restaurant.getCreatedAt() : LocalDateTime.now();
 
-        Restaurant saved = new Restaurant(id, restaurant.getUserId(), restaurant.getName(), restaurant.getSlug(),
+        Restaurant saved = Restaurant.from(id, restaurant.getUserId(), restaurant.getName(), restaurant.getSlug(),
                 restaurant.getAddress(), restaurant.getLogoPath(), restaurant.getThemeId(),
                 restaurant.getPaymentProviderAccountId(), createdAt);
         restaurants.put(id, saved);
@@ -51,7 +51,7 @@ public class InMemoryRestaurantRepository implements RestaurantRepository {
     }
 
     private Restaurant copy(Restaurant restaurant) {
-        return new Restaurant(restaurant.getId(), restaurant.getUserId(), restaurant.getName(), restaurant.getSlug(),
+        return Restaurant.from(restaurant.getId(), restaurant.getUserId(), restaurant.getName(), restaurant.getSlug(),
                 restaurant.getAddress(), restaurant.getLogoPath(), restaurant.getThemeId(),
                 restaurant.getPaymentProviderAccountId(), restaurant.getCreatedAt());
     }

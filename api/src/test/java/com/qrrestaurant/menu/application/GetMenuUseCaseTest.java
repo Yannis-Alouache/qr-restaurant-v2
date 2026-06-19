@@ -63,11 +63,6 @@ class GetMenuUseCaseTest {
     }
 
     private Restaurant restaurant(UUID restaurantId) {
-        Restaurant restaurant = new Restaurant();
-        restaurant.setId(restaurantId);
-        restaurant.setSlug("naia-burger");
-        restaurant.setName("Naia Burger");
-        restaurant.setThemeId("chaud");
-        return restaurant;
+        return Restaurant.from(restaurantId, null, "Naia Burger", "naia-burger", null, null, "chaud", null, null);
     }
 }

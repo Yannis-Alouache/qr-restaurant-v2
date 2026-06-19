@@ -2,7 +2,6 @@ package com.qrrestaurant.restaurant.application;
 
 import com.qrrestaurant.restaurant.domain.Restaurant;
 import com.qrrestaurant.restaurant.domain.RestaurantRepository;
-import com.qrrestaurant.restaurant.domain.RestaurantTheme;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,11 +26,7 @@ public class UpdateRestaurantUseCase {
         Restaurant restaurant = restaurantRepository.findByUserId(userId)
                 .orElseThrow(GetRestaurantUseCase.NoRestaurantException::new);
 
-        if (name != null) restaurant.setName(name);
-        if (address != null) restaurant.setAddress(address);
-        if (logoPath != null) restaurant.setLogoPath(logoPath);
-        if (themeId != null) restaurant.setThemeId(RestaurantTheme.normalizeOrDefault(themeId));
-        if (paymentProviderAccountId != null) restaurant.setPaymentProviderAccountId(paymentProviderAccountId);
+        restaurant.update(name, address, logoPath, themeId, paymentProviderAccountId);
 
         Restaurant saved = restaurantRepository.save(restaurant);
         return new RestaurantView(saved.getId().toString(), saved.getName(), saved.getSlug(),

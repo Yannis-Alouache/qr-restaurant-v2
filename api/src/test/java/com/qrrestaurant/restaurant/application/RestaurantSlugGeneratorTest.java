@@ -21,9 +21,7 @@ class RestaurantSlugGeneratorTest {
 
     @Test
     void shouldAppendNumericSuffixWhenSlugAlreadyExists() {
-        Restaurant existingRestaurant = new Restaurant();
-        existingRestaurant.setSlug("naia-burger");
-        restaurantRepository.save(existingRestaurant);
+        restaurantRepository.save(restaurantWithSlug("naia-burger"));
 
         String slug = generator.generate("Naia Burger");
 
@@ -33,12 +31,14 @@ class RestaurantSlugGeneratorTest {
     @Test
     void shouldFailAfterFiftyAttempts() {
         for (int index = 0; index <= RestaurantSlugGenerator.MAX_SLUG_RETRIES; index++) {
-            Restaurant existingRestaurant = new Restaurant();
-            existingRestaurant.setSlug(index == 0 ? "naia-burger" : "naia-burger-" + index);
-            restaurantRepository.save(existingRestaurant);
+            restaurantRepository.save(restaurantWithSlug(index == 0 ? "naia-burger" : "naia-burger-" + index));
         }
 
         assertThrows(RestaurantSlugGenerator.SlugGenerationException.class,
                 () -> generator.generate("Naia Burger"));
+    }
+
+    private Restaurant restaurantWithSlug(String slug) {
+        return Restaurant.from(null, null, null, slug, null, null, "classique", null, null);
     }
 }
