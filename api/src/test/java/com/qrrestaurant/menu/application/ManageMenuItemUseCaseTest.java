@@ -29,7 +29,7 @@ class ManageMenuItemUseCaseTest {
 
         restaurantRepository.save(restaurant(ownerId, restaurantId));
         categoryRepository.save(new Category(categoryId, restaurantId, "Burgers", null, 0, false));
-        MenuItem baseItem = menuItemRepository.save(new MenuItem(
+        MenuItem baseItem = menuItemRepository.save(MenuItem.from(
                 UUID.randomUUID(), categoryId, "Burger", null, new BigDecimal("12.00"), null, true, null));
 
         ManageMenuItemUseCase useCase = new ManageMenuItemUseCase(
@@ -61,7 +61,7 @@ class ManageMenuItemUseCaseTest {
         restaurantRepository.save(restaurant(ownerId, restaurantId));
         categoryRepository.save(new Category(burgersCategoryId, restaurantId, "Burgers", null, 0, true));
         categoryRepository.save(new Category(dessertsCategoryId, restaurantId, "Desserts", null, 1, true));
-        MenuItem baseItem = menuItemRepository.save(new MenuItem(
+        MenuItem baseItem = menuItemRepository.save(MenuItem.from(
                 UUID.randomUUID(), dessertsCategoryId, "Brownie", null, new BigDecimal("5.00"), null, true, null));
 
         ManageMenuItemUseCase useCase = new ManageMenuItemUseCase(
@@ -91,7 +91,7 @@ class ManageMenuItemUseCaseTest {
 
         restaurantRepository.save(restaurant(ownerId, restaurantId));
         categoryRepository.save(new Category(categoryId, restaurantId, "Burgers", null, 0, true));
-        MenuItem item = menuItemRepository.save(new MenuItem(
+        MenuItem item = menuItemRepository.save(MenuItem.from(
                 UUID.randomUUID(), categoryId, "Burger", "Description initiale",
                 new BigDecimal("12.00"), null, true, null));
 

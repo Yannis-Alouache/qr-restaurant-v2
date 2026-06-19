@@ -35,14 +35,7 @@ public class ManageMenuItemUseCase {
         Category category = verifyCategoryBelongsToRestaurant(categoryId, restaurant);
         validateMenuVariant(category, menuVariantOf, restaurant);
 
-        MenuItem item = new MenuItem();
-        item.setCategoryId(categoryId);
-        item.setName(name);
-        item.setDescription(normalizeDescription(description));
-        item.setPrice(price);
-        item.setImagePath(imagePath);
-        item.setAvailable(true);
-        item.setMenuVariantOf(menuVariantOf);
+        MenuItem item = MenuItem.create(categoryId, name, description, price, imagePath, menuVariantOf);
 
         MenuItem saved = menuItemRepository.save(item);
         return toView(saved);
@@ -56,11 +49,7 @@ public class ManageMenuItemUseCase {
         Category category = verifyCategoryBelongsToRestaurant(item.getCategoryId(), restaurant);
         validateMenuVariant(category, menuVariantOf, restaurant);
 
-        if (name != null) item.setName(name);
-        if (description != null) item.setDescription(normalizeDescription(description));
-        if (price != null) item.setPrice(price);
-        if (imagePath != null) item.setImagePath(imagePath);
-        if (menuVariantOf != null) item.setMenuVariantOf(menuVariantOf);
+        item.update(name, description, price, imagePath, menuVariantOf);
 
         MenuItem saved = menuItemRepository.save(item);
         return toView(saved);
@@ -71,7 +60,7 @@ public class ManageMenuItemUseCase {
         MenuItem item = menuItemRepository.findById(itemId)
                 .orElseThrow(MenuItemNotFoundException::new);
         verifyCategoryBelongsToRestaurant(item.getCategoryId(), restaurant);
-        item.setAvailable(available);
+        item.changeAvailability(available);
         menuItemRepository.save(item);
     }
 
@@ -115,13 +104,6 @@ public class ManageMenuItemUseCase {
         if (baseItem.isMenuVariant()) {
             throw new InvalidMenuVariantException("Une variante menu doit référencer un plat de base");
         }
-    }
-
-    private String normalizeDescription(String description) {
-        if (description == null || description.isBlank()) {
-            return null;
-        }
-        return description;
     }
 
     private MenuItemView toView(MenuItem i) {

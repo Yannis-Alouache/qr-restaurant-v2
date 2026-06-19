@@ -32,7 +32,7 @@ class ManageCompositionUseCaseTest {
 
         restaurantRepository.save(restaurant(ownerId, restaurantId));
         categoryRepository.save(new Category(otherCategoryId, otherRestaurantId, "Sides", null, 0, false));
-        MenuItem foreignItem = menuItemRepository.save(new MenuItem(
+        MenuItem foreignItem = menuItemRepository.save(MenuItem.from(
                 UUID.randomUUID(), otherCategoryId, "Frites", null, new BigDecimal("3.00"), null, true, null));
 
         ManageCompositionUseCase useCase = new ManageCompositionUseCase(
@@ -91,7 +91,7 @@ class ManageCompositionUseCaseTest {
 
         restaurantRepository.save(restaurant(ownerId, restaurantId));
         categoryRepository.save(new Category(categoryId, restaurantId, "Burgers", null, 0, true));
-        MenuItem menuVariant = menuItemRepository.save(new MenuItem(
+        MenuItem menuVariant = menuItemRepository.save(MenuItem.from(
                 UUID.randomUUID(), categoryId, "Menu Burger", null, new BigDecimal("10.00"), null, true, baseItemId));
 
         ManageCompositionUseCase useCase = new ManageCompositionUseCase(

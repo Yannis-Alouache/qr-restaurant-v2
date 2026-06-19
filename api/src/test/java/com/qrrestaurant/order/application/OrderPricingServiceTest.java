@@ -38,11 +38,11 @@ class OrderPricingServiceTest {
         UUID categoryId = UUID.randomUUID();
         UUID groupId = UUID.randomUUID();
 
-        MenuItem menuMain = new MenuItem(UUID.randomUUID(), categoryId, "Menu burger", null,
+        MenuItem menuMain = MenuItem.from(UUID.randomUUID(), categoryId, "Menu burger", null,
                 new BigDecimal("10.00"), null, true, UUID.randomUUID());
-        MenuItem fries = new MenuItem(UUID.randomUUID(), categoryId, "Frites", null,
+        MenuItem fries = MenuItem.from(UUID.randomUUID(), categoryId, "Frites", null,
                 new BigDecimal("3.50"), null, true, null);
-        MenuItem drink = new MenuItem(UUID.randomUUID(), categoryId, "Coca", null,
+        MenuItem drink = MenuItem.from(UUID.randomUUID(), categoryId, "Coca", null,
                 new BigDecimal("2.50"), null, true, null);
         Category category = new Category(categoryId, restaurantId, "Burgers", null, 0, true);
 
@@ -74,11 +74,11 @@ class OrderPricingServiceTest {
         UUID categoryId = UUID.randomUUID();
         UUID menuGroupId = UUID.randomUUID();
 
-        MenuItem menuMain = new MenuItem(UUID.randomUUID(), categoryId, "Menu bacon", null,
+        MenuItem menuMain = MenuItem.from(UUID.randomUUID(), categoryId, "Menu bacon", null,
                 new BigDecimal("12.00"), null, true, UUID.randomUUID());
-        MenuItem nuggets = new MenuItem(UUID.randomUUID(), categoryId, "Nuggets", null,
+        MenuItem nuggets = MenuItem.from(UUID.randomUUID(), categoryId, "Nuggets", null,
                 new BigDecimal("4.00"), null, true, null);
-        MenuItem drink = new MenuItem(UUID.randomUUID(), categoryId, "Coca", null,
+        MenuItem drink = MenuItem.from(UUID.randomUUID(), categoryId, "Coca", null,
                 new BigDecimal("2.50"), null, true, null);
         categoryRepository.save(new Category(categoryId, restaurantId, "Menus", null, 0, true));
         menuItemRepository.save(menuMain);

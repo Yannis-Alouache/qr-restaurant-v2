@@ -63,13 +63,13 @@ class CreateOrderUseCaseIntegrationTest {
         UUID cokeId = UUID.randomUUID();
         UUID brownieId = UUID.randomUUID();
 
-        menuItemRepository.save(new MenuItem(burgerMenuId, categoryId, "Menu burger", null,
+        menuItemRepository.save(MenuItem.from(burgerMenuId, categoryId, "Menu burger", null,
                 new BigDecimal("10.40"), null, true, UUID.randomUUID()));
-        menuItemRepository.save(new MenuItem(friesId, categoryId, "Frites", null,
+        menuItemRepository.save(MenuItem.from(friesId, categoryId, "Frites", null,
                 new BigDecimal("3.00"), null, true, null));
-        menuItemRepository.save(new MenuItem(cokeId, categoryId, "Coca", null,
+        menuItemRepository.save(MenuItem.from(cokeId, categoryId, "Coca", null,
                 new BigDecimal("2.50"), null, true, null));
-        menuItemRepository.save(new MenuItem(brownieId, categoryId, "Brownie", null,
+        menuItemRepository.save(MenuItem.from(brownieId, categoryId, "Brownie", null,
                 new BigDecimal("4.50"), null, true, null));
         compositionRepository.save(MenuComposition.from(UUID.randomUUID(), restaurantId,
                 MenuComposition.CompositionType.accompagnement, friesId, BigDecimal.ZERO));

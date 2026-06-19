@@ -65,11 +65,11 @@ class CreateCheckoutSessionUseCaseIntegrationTest {
         UUID baconMenuId = UUID.randomUUID();
         UUID nuggetsId = UUID.randomUUID();
         UUID cokeId = UUID.randomUUID();
-        menuItemRepository.save(new MenuItem(baconMenuId, categoryId, "Menu bacon", null,
+        menuItemRepository.save(MenuItem.from(baconMenuId, categoryId, "Menu bacon", null,
                 new BigDecimal("12.00"), null, true, UUID.randomUUID()));
-        menuItemRepository.save(new MenuItem(nuggetsId, categoryId, "Nuggets", null,
+        menuItemRepository.save(MenuItem.from(nuggetsId, categoryId, "Nuggets", null,
                 new BigDecimal("4.00"), null, true, null));
-        menuItemRepository.save(new MenuItem(cokeId, categoryId, "Coca", null,
+        menuItemRepository.save(MenuItem.from(cokeId, categoryId, "Coca", null,
                 new BigDecimal("2.50"), null, true, null));
         compositionRepository.save(MenuComposition.from(UUID.randomUUID(), restaurantId,
                 MenuComposition.CompositionType.accompagnement, nuggetsId, new BigDecimal("1.50")));
@@ -135,7 +135,7 @@ class CreateCheckoutSessionUseCaseIntegrationTest {
         categoryRepository.save(new Category(categoryId, restaurantId, "Burgers", null, 0, true));
 
         UUID burgerId = UUID.randomUUID();
-        menuItemRepository.save(new MenuItem(burgerId, categoryId, "Burger", null,
+        menuItemRepository.save(MenuItem.from(burgerId, categoryId, "Burger", null,
                 new BigDecimal("12.00"), null, true, null));
 
         CreateOrderUseCase.OrderResponse orderResponse = createOrderUseCase.execute("naia-burger", tableId, List.of(
@@ -185,7 +185,7 @@ class CreateCheckoutSessionUseCaseIntegrationTest {
         categoryRepository.save(new Category(categoryId, restaurantId, "Burgers", null, 0, true));
 
         UUID burgerId = UUID.randomUUID();
-        menuItemRepository.save(new MenuItem(burgerId, categoryId, "Burger", null,
+        menuItemRepository.save(MenuItem.from(burgerId, categoryId, "Burger", null,
                 new BigDecimal("12.00"), null, true, null));
 
         CreateOrderUseCase.OrderResponse orderResponse = createOrderUseCase.execute("naia-burger", tableId, List.of(

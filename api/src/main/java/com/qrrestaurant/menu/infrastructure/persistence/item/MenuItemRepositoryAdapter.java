@@ -46,7 +46,7 @@ public class MenuItemRepositoryAdapter implements MenuItemRepository {
     }
 
     private MenuItem toDomain(MenuItemJpaEntity e) {
-        return new MenuItem(e.getId(), e.getCategoryId(), e.getName(),
+        return MenuItem.from(e.getId(), e.getCategoryId(), e.getName(),
                 e.getDescription(), e.getPrice(), e.getImagePath(),
                 e.isAvailable(), e.getMenuVariantOf());
     }

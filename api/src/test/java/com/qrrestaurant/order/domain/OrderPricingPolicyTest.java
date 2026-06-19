@@ -221,7 +221,7 @@ class OrderPricingPolicyTest {
     }
 
     private MenuItem menuItem(String name, BigDecimal price, boolean menuVariant, boolean available) {
-        return new MenuItem(UUID.randomUUID(), categoryId, name, null, price, null, available,
+        return MenuItem.from(UUID.randomUUID(), categoryId, name, null, price, null, available,
                 menuVariant ? UUID.randomUUID() : null);
     }
 
