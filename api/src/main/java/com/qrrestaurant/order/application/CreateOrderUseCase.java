@@ -51,7 +51,7 @@ public class CreateOrderUseCase {
         Order savedOrder = orderRepository.save(order);
 
         for (OrderItem item : pricing.items()) {
-            item.setOrderId(savedOrder.getId());
+            item.assignToOrder(savedOrder.getId());
         }
         orderItemRepository.saveAll(pricing.items());
 

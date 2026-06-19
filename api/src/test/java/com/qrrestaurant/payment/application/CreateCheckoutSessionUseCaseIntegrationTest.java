@@ -84,7 +84,7 @@ class CreateCheckoutSessionUseCaseIntegrationTest {
 
         UUID orderId = UUID.fromString(orderResponse.id());
         List<OrderItem> tamperedItems = orderItemRepository.findByOrderId(orderId);
-        tamperedItems.forEach(item -> item.setUnitPrice(new BigDecimal("99.99")));
+        tamperedItems.forEach(item -> item.reprice(new BigDecimal("99.99")));
         orderItemRepository.saveAll(tamperedItems);
 
         Order tamperedOrder = orderRepository.findById(orderId).orElseThrow();

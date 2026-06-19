@@ -32,19 +32,11 @@ class OrderPersistenceIntegrationTest extends AbstractPostgresIntegrationTest {
         order.setTotal(new BigDecimal("14.90"));
         Order savedOrder = orderRepository.save(order);
 
-        OrderItem brownie = new OrderItem();
-        brownie.setOrderId(savedOrder.getId());
-        brownie.setMenuItemId(BROWNIE_ID);
-        brownie.setName("Brownie maison");
-        brownie.setQuantity(2);
-        brownie.setUnitPrice(new BigDecimal("4.50"));
+        OrderItem brownie = OrderItem.create(BROWNIE_ID, "Brownie maison", 2, new BigDecimal("4.50"), null, null);
+        brownie.assignToOrder(savedOrder.getId());
 
-        OrderItem coke = new OrderItem();
-        coke.setOrderId(savedOrder.getId());
-        coke.setMenuItemId(COKE_ID);
-        coke.setName("Coca-Cola");
-        coke.setQuantity(1);
-        coke.setUnitPrice(new BigDecimal("2.50"));
+        OrderItem coke = OrderItem.create(COKE_ID, "Coca-Cola", 1, new BigDecimal("2.50"), null, null);
+        coke.assignToOrder(savedOrder.getId());
 
         orderItemRepository.saveAll(List.of(brownie, coke));
 

@@ -1,22 +1,21 @@
 package com.qrrestaurant.order.domain;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 import java.util.UUID;
 
 public class OrderItem {
 
-    private UUID id;
+    private final UUID id;
     private UUID orderId;
-    private UUID menuItemId;
-    private String name;
-    private int quantity;
+    private final UUID menuItemId;
+    private final String name;
+    private final int quantity;
     private BigDecimal unitPrice;
-    private UUID menuGroupId;
-    private String menuRole;
+    private final UUID menuGroupId;
+    private final String menuRole;
 
-    public OrderItem() {}
-
-    public OrderItem(UUID id, UUID orderId, UUID menuItemId, String name,
+    private OrderItem(UUID id, UUID orderId, UUID menuItemId, String name,
                      int quantity, BigDecimal unitPrice, UUID menuGroupId, String menuRole) {
         this.id = id;
         this.orderId = orderId;
@@ -28,27 +27,33 @@ public class OrderItem {
         this.menuRole = menuRole;
     }
 
+    public static OrderItem create(UUID menuItemId, String name, int quantity,
+                                   BigDecimal unitPrice, UUID menuGroupId, String menuRole) {
+        Objects.requireNonNull(menuItemId, "menuItemId");
+        Objects.requireNonNull(name, "name");
+        Objects.requireNonNull(unitPrice, "unitPrice");
+        return new OrderItem(UUID.randomUUID(), null, menuItemId, name, quantity, unitPrice, menuGroupId, menuRole);
+    }
+
+    public static OrderItem from(UUID id, UUID orderId, UUID menuItemId, String name,
+                                 int quantity, BigDecimal unitPrice, UUID menuGroupId, String menuRole) {
+        return new OrderItem(id, orderId, menuItemId, name, quantity, unitPrice, menuGroupId, menuRole);
+    }
+
+    public void assignToOrder(UUID orderId) {
+        this.orderId = orderId;
+    }
+
+    public void reprice(BigDecimal unitPrice) {
+        this.unitPrice = unitPrice;
+    }
+
     public UUID getId() { return id; }
-    public void setId(UUID id) { this.id = id; }
-
     public UUID getOrderId() { return orderId; }
-    public void setOrderId(UUID orderId) { this.orderId = orderId; }
-
     public UUID getMenuItemId() { return menuItemId; }
-    public void setMenuItemId(UUID menuItemId) { this.menuItemId = menuItemId; }
-
     public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-
     public int getQuantity() { return quantity; }
-    public void setQuantity(int quantity) { this.quantity = quantity; }
-
     public BigDecimal getUnitPrice() { return unitPrice; }
-    public void setUnitPrice(BigDecimal unitPrice) { this.unitPrice = unitPrice; }
-
     public UUID getMenuGroupId() { return menuGroupId; }
-    public void setMenuGroupId(UUID menuGroupId) { this.menuGroupId = menuGroupId; }
-
     public String getMenuRole() { return menuRole; }
-    public void setMenuRole(String menuRole) { this.menuRole = menuRole; }
 }

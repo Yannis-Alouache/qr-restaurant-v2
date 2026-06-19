@@ -29,7 +29,7 @@ public class OrderItemRepositoryAdapter implements OrderItemRepository {
     }
 
     private OrderItem toDomain(OrderItemJpaEntity e) {
-        return new OrderItem(e.getId(), e.getOrderId(), e.getMenuItemId(),
+        return OrderItem.from(e.getId(), e.getOrderId(), e.getMenuItemId(),
                 e.getName(), e.getQuantity(), e.getUnitPrice(),
                 e.getMenuGroupId(), e.getMenuRole());
     }

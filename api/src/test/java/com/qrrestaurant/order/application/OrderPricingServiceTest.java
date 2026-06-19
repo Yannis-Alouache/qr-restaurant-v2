@@ -89,11 +89,11 @@ class OrderPricingServiceTest {
         menuCompositionRepository.save(new MenuComposition(UUID.randomUUID(), restaurantId,
                 MenuComposition.CompositionType.boisson, drink.getId(), BigDecimal.ZERO));
 
-        OrderItem mainItem = new OrderItem(UUID.randomUUID(), UUID.randomUUID(), menuMain.getId(),
+        OrderItem mainItem = OrderItem.from(UUID.randomUUID(), UUID.randomUUID(), menuMain.getId(),
                 "Menu bacon", 1, new BigDecimal("99.99"), menuGroupId, "plat");
-        OrderItem nuggetsItem = new OrderItem(UUID.randomUUID(), mainItem.getOrderId(), nuggets.getId(),
+        OrderItem nuggetsItem = OrderItem.from(UUID.randomUUID(), mainItem.getOrderId(), nuggets.getId(),
                 "Nuggets", 1, new BigDecimal("99.99"), menuGroupId, "accompagnement");
-        OrderItem drinkItem = new OrderItem(UUID.randomUUID(), mainItem.getOrderId(), drink.getId(),
+        OrderItem drinkItem = OrderItem.from(UUID.randomUUID(), mainItem.getOrderId(), drink.getId(),
                 "Coca", 1, new BigDecimal("99.99"), menuGroupId, "boisson");
 
         OrderPricingService.PricingResult result =
