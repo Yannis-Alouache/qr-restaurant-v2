@@ -170,6 +170,31 @@ class RestaurantAdminControllerHttpTest extends AbstractPostgresIntegrationTest 
                 .andExpect(jsonPath("$.paymentProviderAccountId").isEmpty());
     }
 
+    @Test
+    void shouldClearLogoPathWhenSettingsUpdateProvidesBlankValue() throws Exception {
+        jdbcTemplate.update(
+                "UPDATE restaurant SET logo_path = ? WHERE id = ?",
+                "http://localhost:8333/logos/naia-seed.png",
+                RESTAURANT_ID);
+
+        mockMvc.perform(put("/api/admin/restaurant")
+                        .cookie(bearerToken(OWNER_ID, "owner@test.com"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "logoPath": "   "
+                                }
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.logoPath").isEmpty());
+
+        String persistedLogoPath = jdbcTemplate.queryForObject(
+                "SELECT logo_path FROM restaurant WHERE id = ?",
+                String.class,
+                RESTAURANT_ID);
+        assertThat(persistedLogoPath).isNull();
+    }
+
     private Cookie bearerToken(UUID userId, String email) {
         return TestAuthCookies.jwt(jwtService, userId, email);
     }

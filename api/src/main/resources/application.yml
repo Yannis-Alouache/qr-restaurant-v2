@@ -38,12 +38,10 @@ stripe:
 storage:
   seaweedfs:
     s3-endpoint: ${SEAWEEDFS_S3_ENDPOINT:http://localhost:8333}
-    access-key: ${SEAWEEDFS_ACCESS_KEY:any}
-    secret-key: ${SEAWEEDFS_SECRET_KEY:any}
 
 jwt:
   secret: ${JWT_SECRET:dGhpcy1pcy1hLWRldmVsb3BtZW50LWp3dC1zZWNyZXQta2V5LWZvci1xci1yZXN0YXVyYW50LXYy}
-  expiration: 86400000
+  expiration: 2592000000 # 30 jours (par défaut = dev). Override prod ci-dessous.
   cookie:
     secure: ${JWT_COOKIE_SECURE:false} # true en production (HTTPS uniquement)
     same-site: Lax
@@ -51,3 +49,11 @@ jwt:
 app:
   client-base-url: ${CLIENT_BASE_URL:http://localhost:4300}
   admin-base-url: ${ADMIN_BASE_URL:http://localhost:4200}
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+jwt:
+  expiration: 604800000 # 7 jours en production

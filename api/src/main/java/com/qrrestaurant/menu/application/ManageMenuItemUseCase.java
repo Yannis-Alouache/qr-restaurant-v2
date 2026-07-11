@@ -7,6 +7,7 @@ import com.qrrestaurant.menu.domain.MenuItem;
 import com.qrrestaurant.menu.domain.MenuItemRepository;
 import com.qrrestaurant.restaurant.domain.Restaurant;
 import com.qrrestaurant.restaurant.domain.RestaurantRepository;
+import com.qrrestaurant.shared.application.ImageCleanup;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,13 +21,16 @@ public class ManageMenuItemUseCase {
     private final MenuItemRepository menuItemRepository;
     private final CategoryRepository categoryRepository;
     private final RestaurantRepository restaurantRepository;
+    private final ImageCleanup imageCleanup;
 
     public ManageMenuItemUseCase(MenuItemRepository menuItemRepository,
                                   CategoryRepository categoryRepository,
-                                  RestaurantRepository restaurantRepository) {
+                                  RestaurantRepository restaurantRepository,
+                                  ImageCleanup imageCleanup) {
         this.menuItemRepository = menuItemRepository;
         this.categoryRepository = categoryRepository;
         this.restaurantRepository = restaurantRepository;
+        this.imageCleanup = imageCleanup;
     }
 
     public MenuItemView create(UUID userId, UUID categoryId, String name, String description,
@@ -49,9 +53,11 @@ public class ManageMenuItemUseCase {
         Category category = verifyCategoryBelongsToRestaurant(item.getCategoryId(), restaurant);
         validateMenuVariant(category, menuVariantOf, restaurant);
 
+        String previousImage = item.getImagePath();
         item.update(name, description, price, imagePath, menuVariantOf);
 
         MenuItem saved = menuItemRepository.save(item);
+        cleanupIfChanged(previousImage, saved.getImagePath());
         return toView(saved);
     }
 
@@ -70,6 +76,13 @@ public class ManageMenuItemUseCase {
                 .orElseThrow(MenuItemNotFoundException::new);
         verifyCategoryBelongsToRestaurant(item.getCategoryId(), restaurant);
         menuItemRepository.deleteById(itemId);
+        imageCleanup.delete(item.getImagePath());
+    }
+
+    private void cleanupIfChanged(String previousImage, String currentImage) {
+        if (previousImage != null && !previousImage.isBlank() && !previousImage.equals(currentImage)) {
+            imageCleanup.delete(previousImage);
+        }
     }
 
     private Restaurant getRestaurantByOwner(UUID userId) {

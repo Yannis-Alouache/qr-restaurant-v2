@@ -1,0 +1,75 @@
+<div class="picker" [class.open]="open()">
+  <!-- Trigger -->
+  <button
+    type="button"
+    class="picker-trigger"
+    [class.has-value]="!!selectedItem()"
+    (click)="toggle()"
+  >
+    @if (selectedItem(); as sel) {
+      <span class="picker-trigger-thumb">
+        @if (sel.imagePath) {
+          <img [src]="sel.imagePath" [alt]="sel.name" />
+        } @else {
+          <svg lucideImage></svg>
+        }
+      </span>
+      <span class="picker-trigger-label">{{ sel.name }}</span>
+    } @else {
+      <span class="picker-trigger-placeholder">Sélectionner un produit…</span>
+    }
+    <svg class="picker-chevron" lucideChevronDown></svg>
+  </button>
+
+  <!-- Panel -->
+  @if (open()) {
+    <div class="picker-panel">
+      <div class="picker-search">
+        <svg lucideSearch></svg>
+        <input
+          type="text"
+          placeholder="Rechercher un produit…"
+          [value]="query()"
+          (input)="query.set($any($event.target).value)"
+        />
+      </div>
+
+      <div class="picker-list">
+        @for (group of groups(); track group.category.id) {
+          <div class="picker-group">
+            <p class="picker-group-title">{{ group.category.name }}</p>
+            @for (item of group.items; track item.id) {
+              <button
+                type="button"
+                class="picker-option"
+                [class.selected]="item.id === value"
+                (click)="pick(item.id)"
+              >
+                <span class="picker-option-thumb">
+                  @if (item.imagePath) {
+                    <img [src]="item.imagePath" [alt]="item.name" />
+                  } @else {
+                    <svg lucideImage></svg>
+                  }
+                </span>
+                <span class="picker-option-name">{{ item.name }}</span>
+                <span class="picker-option-price">
+                  {{ formatPrice(item.price) }}
+                      <small>à l'unité</small>
+                    </span>
+                @if (item.id === value) {
+                  <svg class="picker-option-check" lucideCheck></svg>
+                }
+              </button>
+            }
+          </div>
+        } @empty {
+          <div class="picker-empty">
+            <svg lucideSearch></svg>
+            <p>Aucun produit trouvé</p>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

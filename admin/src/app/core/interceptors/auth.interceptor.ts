@@ -1,17 +1,12 @@
 import { HttpInterceptorFn } from '@angular/common/http';
-import { inject } from '@angular/core';
-import { AuthService } from '../services/auth.service';
 
+/**
+ * The JWT travels in an httpOnly cookie (see api PR #10), so the browser must
+ * send credentials on every API call. We don't touch the Authorization header.
+ */
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  const auth = inject(AuthService);
-  const token = auth.token();
-
-  if (token && req.url.startsWith('/api/')) {
-    const cloned = req.clone({
-      setHeaders: { Authorization: `Bearer ${token}` }
-    });
-    return next(cloned);
+  if (req.url.startsWith('/api/')) {
+    return next(req.clone({ withCredentials: true }));
   }
-
   return next(req);
 };

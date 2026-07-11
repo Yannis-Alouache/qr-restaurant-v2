@@ -45,7 +45,9 @@ public class Restaurant {
     public void update(String name, String address, String logoPath, String themeId, String paymentProviderAccountId) {
         if (name != null) this.name = name;
         if (address != null) this.address = address;
-        if (logoPath != null) this.logoPath = logoPath;
+        if (logoPath != null) {
+            this.logoPath = logoPath.isBlank() ? null : logoPath;
+        }
         if (themeId != null) this.themeId = RestaurantTheme.normalizeOrDefault(themeId);
         if (paymentProviderAccountId != null) {
             this.paymentProviderAccountId = normalizePaymentProviderAccountId(paymentProviderAccountId);

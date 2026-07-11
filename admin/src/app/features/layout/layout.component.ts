@@ -1,30 +1,82 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit, inject, signal, computed } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { RestaurantService } from '../../core/services/restaurant.service';
+import { OrderService } from '../../core/services/order.service';
+import { ToastService } from '../../core/services/toast.service';
+import { ConfirmService } from '../../core/services/confirm.service';
+import { ADMIN_ICONS } from '../../core/icons';
 
 @Component({
   selector: 'app-layout',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, ...ADMIN_ICONS],
   templateUrl: './layout.component.html',
-  styleUrl: './layout.component.scss'
+  styleUrl: './layout.component.scss',
 })
 export class LayoutComponent implements OnInit {
   private auth = inject(AuthService);
-  private restaurant = inject(RestaurantService);
+  private restaurantService = inject(RestaurantService);
+  private orderService = inject(OrderService);
   private router = inject(Router);
+  readonly toast = inject(ToastService);
+  readonly confirm = inject(ConfirmService);
 
-  restaurantName = '';
+  restaurant = this.restaurantService.restaurant;
+  email = this.auth.email;
+
+  profileOpen = signal(false);
+  notificationsOpen = signal(false);
+
+  /** Live count of in-progress orders — drives the bell badge. */
+  activeOrderCount = computed(() =>
+    this.orderService.orders().filter(o => o.status !== 'servie').length,
+  );
+
+  initials = computed(() => {
+    const name = this.restaurant()?.name ?? this.email() ?? '?';
+    const parts = name.trim().split(/\s+/);
+    return (parts[0]?.[0] ?? '') + (parts[1]?.[0] ?? '');
+  });
 
   ngOnInit(): void {
-    this.restaurant.loadRestaurant().subscribe({
-      next: (r) => this.restaurantName = r.name,
-      error: () => this.router.navigate(['/onboarding'])
+    this.restaurantService.loadRestaurant().subscribe({
+      error: (err) => {
+        if (err.status === 401 || err.status === 403) {
+          this.auth.logout().subscribe(() => this.router.navigate(['/login']));
+        } else {
+          this.router.navigate(['/onboarding']);
+        }
+      },
     });
   }
 
+  toggleNotifications(): void {
+    this.notificationsOpen.update(v => !v);
+    this.closeProfile();
+  }
+
+  closeNotifications(): void {
+    this.notificationsOpen.set(false);
+  }
+
+  toggleProfile(): void {
+    this.profileOpen.update(v => !v);
+    this.closeNotifications();
+  }
+
+  closeProfile(): void {
+    this.profileOpen.set(false);
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    this.closeProfile();
+    this.closeNotifications();
+    this.confirm.cancel();
+  }
+
   logout(): void {
-    this.auth.logout();
-    this.router.navigate(['/login']);
+    this.closeProfile();
+    this.auth.logout().subscribe(() => this.router.navigate(['/login']));
   }
 }

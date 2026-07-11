@@ -31,7 +31,7 @@ Monorepo `qr-restaurant-v2` — three apps + supporting dirs.
 
 | Path | Stack | Notes |
 |------|-------|-------|
-| `admin/` | Angular 21 + Tailwind | Admin panel. UI rules: `admin/DESIGN.ADMIN.md` |
+| `admin/` | Angular 21 + Tailwind | Admin panel ("Menzo"). Design tokens: `admin/src/styles.scss` (blue `#2563eb`, Inter, `@lucide/angular`) |
 | `client/` | Angular 21 + Tailwind | Customer-facing. UI rules: `client/DESIGN.CLIENT.{THEME}.md` (current theme: `CHAUD`) |
 | `api/` | Spring Boot 3 + Java 21 (Maven) | REST + WebSocket/STOMP, Security (JWT), JPA, Validation, PostgreSQL, Flyway migrations, Stripe. API requests: `api/bruno/` |
 | `e2e/` | Playwright | Config: `playwright.config.ts` |
@@ -39,7 +39,7 @@ Monorepo `qr-restaurant-v2` — three apps + supporting dirs.
 
 **Commands:** `npm run reset-db` · `npm run test:e2e` / `test:e2e:headed` (root) · per app: `npm test` / `npm start` (`admin/`, `client/`), `mvn test` / `mvn spring-boot:run` (`api/`).
 
-**UI rule:** admin work → read `admin/DESIGN.ADMIN.md` first; client work → read `client/DESIGN.CLIENT.{THEME}.md` first.
+**UI rule:** admin work → follow `admin/src/styles.scss` (Menzo tokens); client work → read `client/DESIGN.CLIENT.{THEME}.md` first.
 
 ## Deep references (read on demand — not loaded automatically)
 

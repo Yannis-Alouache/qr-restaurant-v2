@@ -58,6 +58,6 @@ All details, examples, and code snippets in `.claude/rules/`:
 
 ## Design Principles 
 
-For the UI of the admin panel you should use the design principle located in `admin/DESIGN.ADMIN.md`
+For the UI of the admin panel ("Menzo") you should follow the implemented design tokens in `admin/src/styles.scss`
 
 For the UI of the client side of the application you should use the design principle located in `client/DESIGN.CLIENT.{THEME}.md`

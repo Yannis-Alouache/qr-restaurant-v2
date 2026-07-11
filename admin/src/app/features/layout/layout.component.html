@@ -1,61 +1,150 @@
-<div class="min-h-screen flex bg-canvas-white">
-  <!-- Sidebar -->
-  <aside class="w-60 border-r border-light-pearl flex flex-col bg-canvas-white">
-    <!-- Logo / Brand -->
-    <div class="px-6 py-6 border-b border-light-pearl">
-      <h2 class="font-polysans text-subheading tracking-tight text-midnight-graphite truncate">
-        {{ restaurantName }}
-      </h2>
-    </div>
+<!-- ═══ Navbar ═══ -->
+<nav class="navbar">
+  <div class="navbar-brand">
+    <span>Menzo</span>
+  </div>
 
-    <!-- Navigation -->
-    <nav class="flex-1 py-4">
-      <ul class="space-y-1">
-        <li>
-          <a
-            routerLink="/menu"
-            routerLinkActive="bg-cloud-whisper text-midnight-graphite"
-            class="flex items-center gap-3 px-6 py-2.5 text-sm text-dark-shale hover:bg-cloud-whisper hover:text-midnight-graphite transition-colors [routerLinkActive]"
-          >
-            <span class="text-base">📋</span> Menu
-          </a>
-        </li>
-        <li>
-          <a
-            routerLink="/orders"
-            routerLinkActive="bg-cloud-whisper text-midnight-graphite"
-            class="flex items-center gap-3 px-6 py-2.5 text-sm text-dark-shale hover:bg-cloud-whisper hover:text-midnight-graphite transition-colors [routerLinkActive]"
-          >
-            <span class="text-base">🧾</span> Commandes
-          </a>
-        </li>
-        <li>
-          <a
-            routerLink="/settings"
-            routerLinkActive="bg-cloud-whisper text-midnight-graphite"
-            class="flex items-center gap-3 px-6 py-2.5 text-sm text-dark-shale hover:bg-cloud-whisper hover:text-midnight-graphite transition-colors [routerLinkActive]"
-          >
-            <span class="text-base">⚙️</span> Paramètres
-          </a>
-        </li>
-      </ul>
-    </nav>
+  <div class="navbar-nav">
+    <a routerLink="/orders" routerLinkActive="active" class="nav-link">
+      <svg lucideClipboardList></svg>
+      Commandes
+    </a>
+    <a routerLink="/menu" routerLinkActive="active" class="nav-link">
+      <svg lucideBookOpen></svg>
+      Menu
+    </a>
+    <a routerLink="/settings" routerLinkActive="active" class="nav-link">
+      <svg lucideSettings></svg>
+      Paramètres
+    </a>
+  </div>
 
-    <!-- Logout -->
-    <div class="px-6 py-4 border-t border-light-pearl">
+  <div class="navbar-right">
+    @if (restaurant(); as resto) {
+      <div class="navbar-restaurant">
+        <span class="navbar-restaurant-dot"></span>
+        {{ resto.name }}
+      </div>
+    }
+    <div class="notification-menu">
       <button
-        (click)="logout()"
-        class="text-sm text-silver-ash hover:text-midnight-graphite transition-colors"
+        class="notification-btn"
+        type="button"
+        [class.open]="notificationsOpen()"
+        aria-label="Notifications"
+        aria-haspopup="true"
+        [attr.aria-expanded]="notificationsOpen()"
+        (click)="toggleNotifications()"
       >
-        Déconnexion
+        <svg lucideBell></svg>
+        @if (activeOrderCount() > 0) {
+          <span class="notification-badge">{{ activeOrderCount() }}</span>
+        }
       </button>
-    </div>
-  </aside>
 
-  <!-- Main Content -->
-  <main class="flex-1 overflow-y-auto">
-    <div class="max-w-5xl mx-auto px-10 py-10">
-      <router-outlet />
+      @if (notificationsOpen()) {
+        <div class="dropdown-backdrop" (click)="closeNotifications()"></div>
+        <div class="notification-dropdown open" role="menu">
+          <div class="notification-header">
+            <span>Notifications</span>
+          </div>
+          <div class="notification-empty">
+            <svg lucideBellOff></svg>
+            <p>Aucune notification pour le moment.</p>
+          </div>
+        </div>
+      }
     </div>
-  </main>
+
+    <div class="profile-menu">
+      <button
+        class="profile-trigger"
+        type="button"
+        [class.open]="profileOpen()"
+        aria-haspopup="true"
+        [attr.aria-expanded]="profileOpen()"
+        aria-label="Menu du compte"
+        (click)="toggleProfile()"
+      >
+        <span class="avatar">{{ initials() }}</span>
+        <svg class="chev" lucideChevronDown></svg>
+      </button>
+
+      @if (profileOpen()) {
+        <div class="dropdown-backdrop" (click)="closeProfile()"></div>
+        <div class="profile-dropdown open" role="menu">
+          <div class="profile-header">
+            <span class="avatar">{{ initials() }}</span>
+            <div class="profile-header-info">
+              <div class="profile-header-name">{{ restaurant()?.name ?? 'Mon restaurant' }}</div>
+              @if (email(); as mail) {
+                <div class="profile-header-email">{{ mail }}</div>
+              } @else {
+                <div class="profile-header-email">Espace gestionnaire</div>
+              }
+            </div>
+          </div>
+          <a routerLink="/settings" class="profile-item" role="menuitem" (click)="closeProfile()">
+            <svg lucideSettings></svg>
+            Paramètres
+          </a>
+          <button type="button" class="profile-item profile-item--danger" role="menuitem" (click)="logout()">
+            <svg lucideLogOut></svg>
+            Se déconnecter
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+</nav>
+
+<!-- ═══ Main content ═══ -->
+<main class="main">
+  <router-outlet />
+</main>
+
+<!-- ═══ Mobile bottom nav ═══ -->
+<div class="mobile-nav">
+  <div class="mobile-nav-inner">
+    <a routerLink="/orders" routerLinkActive="active" class="mobile-nav-item">
+      <svg lucideClipboardList></svg>
+      Commandes
+    </a>
+    <a routerLink="/menu" routerLinkActive="active" class="mobile-nav-item">
+      <svg lucideBookOpen></svg>
+      Menu
+    </a>
+    <a routerLink="/settings" routerLinkActive="active" class="mobile-nav-item">
+      <svg lucideSettings></svg>
+      Paramètres
+    </a>
+  </div>
 </div>
+
+<!-- App-wide toast -->
+@if (toast.visible()) {
+  <div class="toast visible" role="status" aria-live="polite">{{ toast.message() }}</div>
+}
+
+<!-- App-wide confirmation dialog -->
+@if (confirm.state(); as dialog) {
+  <div class="modal-overlay" (click)="confirm.cancel()">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="confirm-title"
+         [class.is-danger]="dialog.tone === 'danger'"
+         (click)="$event.stopPropagation()">
+      <div class="modal-icon">
+        @if (dialog.tone === 'danger') {
+          <svg lucideCircleAlert></svg>
+        } @else {
+          <svg lucideCircleCheckBig></svg>
+        }
+      </div>
+      <h2 class="modal-title" id="confirm-title">{{ dialog.title }}</h2>
+      <p class="modal-message">{{ dialog.message }}</p>
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" (click)="confirm.cancel()">{{ dialog.cancelLabel }}</button>
+        <button type="button" class="btn-primary" [class.btn-danger]="dialog.tone === 'danger'" (click)="confirm.confirm()">{{ dialog.confirmLabel }}</button>
+      </div>
+    </div>
+  </div>
+}

@@ -1,32 +1,43 @@
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, OnInit, effect, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RestaurantService, Restaurant, Table } from '../../core/services/restaurant.service';
+import { RestaurantService, Table } from '../../core/services/restaurant.service';
 import { ImageService } from '../../core/services/image.service';
+import { ToastService } from '../../core/services/toast.service';
 import QRCode from 'qrcode';
+import { ADMIN_ICONS } from '../../core/icons';
 
 const THEMES = [
-  { id: 'classique', label: 'Classique' },
-  { id: 'chaud', label: 'Chaud' },
-  { id: 'nature', label: 'Nature' },
-  { id: 'elegant', label: 'Elegant' }
+  { id: 'classique', name: 'Classique', sub: 'Noir et blanc', cls: 'theme-preview-classic' },
+  { id: 'chaud', name: 'Chaud', sub: 'Tons orangés', cls: 'theme-preview-warm' },
+  { id: 'nature', name: 'Nature', sub: 'Tons verts', cls: 'theme-preview-nature' },
+  { id: 'elegant', name: 'Élégant', sub: 'Tons violets', cls: 'theme-preview-elegant' },
 ] as const;
+
+interface QrEntry {
+  id: string;
+  number: number;
+  url: string;
+  link: string;
+}
 
 @Component({
   selector: 'app-settings',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, ...ADMIN_ICONS],
   templateUrl: './settings.component.html',
-  styleUrl: './settings.component.scss'
+  styleUrl: './settings.component.scss',
 })
-export class SettingsComponent {
+export class SettingsComponent implements OnInit {
   private image = inject(ImageService);
+  private toast = inject(ToastService);
   restaurant = inject(RestaurantService);
 
   themes = THEMES;
-  loading = false;
-  saved = false;
-  qrCodes = signal<Map<string, string>>(new Map());
-  showQrPanel = false;
+  loading = signal(false);
+  saved = signal(false);
+  uploadingLogo = signal(false);
+  qrEntries = signal<QrEntry[]>([]);
 
+  /** All fields preserved on save; only name/theme/logo are surfaced in the UI. */
   form = new FormGroup({
     name: new FormControl('', Validators.required),
     address: new FormControl(''),
@@ -34,112 +45,153 @@ export class SettingsComponent {
     paymentProviderAccountId: new FormControl(''),
   });
 
-  private syncRestaurantState = effect(() => {
-    const restaurant = this.restaurant.restaurant();
-    if (!restaurant) {
-      return;
-    }
-    this.form.patchValue({
-      name: restaurant.name,
-      address: restaurant.address ?? '',
-      themeId: restaurant.themeId,
-      paymentProviderAccountId: restaurant.paymentProviderAccountId ?? '',
-    }, { emitEvent: false });
-  });
-
-  save(): void {
-    if (this.form.invalid) return;
-    this.loading = true;
-    this.saved = false;
-
-    this.restaurant.updateRestaurant({
-      name: this.form.controls.name.value ?? '',
-      address: this.form.controls.address.value ?? '',
-      themeId: this.form.controls.themeId.value ?? 'classique',
-      paymentProviderAccountId: this.form.controls.paymentProviderAccountId.value ?? '',
-    }).subscribe({
-      next: () => {
-        this.loading = false;
-        this.saved = true;
-        setTimeout(() => this.saved = false, 3000);
-      },
-      error: (err) => {
-        alert(err.error?.message ?? err.error?.error ?? 'Erreur');
-        this.loading = false;
+  constructor() {
+    effect(() => {
+      const restaurant = this.restaurant.restaurant();
+      if (!restaurant) {
+        return;
       }
+      this.form.patchValue(
+        {
+          name: restaurant.name,
+          address: restaurant.address ?? '',
+          themeId: restaurant.themeId,
+          paymentProviderAccountId: restaurant.paymentProviderAccountId ?? '',
+        },
+        { emitEvent: false },
+      );
     });
   }
 
+  ngOnInit(): void {
+    this.generateQrCodes();
+  }
+
+  // ── Restaurant info ────────────────────────────────────────────────
+  save(): void {
+    if (this.form.invalid || this.loading()) {
+      return;
+    }
+    this.loading.set(true);
+    this.saved.set(false);
+
+    this.restaurant
+      .updateRestaurant({
+        name: this.form.controls.name.value ?? '',
+        address: this.form.controls.address.value ?? '',
+        themeId: this.form.controls.themeId.value ?? 'classique',
+        paymentProviderAccountId: this.form.controls.paymentProviderAccountId.value ?? '',
+      })
+      .subscribe({
+        next: () => {
+          this.loading.set(false);
+          this.saved.set(true);
+          this.toast.show('Informations mises à jour');
+          setTimeout(() => this.saved.set(false), 2500);
+        },
+        error: (err) => {
+          this.toast.show(err.error?.message ?? err.error?.error ?? 'Erreur');
+          this.loading.set(false);
+        },
+      });
+  }
+
+  // ── Logo ───────────────────────────────────────────────────────────
   onLogoUpload(event: Event): void {
     const file = (event.target as HTMLInputElement).files?.[0];
-    if (!file) return;
-
+    if (!file) {
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      this.toast.show('Le logo ne doit pas dépasser 2 Mo');
+      return;
+    }
+    this.uploadingLogo.set(true);
+    (event.target as HTMLInputElement).value = '';
     this.image.upload('logos', file).subscribe({
       next: (res) => {
         this.restaurant.updateRestaurant({ logoPath: res.url }).subscribe({
-          error: (err) => alert(err.error?.message ?? err.error?.error ?? 'Erreur lors de la mise à jour du logo'),
+          next: () => {
+            this.uploadingLogo.set(false);
+            this.toast.show('Logo mis à jour');
+          },
+          error: () => {
+            this.uploadingLogo.set(false);
+            this.toast.show('Erreur lors de la mise à jour du logo');
+          },
         });
       },
-      error: (err) => alert(err.error?.message ?? err.error?.error ?? "Erreur lors de l'upload")
+      error: () => {
+        this.uploadingLogo.set(false);
+        this.toast.show("Erreur lors de l'import du logo");
+      },
     });
+  }
+
+  removeLogo(): void {
+    this.restaurant.updateRestaurant({ logoPath: '' }).subscribe({
+      next: () => this.toast.show('Logo supprimé'),
+      error: () => this.toast.show('Erreur lors de la suppression'),
+    });
+  }
+
+  // ── Theme ──────────────────────────────────────────────────────────
+  selectTheme(id: string): void {
+    this.form.controls.themeId.setValue(id);
+    this.restaurant.updateRestaurant({ themeId: id }).subscribe({
+      next: () => this.toast.show('Thème appliqué au menu client'),
+      error: () => this.toast.show('Erreur lors du changement de thème'),
+    });
+  }
+
+  // ── QR codes ───────────────────────────────────────────────────────
+  tableCount(): number {
+    return this.restaurant.tables().length || this.qrEntries().length;
   }
 
   generateQrCodes(): void {
     const restaurant = this.restaurant.restaurant();
-    const tables = this.restaurant.tables();
-
     if (!restaurant) {
-      alert('Restaurant introuvable');
+      // Retry once the restaurant has loaded.
+      this.restaurant.loadRestaurant().subscribe({ next: () => this.generateQrCodes() });
       return;
     }
 
+    const tables = this.restaurant.tables();
     if (tables.length === 0) {
       this.restaurant.loadTables().subscribe({
-        next: (loadedTables) => this.doGenerateQr(restaurant.clientBaseUrl, restaurant.slug, loadedTables),
-        error: (err) => alert(err.error?.message ?? err.error?.error ?? 'Impossible de charger les tables'),
+        next: (loaded) => this.buildQr(restaurant.clientBaseUrl, restaurant.slug, loaded),
+        error: () => this.toast.show('Impossible de charger les tables'),
       });
       return;
     }
-
-    this.doGenerateQr(restaurant.clientBaseUrl, restaurant.slug, tables);
+    this.buildQr(restaurant.clientBaseUrl, restaurant.slug, tables);
   }
 
-  private doGenerateQr(clientBaseUrl: string, slug: string, tables: Table[]): void {
-    const map = new Map<string, string>();
-    const normalizedClientBaseUrl = this.normalizeBaseUrl(clientBaseUrl);
-
+  private buildQr(clientBaseUrl: string, slug: string, tables: Table[]): void {
+    const base = this.normalizeBaseUrl(clientBaseUrl);
     Promise.all(
-      tables.map(t =>
-        QRCode.toDataURL(`${normalizedClientBaseUrl}/menu/${slug}/${t.id}`, { width: 256, margin: 2 })
-          .then(url => [t.id, url, t.number] as const)
-      )
-    ).then(results => {
-      for (const [id, url] of results) {
-        map.set(id, url);
-      }
-      this.qrCodes.set(map);
-      this.showQrPanel = true;
-    });
+      tables.map((t) =>
+        QRCode.toDataURL(`${base}/menu/${slug}/${t.id}`, { width: 256, margin: 2 }).then(
+          (url) => ({ id: t.id, number: t.number, url, link: `${base}/menu/${slug}/${t.id}` }) as QrEntry,
+        ),
+      ),
+    ).then((entries) => this.qrEntries.set(entries));
   }
 
   private normalizeBaseUrl(url: string): string {
-    if (url.endsWith('/')) {
-      return url.slice(0, -1);
-    }
-    return url;
+    return url.endsWith('/') ? url.slice(0, -1) : url;
   }
 
-  getTableName(tableId: string): number {
-    return this.restaurant.tables().find(t => t.id === tableId)?.number ?? 0;
-  }
-
-  downloadQr(tableId: string): void {
-    const url = this.qrCodes().get(tableId);
-    if (!url) return;
-
+  downloadQr(entry: QrEntry): void {
     const a = document.createElement('a');
-    a.href = url;
-    a.download = `table-${this.getTableName(tableId)}-qr.png`;
+    a.href = entry.url;
+    a.download = `table-${entry.number}-qr.png`;
     a.click();
+    this.toast.show(`QR Table ${entry.number} téléchargé`);
+  }
+
+  printQr(): void {
+    window.print();
   }
 }
