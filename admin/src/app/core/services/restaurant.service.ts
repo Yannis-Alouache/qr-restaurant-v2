@@ -23,6 +23,7 @@ export interface OnboardingRequest {
   name: string;
   tableCount: number;
   themeId: string;
+  logoPath?: string;
 }
 
 export interface OnboardingResponse {

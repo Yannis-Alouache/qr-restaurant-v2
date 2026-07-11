@@ -1,0 +1,18 @@
+<div class="number-input-group has-prefix">
+  <button type="button" class="number-btn" tabindex="-1" aria-label="Diminuer"
+          (click)="dec()" [disabled]="disabled()">
+    <svg lucideMinus></svg>
+  </button>
+  <span class="number-input-prefix">€</span>
+  <input class="input price-input-value" type="text" inputmode="decimal"
+         [id]="inputId || null"
+         [placeholder]="placeholder"
+         [value]="text()"
+         [disabled]="disabled()"
+         (input)="onInput($event)"
+         (blur)="markTouched()" />
+  <button type="button" class="number-btn" tabindex="-1" aria-label="Augmenter"
+          (click)="inc()" [disabled]="disabled()">
+    <svg lucidePlus></svg>
+  </button>
+</div>

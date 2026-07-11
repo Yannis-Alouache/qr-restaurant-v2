@@ -5,6 +5,7 @@ import com.qrrestaurant.menu.domain.Category;
 import com.qrrestaurant.menu.domain.CategoryRepository;
 import com.qrrestaurant.restaurant.domain.Restaurant;
 import com.qrrestaurant.restaurant.domain.RestaurantRepository;
+import com.qrrestaurant.shared.application.ImageCleanup;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,11 +17,14 @@ public class ManageCategoryUseCase {
 
     private final CategoryRepository categoryRepository;
     private final RestaurantRepository restaurantRepository;
+    private final ImageCleanup imageCleanup;
 
     public ManageCategoryUseCase(CategoryRepository categoryRepository,
-                                  RestaurantRepository restaurantRepository) {
+                                  RestaurantRepository restaurantRepository,
+                                  ImageCleanup imageCleanup) {
         this.categoryRepository = categoryRepository;
         this.restaurantRepository = restaurantRepository;
+        this.imageCleanup = imageCleanup;
     }
 
     public CategoryView create(UUID userId, String name, String imagePath, Integer position, boolean hasMenu) {
@@ -35,8 +39,10 @@ public class ManageCategoryUseCase {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(CategoryNotFoundException::new);
         verifyOwnership(category, restaurant);
+        String previousImage = category.getImagePath();
         category.update(name, imagePath, position, hasMenu);
         Category saved = categoryRepository.save(category);
+        cleanupIfChanged(previousImage, saved.getImagePath());
         return toView(saved);
     }
 
@@ -46,6 +52,13 @@ public class ManageCategoryUseCase {
                 .orElseThrow(CategoryNotFoundException::new);
         verifyOwnership(category, restaurant);
         categoryRepository.deleteById(categoryId);
+        imageCleanup.delete(category.getImagePath());
+    }
+
+    private void cleanupIfChanged(String previousImage, String currentImage) {
+        if (previousImage != null && !previousImage.isBlank() && !previousImage.equals(currentImage)) {
+            imageCleanup.delete(previousImage);
+        }
     }
 
     private Restaurant getRestaurantByOwner(UUID userId) {

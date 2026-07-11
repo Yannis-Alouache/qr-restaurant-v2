@@ -1,0 +1,7 @@
+/* Login relies on shared primitives (styles.scss) + auth-shell layout. */
+:host { display: block; }
+
+/* Login has no "remember me" checkbox, so push the reset link to the right. */
+.form-options {
+  justify-content: flex-end;
+}

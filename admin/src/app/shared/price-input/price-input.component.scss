@@ -1,0 +1,37 @@
+:host {
+  display: block;
+}
+
+/* Tabular mono numerals so digits stay aligned as the value changes.
+   The shell (border, focus ring, hover) comes from the global
+   .number-input-group primitive in styles.scss. Only the button sizing is
+   overridden here — compact 20px steppers instead of the global 44px tap
+   target, since this field is tuned for the menu forms, not generic use. */
+.price-input-value {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.number-btn {
+  /* Compact width, but stretch to the input's full height so the field
+     matches every other .input in the form instead of shrinking to the
+     button size. */
+  width: 28px;
+  height: auto;
+  align-self: stretch;
+}
+.number-btn svg {
+  width: 15px;
+  height: 15px;
+}
+
+/* € prefix sits just before the now-28px right button. */
+.number-input-group.has-prefix .input {
+  padding-right: 26px;
+}
+.number-input-prefix {
+  right: 28px;
+  left: auto;
+  padding-right: 6px;
+}
+

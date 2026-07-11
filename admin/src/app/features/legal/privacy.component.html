@@ -1,0 +1,162 @@
+<header class="legal-topbar">
+  <div class="topbar-inner">
+    <a routerLink="/signup" class="topbar-brand">Menzo</a>
+    <a routerLink="/signup" class="topbar-back"><svg lucideArrowLeft></svg> Retour</a>
+  </div>
+</header>
+
+<section class="legal-hero">
+  <span class="hero-eyebrow"><svg lucideShieldCheck></svg> Document légal</span>
+  <h1>Politique de confidentialité</h1>
+  <div class="hero-meta">
+    <span class="hero-meta-item"><svg lucideCalendar></svg> Dernière mise à jour : <strong>03 juillet 2026</strong></span>
+    <span class="hero-meta-item"><svg lucideGitBranch></svg> Version <strong>1.0</strong></span>
+    <span class="hero-meta-item"><svg lucideScale></svg> Conforme au <strong>RGPD</strong></span>
+  </div>
+</section>
+
+<div class="legal-layout">
+  <aside class="legal-toc">
+    <p class="toc-label">Sommaire</p>
+    <nav>
+      <ul class="toc-list">
+        <li><a href="#sec-1"><span class="toc-num">01</span> Responsable du traitement</a></li>
+        <li><a href="#sec-2"><span class="toc-num">02</span> Données collectées</a></li>
+        <li><a href="#sec-3"><span class="toc-num">03</span> Finalités et base légale</a></li>
+        <li><a href="#sec-4"><span class="toc-num">04</span> Destinataires des données</a></li>
+        <li><a href="#sec-5"><span class="toc-num">05</span> Durée de conservation</a></li>
+        <li><a href="#sec-6"><span class="toc-num">06</span> Sécurité des données</a></li>
+        <li><a href="#sec-7"><span class="toc-num">07</span> Cookies et traceurs</a></li>
+        <li><a href="#sec-8"><span class="toc-num">08</span> Transferts hors UE</a></li>
+        <li><a href="#sec-9"><span class="toc-num">09</span> Vos droits</a></li>
+        <li><a href="#sec-10"><span class="toc-num">10</span> Exercer vos droits</a></li>
+        <li><a href="#sec-11"><span class="toc-num">11</span> Réclamation (CNIL)</a></li>
+        <li><a href="#sec-12"><span class="toc-num">12</span> Contact DPO</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <main class="legal-content">
+    <section class="legal-section" id="sec-1">
+      <h2><span class="section-num">01</span> Responsable du traitement</h2>
+      <p>
+        La présente Politique de confidentialité décrit la façon dont <strong>Menzo SAS</strong>
+        (ci-après « <strong>Menzo</strong> » ou « nous ») collecte, utilise et protège les données à caractère
+        personnel des restaurateurs utilisant la plateforme.
+      </p>
+      <p>
+        Le responsable du traitement des données est : <strong>Menzo SAS</strong>, RCS Paris B 000 000 000,
+        dont le siège social est situé 12 rue des Halles, 75001 Paris.
+      </p>
+      <div class="callout">
+        <svg lucideUserCheck></svg>
+        <p>
+          Nous agissons en qualité de <strong>responsable de traitement</strong> pour les données de gestion de
+          compte et en qualité de <strong>sous-traitant</strong> pour les données des commandes reçues, qui
+          appartiennent au restaurateur.
+        </p>
+      </div>
+    </section>
+
+    <section class="legal-section" id="sec-2">
+      <h2><span class="section-num">02</span> Données collectées</h2>
+      <p>Nous collectons les catégories de données suivantes :</p>
+      <table class="data-table">
+        <thead>
+          <tr><th>Catégorie</th><th>Exemples</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Identité &amp; compte</td><td>Email, mot de passe (haché)</td></tr>
+          <tr><td>Établissement</td><td>Nom du restaurant, logo, adresse, nombre de tables</td></tr>
+          <tr><td>Commandes</td><td>Numéro de table, articles commandés, montants</td></tr>
+          <tr><td>Paiement</td><td>Identifiant Stripe Connect (aucune donnée bancaire stockée)</td></tr>
+          <tr><td>Utilisation</td><td>Adresses IP, journaux de connexion</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="legal-section" id="sec-3">
+      <h2><span class="section-num">03</span> Finalités et base légale</h2>
+      <p>
+        Vos données sont traitées pour : la création et la gestion de votre compte (exécution du contrat),
+        la fourniture du service de commandes (exécution du contrat), la facturation et les obligations
+        comptables (obligation légale), et l'amélioration de la plateforme (intérêt légitime).
+      </p>
+    </section>
+
+    <section class="legal-section" id="sec-4">
+      <h2><span class="section-num">04</span> Destinataires des données</h2>
+      <p>
+        Les données sont accessibles à : nos équipes autorisées, nos sous-traitants techniques (hébergement,
+        paiement via <strong>Stripe</strong>), et le cas échéant aux autorités sur réquisition légale. Aucune
+        donnée n'est vendue à des tiers.
+      </p>
+    </section>
+
+    <section class="legal-section" id="sec-5">
+      <h2><span class="section-num">05</span> Durée de conservation</h2>
+      <p>
+        Les données de compte sont conservées pendant la durée d'utilisation du service, puis archivées
+        3 ans pour les obligations comptables. Les données de commandes sont conservées 10 ans conformément
+        au Code de commerce.
+      </p>
+    </section>
+
+    <section class="legal-section" id="sec-6">
+      <h2><span class="section-num">06</span> Sécurité des données</h2>
+      <p>
+        Nous mettons en œuvre des mesures techniques et organisationnelles appropriées : chiffrement en
+        transit (TLS) et au repos, authentification par jeton (JWT) stocké dans un cookie httpOnly, accès
+        restreint et journalisé.
+      </p>
+    </section>
+
+    <section class="legal-section" id="sec-7">
+      <h2><span class="section-num">07</span> Cookies et traceurs</h2>
+      <p>
+        Menzo utilise un cookie de session strictement nécessaire (httpOnly, SameSite=Lax) à l'authentification.
+        Aucun cookie publicitaire ou de tracking tiers n'est déposé.
+      </p>
+    </section>
+
+    <section class="legal-section" id="sec-8">
+      <h2><span class="section-num">08</span> Transferts hors UE</h2>
+      <p>
+        Les données sont hébergées au sein de l'Union européenne. Tout transfert éventuel hors UE s'effectue
+        dans le respect des garanties appropriées (clauses contractuelles types).
+      </p>
+    </section>
+
+    <section class="legal-section" id="sec-9">
+      <h2><span class="section-num">09</span> Vos droits</h2>
+      <p>
+        Conformément au RGPD, vous disposez d'un droit d'accès, de rectification, d'effacement, à la limitation,
+        à la portabilité de vos données, ainsi que du droit d'opposition au traitement.
+      </p>
+    </section>
+
+    <section class="legal-section" id="sec-10">
+      <h2><span class="section-num">10</span> Exercer vos droits</h2>
+      <p>
+        Pour exercer vos droits, contactez-nous à <strong>dpo@menzo.app</strong> en joignant un justificatif
+        d'identité. Nous répondons dans un délai d'un mois.
+      </p>
+    </section>
+
+    <section class="legal-section" id="sec-11">
+      <h2><span class="section-num">11</span> Réclamation (CNIL)</h2>
+      <p>
+        Si vous estimez que vos droits ne sont pas respectés, vous pouvez introduire une réclamation auprès de
+        la <strong>CNIL</strong> (www.cnil.fr).
+      </p>
+    </section>
+
+    <section class="legal-section" id="sec-12">
+      <h2><span class="section-num">12</span> Contact DPO</h2>
+      <p>
+        Notre Délégué à la Protection des Données est joignable à <strong>dpo@menzo.app</strong> ou par courrier
+        à l'adresse du siège social.
+      </p>
+    </section>
+  </main>
+</div>

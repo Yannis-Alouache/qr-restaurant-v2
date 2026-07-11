@@ -1,71 +1,163 @@
-<div class="min-h-screen flex items-center justify-center bg-canvas-white">
-  <div class="w-full max-w-md p-10">
-    <h1 class="font-polysans text-heading-sm tracking-tight text-midnight-graphite mb-2">
-      Votre restaurant
-    </h1>
-    <p class="text-dark-shale text-sm mb-8">Configurez votre espace en quelques secondes.</p>
+<app-auth-shell>
 
-    @if (error) {
-      <div class="mb-6 px-4 py-3 rounded-radius-lg bg-slate-mist text-midnight-graphite text-sm">
-        {{ error }}
-      </div>
-    }
+  <!-- Brand panel content -->
+  <ng-container brandBody>
+    <div class="brand-illustration">
+      <svg viewBox="0 0 340 260" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M60 80 L170 50 L280 80" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" fill="none"/>
+        <path d="M60 80 Q80 95 100 80 Q120 65 140 80 Q160 95 180 80 Q200 65 220 80 Q240 95 260 80 Q270 72 280 80" stroke="rgba(37,99,235,0.4)" stroke-width="1.2" fill="none"/>
+        <rect x="80" y="80" width="180" height="120" rx="4" fill="rgba(37,99,235,0.06)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/>
+        <rect x="145" y="140" width="50" height="60" rx="3" fill="rgba(37,99,235,0.12)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+        <circle cx="189" cy="172" r="2.5" fill="rgba(255,255,255,0.3)"/>
+        <rect x="95" y="95" width="35" height="30" rx="3" fill="rgba(37,99,235,0.08)" stroke="rgba(255,255,255,0.12)" stroke-width="0.6"/>
+        <rect x="210" y="95" width="35" height="30" rx="3" fill="rgba(37,99,235,0.08)" stroke="rgba(255,255,255,0.12)" stroke-width="0.6"/>
+        <ellipse cx="112" cy="108" rx="8" ry="3" fill="rgba(37,99,235,0.2)"/>
+        <ellipse cx="227" cy="108" rx="8" ry="3" fill="rgba(37,99,235,0.2)"/>
+        <rect x="155" y="150" width="20" height="20" rx="2" fill="rgba(37,99,235,0.3)"/>
+        <rect x="158" y="153" width="5" height="5" rx="1" fill="rgba(37,99,235,0.7)"/>
+        <rect x="167" y="153" width="5" height="5" rx="1" fill="rgba(37,99,235,0.5)"/>
+        <rect x="158" y="162" width="5" height="5" rx="1" fill="rgba(37,99,235,0.5)"/>
+        <rect x="167" y="162" width="5" height="5" rx="1" fill="rgba(37,99,235,0.7)"/>
+        <line x1="50" y1="200" x2="290" y2="200" stroke="rgba(255,255,255,0.08)" stroke-width="0.6"/>
+        <circle cx="310" cy="60" r="1.5" fill="rgba(37,99,235,0.5)"/>
+        <circle cx="30" cy="100" r="1.5" fill="rgba(37,99,235,0.4)"/>
+        <circle cx="300" cy="140" r="2" fill="rgba(37,99,235,0.3)"/>
+        <circle cx="40" cy="170" r="1" fill="rgba(37,99,235,0.5)"/>
+      </svg>
+    </div>
+    <h2 class="brand-tagline">Configurez votre<br>restaurant</h2>
+    <p class="brand-desc">
+      Quelques informations pour personnaliser votre espace. Vous pourrez modifier ces détails à tout moment depuis vos paramètres.
+    </p>
+    <ul class="brand-benefits">
+      <li><svg lucideCircleCheckBig></svg> Menu digital actif en quelques minutes</li>
+      <li><svg lucideCircleCheckBig></svg> QR codes générés automatiquement</li>
+      <li><svg lucideCircleCheckBig></svg> Paramètres modifiables à tout moment</li>
+    </ul>
+  </ng-container>
 
-    <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-6">
-      <div>
-        <label class="block text-sm font-medium text-midnight-graphite mb-1.5">Nom du restaurant</label>
-        <input
-          type="text"
-          formControlName="name"
-          class="w-full px-4 py-2.5 rounded-radius-2xl border border-light-pearl bg-canvas-white text-midnight-graphite text-body outline-none focus:border-midnight-graphite transition-colors"
-          placeholder="ex: Naia Burger"
-        />
-      </div>
-
-      <div>
-        <label class="block text-sm font-medium text-midnight-graphite mb-1.5">Nombre de tables</label>
-        <input
-          type="number"
-          formControlName="tableCount"
-          min="1"
-          max="50"
-          class="w-full px-4 py-2.5 rounded-radius-2xl border border-light-pearl bg-canvas-white text-midnight-graphite text-body outline-none focus:border-midnight-graphite transition-colors"
-        />
-      </div>
-
-      <div>
-        <label class="block text-sm font-medium text-midnight-graphite mb-3">Thème du menu client</label>
-        <div class="grid grid-cols-2 gap-3">
-          @for (theme of themes; track theme.id) {
-            <label
-              class="flex items-center justify-center px-4 py-3 rounded-radius-2xl border cursor-pointer transition-all text-sm"
-              [class]="form.get('themeId')?.value === theme.id
-                ? 'border-midnight-graphite bg-midnight-graphite text-canvas-white'
-                : 'border-light-pearl bg-canvas-white text-dark-shale hover:border-midnight-graphite'"
-            >
-              <input
-                type="radio"
-                formControlName="themeId"
-                [value]="theme.id"
-                class="sr-only"
-              />
-              {{ theme.label }}
-            </label>
-          }
-        </div>
-      </div>
-
-      <button
-        type="submit"
-        [disabled]="form.invalid || loading"
-        class="w-full py-2.5 rounded-radius-2xl bg-midnight-graphite text-canvas-white font-medium text-body hover:opacity-90 transition-opacity disabled:opacity-40"
-      >
-        @if (loading) {
-          Création...
-        } @else {
-          Créer mon restaurant
-        }
-      </button>
-    </form>
+  <!-- Form -->
+  <div class="form-header">
+    <h1>Créer votre restaurant</h1>
+    <p>Renseignez les informations de votre établissement pour commencer.</p>
   </div>
-</div>
+
+  <!-- Stepper -->
+  <div class="stepper">
+    <div class="stepper-step completed">
+      <div class="stepper-dot"><svg lucideCheck></svg></div>
+      <span class="stepper-label">Compte</span>
+    </div>
+    <div class="stepper-line completed"></div>
+    <div class="stepper-step active">
+      <div class="stepper-dot">2</div>
+      <span class="stepper-label">Restaurant</span>
+    </div>
+    <div class="stepper-line"></div>
+    <div class="stepper-step">
+      <div class="stepper-dot">3</div>
+      <span class="stepper-label">Menu</span>
+    </div>
+  </div>
+
+  @if (error()) {
+    <div class="auth-error" role="alert">
+      <svg lucideCircleAlert></svg>
+      {{ error() }}
+    </div>
+  }
+
+  <form class="form-grid" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+
+    <!-- Restaurant name -->
+    <div class="field">
+      <label for="restaurant-name">Nom du restaurant <span class="req">*</span></label>
+      <input id="restaurant-name" class="input" type="text" formControlName="name"
+             placeholder="Le Petit Bistrot" autocomplete="organization"
+             [class.invalid]="form.controls.name.touched && form.controls.name.invalid" />
+      @if (form.controls.name.touched && form.controls.name.invalid) {
+        <span class="field-error">Le nom du restaurant est requis</span>
+      }
+    </div>
+
+    <!-- Number of tables -->
+    <div class="field">
+      <label for="table-count">Nombre de tables <span class="req">*</span></label>
+      <div class="number-input-group">
+        <button type="button" class="number-btn" (click)="decrement()" aria-label="Diminuer">
+          <svg lucideMinus></svg>
+        </button>
+        <input id="table-count" class="input" type="number" formControlName="tableCount" min="1" max="50" />
+        <button type="button" class="number-btn" (click)="increment()" aria-label="Augmenter">
+          <svg lucidePlus></svg>
+        </button>
+      </div>
+      <span class="field-hint">Vos clients verront les numéros de table pour passer commande.</span>
+    </div>
+
+    <!-- Logo upload -->
+    <div class="field">
+      <label>Logo du restaurant <span class="opt">(optionnel)</span></label>
+      <div class="upload-zone"
+           [class.has-file]="!!logoPreview()"
+           [class.dragover]="dragOver()"
+           (dragover)="dragOver.set(true); $event.preventDefault()"
+           (dragleave)="dragOver.set(false)"
+           (drop)="onLogoDrop($event)">
+        <input type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" (change)="onLogoInput($event)" />
+        @if (logoPreview()) {
+          <div class="upload-preview">
+            <img [src]="logoPreview()" alt="Aperçu du logo" />
+            <div class="upload-preview-name">
+              <svg lucideCircleCheckBig></svg>
+              <span>{{ logoFile()?.name }}</span>
+            </div>
+            <button type="button" class="upload-preview-remove" (click)="removeLogo()">Supprimer le logo</button>
+          </div>
+        } @else {
+          <div class="upload-default">
+            <div class="upload-icon"><svg lucideUpload></svg></div>
+            <div class="upload-text">
+              <p class="upload-text-main"><span>Cliquez pour importer</span> ou glissez-déposez</p>
+              <p class="upload-text-sub">PNG, JPG, WebP ou SVG — max 2 Mo</p>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Theme -->
+    <div class="field">
+      <label>Thème du menu client</label>
+      <span class="field-hint" style="margin-top:-2px;">Apparence du menu digital vu par vos clients au scan du QR code.</span>
+      <div class="theme-grid">
+        @for (theme of themes; track theme.id) {
+          <div class="theme-card" [class.selected]="form.controls.themeId.value === theme.id"
+               (click)="selectTheme(theme.id)" role="button" tabindex="0">
+            <span class="check-mark"><svg lucideCheck></svg></span>
+            <div class="theme-preview" [class]="theme.cls">
+              <div class="theme-preview-inner">
+                <div class="tp-bar"></div>
+                <div class="tp-bar-short"></div>
+                <div class="tp-dot"></div>
+              </div>
+            </div>
+            <span class="theme-name">{{ theme.name }}</span>
+            <span class="theme-sub">{{ theme.sub }}</span>
+          </div>
+        }
+      </div>
+    </div>
+
+    <button type="submit" class="btn-submit" [disabled]="loading()">
+      @if (loading()) {
+        <svg lucideLoaderCircle class="spin"></svg> Création…
+      } @else {
+        Continuer <svg lucideArrowRight></svg>
+      }
+    </button>
+  </form>
+
+  <p class="form-footer">Vous pourrez modifier ces informations depuis les paramètres.</p>
+
+</app-auth-shell>

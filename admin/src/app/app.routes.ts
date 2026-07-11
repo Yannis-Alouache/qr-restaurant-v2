@@ -18,18 +18,26 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
+    path: 'privacy',
+    loadComponent: () => import('./features/legal/privacy.component').then(m => m.PrivacyComponent)
+  },
+  {
+    path: 'terms',
+    loadComponent: () => import('./features/legal/terms.component').then(m => m.TermsComponent)
+  },
+  {
     path: '',
     canActivate: [authGuard],
     loadComponent: () => import('./features/layout/layout.component').then(m => m.LayoutComponent),
     children: [
-      { path: '', redirectTo: 'menu', pathMatch: 'full' },
-      {
-        path: 'menu',
-        loadComponent: () => import('./features/menu-management/menu-management.component').then(m => m.MenuManagementComponent)
-      },
+      { path: '', redirectTo: 'orders', pathMatch: 'full' },
       {
         path: 'orders',
         loadComponent: () => import('./features/orders/orders.component').then(m => m.OrdersComponent)
+      },
+      {
+        path: 'menu',
+        loadComponent: () => import('./features/menu-management/menu-management.component').then(m => m.MenuManagementComponent)
       },
       {
         path: 'settings',
@@ -37,5 +45,5 @@ export const routes: Routes = [
       }
     ]
   },
-  { path: '**', redirectTo: '/login' }
+  { path: '**', redirectTo: '/orders' }
 ];

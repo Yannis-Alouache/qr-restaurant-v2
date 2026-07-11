@@ -1,74 +1,92 @@
-<div>
-  <div class="flex items-center justify-between mb-8">
-    <div>
-      <h1 class="font-polysans text-heading tracking-tight text-midnight-graphite mb-2">Commandes</h1>
-      <p class="text-dark-shale text-sm">
-        Commandes actives en temps réel
-        @if (connected()) {
-          <span class="inline-block w-2 h-2 rounded-full bg-green-500 ml-1 align-middle"></span>
-        } @else {
-          <span class="inline-block w-2 h-2 rounded-full bg-silver-ash ml-1 align-middle"></span>
-        }
-      </p>
+<div class="page">
+  <!-- Page header -->
+  <div class="page-header">
+    <div class="page-header-row">
+      <h1>Commandes</h1>
+      @if (connected()) {
+        <span class="live-dot"><span class="live-pulse"></span>En direct</span>
+      }
+    </div>
+    <div class="page-header-row">
+      <p class="page-header-sub">Vue en temps réel des commandes passées par vos clients</p>
+      <div class="summary-pills">
+      <span class="summary-pill">
+        <span class="summary-pill-dot" style="background: var(--accent)"></span>
+        {{ counts().nouvelle }} nouvelle{{ counts().nouvelle > 1 ? 's' : '' }}
+      </span>
+      <span class="summary-pill">
+        <span class="summary-pill-dot" style="background: var(--warn)"></span>
+        {{ counts().preparation }} en prép.
+      </span>
+      @if (counts().prete > 0) {
+        <span class="summary-pill">
+          <span class="summary-pill-dot" style="background: var(--success)"></span>
+          {{ counts().prete }} prête{{ counts().prete > 1 ? 's' : '' }}
+        </span>
+      }
+    </div>
     </div>
   </div>
 
-  @if (activeOrders().length === 0) {
-    <div class="text-center py-20">
-      <p class="text-silver-ash text-lg">Aucune commande active</p>
-      <p class="text-silver-ash text-sm mt-2">Les nouvelles commandes apparaîtront ici en temps réel.</p>
-    </div>
-  }
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab" [class.active]="filter() === 'active'" (click)="setFilter('active')">
+      En cours <span class="tab-count">{{ counts().active }}</span>
+    </button>
+    <button class="tab" [class.active]="filter() === 'served'" (click)="setFilter('served')">
+      Terminées <span class="tab-count">{{ counts().served }}</span>
+    </button>
+    <button class="tab" [class.active]="filter() === 'all'" (click)="setFilter('all')">
+      Toutes <span class="tab-count">{{ counts().all }}</span>
+    </button>
+  </div>
 
-  <div class="space-y-8">
-    @for (entry of ordersByTable(); track entry[0]) {
-      <section>
-        <h2 class="font-polysans text-subheading tracking-tight text-midnight-graphite mb-4">
-          Table {{ entry[0] }}
-        </h2>
-        <div class="space-y-3">
-          @for (order of entry[1]; track order.id) {
-            <div class="p-5 rounded-radius-lg border border-light-pearl bg-canvas-white" [attr.data-testid]="'order-card-' + order.id">
-              <div class="flex items-center justify-between mb-4">
-                <div class="flex items-center gap-3">
-                  <span class="px-3 py-1 rounded-radius-2xl text-xs font-medium {{ getStatusColor(order.status) }}" [attr.data-testid]="'order-status-' + order.id">
-                    {{ statusLabels[order.status] }}
-                  </span>
-                  <span class="text-xs text-silver-ash">{{ formatTime(order.createdAt) }}</span>
-                </div>
-                <span class="text-sm font-medium text-midnight-graphite">{{ formatPrice(order.total) }}</span>
-              </div>
+  <!-- Orders grid -->
+  @if (filteredOrders().length > 0) {
+    <div class="orders-grid">
+      @for (order of filteredOrders(); track order.id) {
+        @let cfg = statusConfig(order.status);
+        <article class="order-card">
+          <div class="order-stripe" [style.background-color]="cfg.stripe"></div>
 
-              <!-- Items -->
-              <div class="space-y-1 mb-4">
-                @for (item of order.items; track item.id) {
-                  <div class="flex items-center justify-between text-sm">
-                    <div class="flex items-center gap-2">
-                      <span class="text-dark-shale">{{ item.quantity }}x</span>
-                      <span class="text-midnight-graphite">{{ item.name }}</span>
-                      @if (item.menuRole) {
-                        <span class="text-xs text-silver-ash">({{ item.menuRole }})</span>
-                      }
-                    </div>
-                    <span class="text-dark-shale">{{ formatPrice(item.unitPrice * item.quantity) }}</span>
-                  </div>
+          <div class="order-header">
+            <span class="order-table-num">Table {{ order.tableNumber }}</span>
+            <span class="order-time">{{ formatTime(order.createdAt) }}</span>
+          </div>
+
+          <div class="order-items">
+            @for (item of order.items; track item.id) {
+              <div class="order-item">
+                <span class="order-item-qty">{{ item.quantity }}</span>
+                <span class="order-item-name">{{ item.name }}</span>
+                @if (item.menuRole && item.menuRole !== 'plat') {
+                  <span class="order-item-role">{{ item.menuRole }}</span>
                 }
               </div>
+            }
+          </div>
 
-              <!-- Actions -->
-              @if (nextStatus[order.status]) {
-                <button
-                  (click)="advanceStatus(order.id, order.status)"
-                  [attr.data-testid]="'order-advance-' + order.id"
-                  class="px-4 py-1.5 rounded-radius-2xl text-sm bg-midnight-graphite text-canvas-white hover:opacity-90 transition-opacity"
-                >
-                  {{ statusLabels[nextStatus[order.status]] }}
+          <div class="order-footer">
+            <div class="order-total">{{ formatPrice(order.total) }}</div>
+            <div class="order-actions">
+              @if (cfg.action; as action) {
+                <button class="btn-action {{ action.cls }}" (click)="advanceStatus(order)">
+                  <svg lucideCheck></svg>
+                  {{ action.label }}
                 </button>
+              } @else {
+                <span class="order-served">{{ statusLabels[order.status] }}</span>
               }
             </div>
-          }
-        </div>
-      </section>
-    }
-  </div>
+          </div>
+        </article>
+      }
+    </div>
+  } @else {
+    <div class="empty-state">
+      <svg lucideInbox></svg>
+      <h3>Aucune commande</h3>
+      <p>Les nouvelles commandes de vos clients apparaîtront ici en temps réel.</p>
+    </div>
+  }
 </div>

@@ -1,62 +1,127 @@
-<div class="min-h-screen flex items-center justify-center bg-canvas-white">
-  <div class="w-full max-w-sm p-10">
-    <h1 class="font-polysans text-heading-sm tracking-tight text-midnight-graphite mb-8">
-      Créer un compte
-    </h1>
+<app-auth-shell>
 
-    @if (error) {
-      <div class="mb-6 px-4 py-3 rounded-radius-lg bg-slate-mist text-midnight-graphite text-sm">
-        {{ error }}
-      </div>
-    }
-
-    <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-5" data-testid="signup-form">
-      <div>
-        <label class="block text-sm text-dark-shale mb-1.5">Email</label>
-        <input
-          type="email"
-          formControlName="email"
-          data-testid="signup-email"
-          class="w-full px-4 py-2.5 rounded-radius-2xl border border-light-pearl bg-canvas-white text-midnight-graphite text-body outline-none focus:border-midnight-graphite transition-colors"
-          placeholder="votre@email.com"
-        />
-      </div>
-
-      <div>
-        <label class="block text-sm text-dark-shale mb-1.5">Mot de passe</label>
-        <input
-          type="password"
-          formControlName="password"
-          data-testid="signup-password"
-          class="w-full px-4 py-2.5 rounded-radius-2xl border border-light-pearl bg-canvas-white text-midnight-graphite text-body outline-none focus:border-midnight-graphite transition-colors"
-          placeholder="10 caractères minimum avec complexité"
-        />
-        @if ((form.get('password')?.errors?.['minlength'] || form.get('password')?.errors?.['pattern']) && form.get('password')?.touched) {
-          <p class="mt-1 text-xs text-sunset-orange" data-testid="signup-password-hint">
-            10 caractères minimum, avec majuscule, minuscule, chiffre et caractère spécial
-          </p>
-        }
-      </div>
-
-      <button
-        type="submit"
-        data-testid="signup-submit"
-        [disabled]="form.invalid || loading"
-        class="w-full py-2.5 rounded-radius-2xl bg-midnight-graphite text-canvas-white font-medium text-body hover:opacity-90 transition-opacity disabled:opacity-40"
-      >
-        @if (loading) {
-          Création...
-        } @else {
-          Créer mon compte
-        }
-      </button>
-    </form>
-
-    <p class="mt-8 text-sm text-dark-shale text-center">
-      Déjà un compte ?
-      <a routerLink="/login" class="text-midnight-graphite underline underline-offset-2 hover:text-sunset-orange transition-colors">
-        Se connecter
-      </a>
+  <!-- Brand panel content -->
+  <ng-container brandBody>
+    <div class="brand-illustration">
+      <svg viewBox="0 0 340 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="170" cy="140" rx="120" ry="80" fill="rgba(37,99,235,0.08)" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+        <ellipse cx="170" cy="140" rx="80" ry="55" fill="rgba(37,99,235,0.05)" stroke="rgba(255,255,255,0.08)" stroke-width="0.8"/>
+        <line x1="80" y1="60" x2="80" y2="170" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="74" y1="60" x2="74" y2="90" stroke="rgba(255,255,255,0.25)" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="80" y1="55" x2="80" y2="90" stroke="rgba(255,255,255,0.25)" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="86" y1="60" x2="86" y2="90" stroke="rgba(255,255,255,0.25)" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="260" y1="58" x2="260" y2="170" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M263 58c6 8 6 40 0 50" stroke="rgba(255,255,255,0.15)" stroke-width="1" fill="none"/>
+        <rect x="140" y="80" width="60" height="60" rx="8" fill="rgba(37,99,235,0.12)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+        <rect x="148" y="88" width="14" height="14" rx="2" fill="rgba(37,99,235,0.5)"/>
+        <rect x="178" y="88" width="14" height="14" rx="2" fill="rgba(37,99,235,0.3)"/>
+        <rect x="148" y="118" width="14" height="14" rx="2" fill="rgba(37,99,235,0.3)"/>
+        <rect x="166" y="102" width="8" height="8" rx="1.5" fill="rgba(37,99,235,0.4)"/>
+        <rect x="178" y="118" width="14" height="14" rx="2" fill="rgba(37,99,235,0.5)"/>
+        <circle cx="110" cy="100" r="2" fill="rgba(37,99,235,0.6)"/>
+        <circle cx="230" cy="90" r="1.5" fill="rgba(37,99,235,0.4)"/>
+        <circle cx="195" cy="180" r="2" fill="rgba(37,99,235,0.3)"/>
+        <circle cx="145" cy="190" r="1.5" fill="rgba(37,99,235,0.5)"/>
+        <path d="M170 140 L110 100" stroke="rgba(37,99,235,0.15)" stroke-width="0.6" stroke-dasharray="3 4"/>
+        <path d="M170 140 L230 90" stroke="rgba(37,99,235,0.15)" stroke-width="0.6" stroke-dasharray="3 4"/>
+      </svg>
+    </div>
+    <h2 class="brand-tagline">Gérez votre restaurant<br>en toute simplicité</h2>
+    <p class="brand-desc">
+      Créez votre menu, recevez les commandes en temps réel et suivez votre activité depuis un seul tableau de bord.
     </p>
+    <ul class="brand-benefits">
+      <li><svg lucideCircleCheckBig></svg> Commandes instantanées par scan QR</li>
+      <li><svg lucideCircleCheckBig></svg> Menu digital personnalisable</li>
+      <li><svg lucideCircleCheckBig></svg> Suivi des commandes en temps réel</li>
+    </ul>
+  </ng-container>
+
+  <!-- Form -->
+  <div class="form-header">
+    <h1>Créer votre compte</h1>
+    <p>Vous avez déjà un compte ? <a routerLink="/login">Se connecter</a></p>
   </div>
-</div>
+
+  @if (error()) {
+    <div class="auth-error" role="alert">
+      <svg lucideCircleAlert></svg>
+      {{ error() }}
+    </div>
+  }
+
+  <!-- Google (visual only) -->
+  <button class="btn-google" type="button">
+    <svg viewBox="0 0 20 20">
+      <path d="M18.6 10.23c0-.64-.06-1.25-.16-1.84H10v3.48h4.84a4.14 4.14 0 01-1.8 2.72v2.26h2.92a8.78 8.78 0 002.64-6.62z" fill="#4285F4"/>
+      <path d="M10 19c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.8.54-1.83.86-3.04.86-2.34 0-4.32-1.58-5.03-3.71H1.96v2.34A9 9 0 0010 19z" fill="#34A853"/>
+      <path d="M4.97 11.71A5.41 5.41 0 014.69 10c0-.59.1-1.17.28-1.71V5.95H1.96A9 9 0 001 10c0 1.45.35 2.82.96 4.05l3.01-2.34z" fill="#FBBC05"/>
+      <path d="M10 4.58c1.32 0 2.5.45 3.44 1.35l2.58-2.59C14.46 1.89 12.43 1 10 1A9 9 0 001.96 5.95l3.01 2.34C7.68 6.16 9.66 4.58 10 4.58z" fill="#EA4335"/>
+    </svg>
+    S'inscrire avec Google
+  </button>
+
+  <div class="form-divider"><span>ou inscrivez-vous par email</span></div>
+
+  <form class="form-grid" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <div class="field">
+      <label for="email">Adresse email</label>
+      <input id="email" class="input" type="email" formControlName="email"
+             placeholder="jean@restaurant.fr" autocomplete="email"
+             [class.invalid]="form.controls.email.touched && form.controls.email.invalid" />
+      @if (form.controls.email.touched && form.controls.email.invalid) {
+        <span class="field-error">Adresse email invalide</span>
+      }
+    </div>
+
+    <div class="field">
+      <label for="password">Mot de passe</label>
+      <div class="password-control">
+        <input id="password" class="input"
+               [type]="showPassword() ? 'text' : 'password'"
+               formControlName="password" placeholder="Minimum 8 caractères" autocomplete="new-password"
+               [class.invalid]="form.controls.password.touched && form.controls.password.invalid" />
+        <button class="toggle-password" type="button"
+                [attr.aria-label]="showPassword() ? 'Masquer le mot de passe' : 'Afficher le mot de passe'"
+                (click)="togglePassword()">
+          @if (showPassword()) { <svg lucideEye></svg> } @else { <svg lucideEyeOff></svg> }
+        </button>
+      </div>
+      @if (form.controls.password.touched && form.controls.password.invalid) {
+        <span class="field-error">8 caractères min., avec majuscule, minuscule, chiffre et caractère spécial</span>
+      }
+    </div>
+
+    <div class="field">
+      <label for="confirm-password">Confirmer le mot de passe</label>
+      <div class="password-control">
+        <input id="confirm-password" class="input"
+               [type]="showConfirm() ? 'text' : 'password'"
+               formControlName="confirmPassword" placeholder="Retapez votre mot de passe" autocomplete="new-password"
+               [class.invalid]="form.controls.confirmPassword.touched && (!passwordsMatch() || form.controls.confirmPassword.invalid)" />
+        <button class="toggle-password" type="button"
+                [attr.aria-label]="showConfirm() ? 'Masquer le mot de passe' : 'Afficher le mot de passe'"
+                (click)="toggleConfirm()">
+          @if (showConfirm()) { <svg lucideEye></svg> } @else { <svg lucideEyeOff></svg> }
+        </button>
+      </div>
+      @if (form.controls.confirmPassword.touched && !passwordsMatch()) {
+        <span class="field-error">Les mots de passe ne correspondent pas</span>
+      }
+    </div>
+
+    <button type="submit" class="btn-submit" [disabled]="loading()">
+      @if (loading()) {
+        <svg lucideLoaderCircle class="spin"></svg> Création…
+      } @else {
+        Créer mon compte
+      }
+    </button>
+  </form>
+
+  <p class="form-terms">
+    En créant un compte, vous acceptez nos <a routerLink="/terms">Conditions d'utilisation</a>
+    et notre <a routerLink="/privacy">Politique de confidentialité</a>.
+  </p>
+
+</app-auth-shell>

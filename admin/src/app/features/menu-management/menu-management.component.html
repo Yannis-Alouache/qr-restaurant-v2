@@ -1,457 +1,429 @@
-<div>
-  <h1 class="font-polysans text-heading tracking-tight text-midnight-graphite mb-2">Menu</h1>
-  <p class="text-dark-shale text-sm mb-8">Gérez vos catégories, articles et compositions.</p>
-
-  <!-- Tabs -->
-  <div class="flex gap-0 border-b border-light-pearl mb-8">
-    @for (
-      tab of [
-        { key: 'categories', label: 'Catégories' },
-        { key: 'items', label: 'Articles' },
-        { key: 'compositions', label: 'Compositions' },
-      ];
-      track tab.key
-    ) {
-      <button
-        (click)="setTab($any(tab.key))"
-        class="px-5 py-2.5 text-sm transition-colors border-b-2 -mb-px"
-        [class]="
-          activeTab() === tab.key
-            ? 'border-midnight-graphite text-midnight-graphite font-medium'
-            : 'border-transparent text-silver-ash hover:text-dark-shale'
-        "
-      >
-        {{ tab.label }}
-      </button>
-    }
+<div class="page">
+  <!-- Page header -->
+  <div class="page-header">
+    <div>
+      <h1>Créer le menu</h1>
+      <p class="page-header-sub">Construisez votre menu étape par étape : catégories, articles, formules</p>
+    </div>
   </div>
 
   @if (loading()) {
-    <p class="text-silver-ash text-sm">Chargement...</p>
+    <div class="loading-row"><svg lucideLoaderCircle class="spin"></svg> Chargement…</div>
   }
 
-  <!-- Categories Tab -->
-  @if (activeTab() === 'categories') {
-    <section>
-      <!-- Add / Edit Category Form -->
-      <div class="bg-slate-mist rounded-radius-lg p-6 mb-8">
-        <h3 class="font-polysans text-subheading tracking-tight text-midnight-graphite mb-4">
-          {{ editingCategoryId() ? 'Modifier la catégorie' : 'Nouvelle catégorie' }}
-        </h3>
-        <form [formGroup]="categoryForm" (ngSubmit)="saveCategory()" class="flex items-end gap-4">
-          <div class="flex-1">
-            <label class="block text-xs text-dark-shale mb-1">Nom</label>
-            <input
-              type="text"
-              formControlName="name"
-              class="w-full px-3 py-2 rounded-radius-2xl border border-light-pearl bg-canvas-white text-sm outline-none focus:border-midnight-graphite"
-              placeholder="ex: Burgers"
-            />
+  <!-- Stepper -->
+  <div class="stepper">
+    @for (step of [{ n: 1, label: 'Catégories' }, { n: 2, label: 'Articles' }, { n: 3, label: 'Formules' }, { n: 4, label: 'Récapitulatif' }]; track step.n) {
+      <button type="button" class="step" [class.active]="currentStep() === step.n" [class.completed]="currentStep() > step.n" (click)="goToStep(step.n)">
+        <span class="step-num">
+          @if (currentStep() > step.n) { <svg lucideCheck></svg> } @else { {{ step.n }} }
+        </span>
+        <span class="step-label">{{ step.label }}</span>
+      </button>
+      @if (step.n < 4) {
+        <div class="step-connector" [class.done]="currentStep() > step.n"></div>
+      }
+    }
+  </div>
+
+  <!-- ═══ Step 1: Catégories ═══ -->
+  @if (currentStep() === 1) {
+    <section class="step-content active">
+      <form class="add-section" [formGroup]="categoryForm" (ngSubmit)="saveCategory()">
+        <h2 class="add-section-title">{{ editingCategoryId() ? 'Modifier la catégorie' : 'Ajouter une catégorie' }}</h2>
+
+        <div class="add-form-row">
+          <div class="field">
+            <label for="cat-name">Nom de la catégorie</label>
+            <input id="cat-name" class="input" type="text" formControlName="name" placeholder="Ex. Burgers, Desserts, Boissons…" />
           </div>
-          <label class="flex items-center gap-2 text-sm text-dark-shale pb-2 cursor-pointer">
-            <input type="checkbox" formControlName="hasMenu" class="accent-midnight-graphite" />
-            Menu (combo)
-          </label>
-          <button
-            type="submit"
-            [disabled]="categoryForm.invalid"
-            class="px-5 py-2 rounded-radius-2xl bg-midnight-graphite text-canvas-white text-sm hover:opacity-90 disabled:opacity-40"
-          >
-            {{ editingCategoryId() ? 'Modifier' : 'Ajouter' }}
-          </button>
+
+          <div class="img-upload-field">
+            <label>Image <span class="opt">(optionnel)</span></label>
+            <div class="img-upload-area">
+              <div class="img-preview-thumb" [class.has-img]="!!catImagePreview()">
+                @if (catImagePreview()) {
+                  <img [src]="catImagePreview()" alt="" />
+                } @else {
+                  <svg lucideImage></svg>
+                }
+              </div>
+              <label class="btn-upload-sm">
+                <svg lucideUpload></svg>
+                <span>{{ catImagePreview() ? 'Changer' : 'Importer' }}</span>
+                <input type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" (change)="onCategoryImagePicked($event)" />
+              </label>
+            </div>
+          </div>
+
+          <div class="toggle-field">
+            <label>Menu</label>
+            <div class="toggle-row">
+              <button type="button" class="toggle" [class.on]="categoryForm.controls.hasMenu.value"
+                      (click)="categoryForm.controls.hasMenu.setValue(!categoryForm.controls.hasMenu.value)"></button>
+              <span class="toggle-label">{{ categoryForm.controls.hasMenu.value ? 'Oui' : 'Non' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions">
           @if (editingCategoryId()) {
-            <button
-              type="button"
-              (click)="cancelCategoryEdit()"
-              class="px-4 py-2 text-sm text-silver-ash hover:text-dark-shale"
-            >
-              Annuler
+            <button type="button" class="btn-secondary" (click)="cancelCategoryEdit()">Annuler</button>
+          }
+          <button type="submit" class="btn-primary">
+            <svg lucidePlus></svg>
+            {{ editingCategoryId() ? 'Enregistrer' : 'Ajouter' }}
+          </button>
+        </div>
+      </form>
+
+      <div class="list-header">
+        <h2 class="list-title">Vos catégories</h2>
+        <span class="list-count">{{ categories().length }} catégorie{{ categories().length > 1 ? 's' : '' }}</span>
+      </div>
+
+      @if (categories().length > 0) {
+        <div class="cat-grid">
+          @for (cat of categories(); track cat.id) {
+            <div class="cat-card">
+              <div class="cat-card-img">
+                @if (cat.imagePath) {
+                  <img [src]="cat.imagePath" [alt]="cat.name" />
+                } @else {
+                  <svg lucideImage></svg>
+                }
+                <div class="cat-card-overlay">
+                  <span class="cat-badge" [class.cat-badge-menu]="cat.hasMenu" [class.cat-badge-nomenu]="!cat.hasMenu">
+                    {{ cat.hasMenu ? 'Menu' : 'Sans menu' }}
+                  </span>
+                </div>
+              </div>
+              <div class="cat-card-body">
+                <div class="cat-card-head">
+                  <p class="cat-card-name">{{ cat.name }}</p>
+                  @if (itemCount(cat.id) > 0) {
+                    <span class="cat-badge cat-badge-items">{{ itemCount(cat.id) }}</span>
+                  }
+                </div>
+                <div class="cat-card-actions">
+                  <button type="button" class="btn-icon" (click)="editCategory(cat)" data-tooltip="Modifier"><svg lucidePencil></svg></button>
+                  <button type="button" class="btn-icon danger" (click)="deleteCategory(cat.id)" data-tooltip="Supprimer"><svg lucideTrash2></svg></button>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="empty-state">
+          <svg lucideLayoutGrid></svg>
+          <h3>Aucune catégorie</h3>
+          <p>Commencez par créer vos catégories pour organiser votre menu.</p>
+        </div>
+      }
+
+      <div class="stepper-nav">
+        <span></span>
+        <button type="button" class="btn-primary" (click)="nextStep()">
+          Étape suivante <svg lucideArrowRight></svg>
+        </button>
+      </div>
+    </section>
+  }
+
+  <!-- ═══ Step 2: Articles ═══ -->
+  @if (currentStep() === 2) {
+    <section class="step-content active">
+      @if (categories().length === 0) {
+        <div class="empty-state">
+          <svg lucideLayoutGrid></svg>
+          <h3>Aucune catégorie disponible</h3>
+          <p>Revenez à l'étape 1 pour créer au moins une catégorie avant d'ajouter des articles.</p>
+        </div>
+      } @else {
+        <div class="cat-tabs">
+          @for (cat of categories(); track cat.id) {
+            <button type="button" class="cat-tab" [class.active]="selectedCategoryId() === cat.id" (click)="selectCategory(cat.id)">
+              {{ cat.name }}
+              <span class="cat-tab-count">{{ itemCount(cat.id) }}</span>
             </button>
           }
-        </form>
-      </div>
+        </div>
 
-      <!-- Categories List -->
-      <div class="space-y-3">
-        @for (cat of categories(); track cat.id) {
-          <div
-            class="flex items-center gap-4 p-4 rounded-radius-lg border border-light-pearl bg-canvas-white"
-          >
-            <div class="flex-1">
-              <div class="flex items-center gap-2">
-                <span class="font-medium text-midnight-graphite text-sm">{{ cat.name }}</span>
-                @if (cat.hasMenu) {
-                  <span class="px-2 py-0.5 rounded-radius-full bg-warm-ivory text-data-gold text-xs"
-                    >Menu</span
-                  >
-                }
-              </div>
+        <div class="add-section">
+          <h2 class="add-section-title">{{ editingItemId() ? 'Modifier l\'article' : 'Ajouter un article' }}</h2>
+          <form class="dish-form-row" [formGroup]="itemForm" (ngSubmit)="saveItem()">
+            <div class="field">
+              <label for="dish-name">Nom de l'article</label>
+              <input id="dish-name" class="input" type="text" formControlName="name" placeholder="Ex. Cheeseburger, Salade César…" />
             </div>
-            <div class="flex items-center gap-2">
-              <label
-                class="cursor-pointer px-3 py-1.5 text-xs text-dark-shale border border-light-pearl rounded-radius-2xl hover:bg-cloud-whisper"
-              >
-                📷 Image
-                <input
-                  type="file"
-                  accept="image/*"
-                  class="hidden"
-                  (change)="onCategoryImageUpload($event, cat.id)"
-                />
-              </label>
-              <button
-                (click)="editCategory(cat)"
-                class="px-3 py-1.5 text-xs text-dark-shale border border-light-pearl rounded-radius-2xl hover:bg-cloud-whisper"
-              >
-                Modifier
-              </button>
-              <button
-                (click)="deleteCategory(cat.id)"
-                class="px-3 py-1.5 text-xs text-sunset-orange border border-light-pearl rounded-radius-2xl hover:bg-slate-mist"
-              >
-                Supprimer
-              </button>
+            <div class="field">
+              <label for="dish-price">Prix (€)</label>
+              <app-price-input inputId="dish-price" [step]="0.5" placeholder="12,50" formControlName="price" />
             </div>
-          </div>
-        } @empty {
-          <p class="text-silver-ash text-sm text-center py-8">
-            Aucune catégorie. Créez-en une ci-dessus.
-          </p>
-        }
-      </div>
-    </section>
-  }
-
-  <!-- Items Tab -->
-  @if (activeTab() === 'items') {
-    <section>
-      <!-- Category filter -->
-      <div class="flex gap-2 mb-6 flex-wrap">
-        <button
-          (click)="selectedCategoryId.set(null)"
-          class="px-4 py-1.5 rounded-radius-2xl text-sm border transition-colors"
-          [class]="
-            !selectedCategoryId()
-              ? 'border-midnight-graphite bg-midnight-graphite text-canvas-white'
-              : 'border-light-pearl text-dark-shale hover:border-midnight-graphite'
-          "
-        >
-          Toutes
-        </button>
-        @for (cat of categories(); track cat.id) {
-          <button
-            (click)="selectCategoryForItems(cat.id)"
-            class="px-4 py-1.5 rounded-radius-2xl text-sm border transition-colors"
-            [class]="
-              selectedCategoryId() === cat.id
-                ? 'border-midnight-graphite bg-midnight-graphite text-canvas-white'
-                : 'border-light-pearl text-dark-shale hover:border-midnight-graphite'
-            "
-          >
-            {{ cat.name }}
-          </button>
-        }
-      </div>
-
-      <!-- Add / Edit Item Form -->
-      <div class="bg-slate-mist rounded-radius-lg p-6 mb-8">
-        <h3 class="font-polysans text-subheading tracking-tight text-midnight-graphite mb-4">
-          {{ editingItemId() ? "Modifier l'article" : 'Nouvel article' }}
-        </h3>
-        <form [formGroup]="itemForm" (ngSubmit)="saveItem()" class="space-y-4">
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label class="block text-xs text-dark-shale mb-1">Catégorie</label>
-              <select
-                formControlName="categoryId"
-                class="w-full px-3 py-2 rounded-radius-2xl border border-light-pearl bg-canvas-white text-sm outline-none focus:border-midnight-graphite"
-              >
-                <option value="">Choisir...</option>
-                @for (cat of categories(); track cat.id) {
-                  <option [value]="cat.id">{{ cat.name }}</option>
-                }
-              </select>
+            <div class="field field-menu-price" [class.hidden]="!selectedCategoryAllowsMenu() || !itemForm.controls.isCombo.value">
+              <label for="dish-menu-price">Prix menu (€)</label>
+              <app-price-input inputId="dish-menu-price" [step]="0.5" placeholder="9,90" formControlName="comboPrice" />
             </div>
-            <div>
-              <label class="block text-xs text-dark-shale mb-1">Nom</label>
-              <input
-                type="text"
-                formControlName="name"
-                class="w-full px-3 py-2 rounded-radius-2xl border border-light-pearl bg-canvas-white text-sm outline-none focus:border-midnight-graphite"
-                placeholder="ex: Burger classique"
-              />
-            </div>
-          </div>
-          <div>
-            <label class="block text-xs text-dark-shale mb-1">Description</label>
-            <input
-              type="text"
-              formControlName="description"
-              class="w-full px-3 py-2 rounded-radius-2xl border border-light-pearl bg-canvas-white text-sm outline-none focus:border-midnight-graphite"
-              placeholder="Optionnel"
-            />
-          </div>
-          <div class="grid grid-cols-3 gap-4 items-end">
-            <div>
-              <label class="block text-xs text-dark-shale mb-1">Prix (€)</label>
-              <input
-                type="number"
-                step="0.01"
-                formControlName="price"
-                class="w-full px-3 py-2 rounded-radius-2xl border border-light-pearl bg-canvas-white text-sm outline-none focus:border-midnight-graphite"
-              />
-            </div>
-            @if (!editingItemId()) {
-              @if (selectedItemCategoryAllowsMenu()) {
-                <label class="flex items-center gap-2 text-sm text-dark-shale cursor-pointer pb-2">
-                  <input
-                    type="checkbox"
-                    formControlName="isCombo"
-                    class="accent-midnight-graphite"
-                  />
-                  Variante menu (combo)
+            <div class="img-upload-field">
+              <label>Image <span class="opt">(opt.)</span></label>
+              <div class="img-upload-area">
+                <div class="img-preview-thumb" [class.has-img]="!!itemImagePreview()">
+                  @if (itemImagePreview()) {
+                    <img [src]="itemImagePreview()" alt="" />
+                  } @else {
+                    <svg lucideImage></svg>
+                  }
+                </div>
+                <label class="btn-upload-sm">
+                  <svg lucideUpload></svg>
+                  <span>{{ itemImagePreview() ? 'Changer' : 'Importer' }}</span>
+                  <input type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" (change)="onItemImagePicked($event)" />
                 </label>
-                @if (itemForm.get('isCombo')?.value) {
-                  <div>
-                    <label class="block text-xs text-dark-shale mb-1">Prix menu (€)</label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      formControlName="comboPrice"
-                      class="w-full px-3 py-2 rounded-radius-2xl border border-light-pearl bg-canvas-white text-sm outline-none focus:border-midnight-graphite"
-                    />
-                  </div>
-                }
-              } @else if (itemForm.get('categoryId')?.value) {
-                <p class="pb-2 text-xs text-silver-ash">
-                  Activez l'option menu sur la catégorie pour créer une variante menu.
-                </p>
-              }
-            }
-          </div>
-          <div class="flex gap-3">
-            <button
-              type="submit"
-              [disabled]="itemForm.invalid"
-              class="px-5 py-2 rounded-radius-2xl bg-midnight-graphite text-canvas-white text-sm hover:opacity-90 disabled:opacity-40"
-            >
-              {{ editingItemId() ? 'Modifier' : 'Ajouter' }}
-            </button>
-            @if (editingItemId()) {
-              <button
-                type="button"
-                (click)="cancelItemEdit()"
-                class="px-4 py-2 text-sm text-silver-ash hover:text-dark-shale"
-              >
-                Annuler
-              </button>
-            }
-          </div>
-        </form>
-      </div>
-
-      <!-- Items List -->
-      <div class="space-y-2">
-        @for (item of itemsForSelectedCategory(); track item.id) {
-          <div
-            class="flex items-center gap-4 p-4 rounded-radius-lg border border-light-pearl bg-canvas-white"
-            [class.opacity-50]="!item.available"
-          >
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-2">
-                <span class="font-medium text-midnight-graphite text-sm">{{ item.name }}</span>
-                @if (item.menuVariantOf) {
-                  <span class="px-2 py-0.5 rounded-radius-full bg-warm-ivory text-data-gold text-xs"
-                    >Menu</span
-                  >
-                }
-                @if (!item.available) {
-                  <span
-                    class="px-2 py-0.5 rounded-radius-full bg-slate-mist text-silver-ash text-xs"
-                    >Indisponible</span
-                  >
-                }
               </div>
-              @if (item.description) {
-                <p class="text-xs text-dark-shale mt-0.5 truncate">{{ item.description }}</p>
-              }
             </div>
-            <span class="text-sm font-medium text-midnight-graphite">{{
-              formatPrice(item.price)
-            }}</span>
-            <div class="flex items-center gap-2">
-              <label
-                class="cursor-pointer px-2 py-1 text-xs text-dark-shale border border-light-pearl rounded-radius-2xl hover:bg-cloud-whisper"
-              >
-                📷
-                <input
-                  type="file"
-                  accept="image/*"
-                  class="hidden"
-                  (change)="onItemImageUpload($event, item.id)"
-                />
-              </label>
-              <button
-                (click)="toggleAvailability(item)"
-                class="px-2 py-1 text-xs rounded-radius-2xl border"
-                [class]="
-                  item.available
-                    ? 'border-sunset-orange text-sunset-orange'
-                    : 'border-dark-shale text-dark-shale'
-                "
-              >
-                {{ item.available ? 'Désactiver' : 'Activer' }}
-              </button>
-              <button
-                (click)="editItem(item)"
-                class="px-2 py-1 text-xs text-dark-shale border border-light-pearl rounded-radius-2xl hover:bg-cloud-whisper"
-              >
-                ✏️
-              </button>
-              <button
-                (click)="deleteItem(item.id)"
-                class="px-2 py-1 text-xs text-sunset-orange border border-light-pearl rounded-radius-2xl hover:bg-slate-mist"
-              >
-                🗑️
-              </button>
+            <button type="submit" class="btn-primary">
+              <svg lucidePlus></svg>
+              {{ editingItemId() ? 'Enregistrer' : 'Ajouter' }}
+            </button>
+          </form>
+
+          @if (selectedCategoryAllowsMenu() && !editingItemId()) {
+            <div class="combo-toggle">
+              <button type="button" class="toggle" [class.on]="itemForm.controls.isCombo.value"
+                      (click)="itemForm.controls.isCombo.setValue(!itemForm.controls.isCombo.value)"></button>
+              <span class="toggle-label">Proposer en version menu (plat + accompagnement + boisson)</span>
             </div>
+          }
+          @if (editingItemId()) {
+            <div class="form-actions"><button type="button" class="btn-secondary" (click)="cancelItemEdit()">Annuler</button></div>
+          }
+        </div>
+
+        <div class="list-header">
+          <h2 class="list-title">Articles</h2>
+          <span class="list-count">{{ itemsForCategory().length }} article{{ itemsForCategory().length > 1 ? 's' : '' }}</span>
+        </div>
+
+        @if (itemsForCategory().length > 0) {
+          <div class="dish-grid">
+            @for (item of itemsForCategory(); track item.id) {
+              @let variant = menuVariantOf(item);
+              <div class="dish-card">
+                <div class="dish-card-media" [class.is-placeholder]="!item.imagePath">
+                  @if (item.imagePath) {
+                    <img [src]="item.imagePath" [alt]="item.name" />
+                  } @else {
+                    <svg lucideImage></svg>
+                  }
+                  @if (variant) {
+                    <span class="dish-card-menu-badge">Menu {{ formatPrice(variant.price) }}</span>
+                  }
+                </div>
+                <div class="dish-card-body">
+                  <div class="dish-card-head">
+                    <p class="dish-card-name">{{ item.name }}</p>
+                    <span class="dish-card-price">{{ formatPrice(item.price) }}</span>
+                  </div>
+                  <div class="dish-card-actions">
+                    <button type="button" class="btn-icon"
+                            [attr.data-tooltip]="item.available ? 'Marquer indisponible' : 'Marquer disponible'"
+                            [attr.aria-label]="item.available ? 'Marquer comme indisponible' : 'Marquer comme disponible'"
+                            [attr.aria-pressed]="item.available"
+                            (click)="toggleAvailability(item)">
+                      <svg lucideCircleCheckBig
+                           [style.color]="item.available ? 'var(--success)' : 'var(--muted)'"
+                           [style.opacity]="item.available ? 1 : 0.4"></svg>
+                    </button>
+                    <button type="button" class="btn-icon" (click)="editItem(item)" data-tooltip="Modifier"><svg lucidePencil></svg></button>
+                    <button type="button" class="btn-icon danger" (click)="deleteItem(item.id)" data-tooltip="Supprimer"><svg lucideTrash2></svg></button>
+                  </div>
+                </div>
+              </div>
+            }
           </div>
-        } @empty {
-          <p class="text-silver-ash text-sm text-center py-8">
-            Aucun article. Créez-en un ci-dessus.
-          </p>
+        } @else {
+          <div class="empty-state">
+            <svg lucideUtensils></svg>
+            <h3>Aucun article dans cette catégorie</h3>
+            <p>Ajoutez vos plats, boissons ou desserts pour commencer à composer le menu.</p>
+          </div>
         }
-      </div>
+
+        <div class="stepper-nav">
+          <button type="button" class="btn-secondary" (click)="prevStep()"><svg lucideArrowLeft></svg> Retour</button>
+          <button type="button" class="btn-primary" (click)="nextStep()">Étape suivante <svg lucideArrowRight></svg></button>
+        </div>
+      }
     </section>
   }
 
-  <!-- Compositions Tab -->
-  @if (activeTab() === 'compositions') {
-    <section>
-      <!-- Filter -->
-      <div class="flex gap-2 mb-6">
-        <button
-          (click)="compositionFilter.set(null)"
-          class="px-4 py-1.5 rounded-radius-2xl text-sm border transition-colors"
-          [class]="
-            !compositionFilter()
-              ? 'border-midnight-graphite bg-midnight-graphite text-canvas-white'
-              : 'border-light-pearl text-dark-shale'
-          "
-        >
-          Toutes
-        </button>
-        <button
-          (click)="compositionFilter.set('accompagnement')"
-          class="px-4 py-1.5 rounded-radius-2xl text-sm border transition-colors"
-          [class]="
-            compositionFilter() === 'accompagnement'
-              ? 'border-midnight-graphite bg-midnight-graphite text-canvas-white'
-              : 'border-light-pearl text-dark-shale'
-          "
-        >
-          Accompagnements
-        </button>
-        <button
-          (click)="compositionFilter.set('boisson')"
-          class="px-4 py-1.5 rounded-radius-2xl text-sm border transition-colors"
-          [class]="
-            compositionFilter() === 'boisson'
-              ? 'border-midnight-graphite bg-midnight-graphite text-canvas-white'
-              : 'border-light-pearl text-dark-shale'
-          "
-        >
-          Boissons
-        </button>
-      </div>
+  <!-- ═══ Step 3: Formules ═══ -->
+  @if (currentStep() === 3) {
+    <section class="step-content active">
+      @if (eligibleItems().length === 0) {
+        <div class="empty-state">
+          <svg lucideCircleAlert></svg>
+          <h3>Aucun produit éligible</h3>
+          <p>Pour configurer les formules, créez au moins une catégorie avec des articles à l'étape 2.</p>
+        </div>
+      } @else {
+        <div class="add-section intro">
+          <h2 class="add-section-title">Configurer les formules</h2>
+          <p class="section-desc">Sélectionnez les produits disponibles en accompagnement et en boisson dans vos formules menu. Tous les articles créés à l'étape 2 sont sélectionnables.</p>
+        </div>
 
-      <!-- Add Composition Form -->
-      <div class="bg-slate-mist rounded-radius-lg p-6 mb-8">
-        <h3 class="font-polysans text-subheading tracking-tight text-midnight-graphite mb-4">
-          Ajouter une composition
-        </h3>
-        <form
-          [formGroup]="compositionForm"
-          (ngSubmit)="saveComposition()"
-          class="flex items-end gap-4"
-        >
-          <div>
-            <label class="block text-xs text-dark-shale mb-1">Type</label>
-            <select
-              formControlName="compositionType"
-              class="px-3 py-2 rounded-radius-2xl border border-light-pearl bg-canvas-white text-sm outline-none focus:border-midnight-graphite"
-            >
-              <option value="accompagnement">Accompagnement</option>
-              <option value="boisson">Boisson</option>
-            </select>
-          </div>
-          <div class="flex-1">
-            <label class="block text-xs text-dark-shale mb-1">Article</label>
-            <select
-              formControlName="menuItemId"
-              class="w-full px-3 py-2 rounded-radius-2xl border border-light-pearl bg-canvas-white text-sm outline-none focus:border-midnight-graphite"
-            >
-              <option value="">Choisir...</option>
-              @for (item of allItemsForCompositions(); track item.id) {
-                <option [value]="item.id">
-                  {{ item.name }} ({{ getCategoryName(item.categoryId) }})
-                </option>
+        <div class="formula-layout">
+          <!-- Accompaniments -->
+          <div class="formula-panel">
+            <div class="formula-panel-header">
+              <h3 class="formula-panel-title"><svg lucideUtensilsCrossed></svg> Accompagnements</h3>
+              <span class="formula-panel-count">{{ accCompositions().length }}</span>
+            </div>
+            <div class="formula-add-row">
+              <app-product-picker
+                [items]="eligibleItems()"
+                [categories]="categories()"
+                [value]="accItemId()"
+                (selection)="accItemId.set($event)" />
+              <app-price-input class="formula-supplement-control" [step]="0.1" placeholder="+0,00"
+                               [formControl]="accSupplement" />
+              <button type="button" class="btn-add-formula" (click)="addComposition('accompagnement')"><svg lucidePlus></svg> Ajouter</button>
+            </div>
+            <div class="formula-panel-body">
+              @for (comp of accCompositions(); track comp.id) {
+                <div class="formula-item">
+                  @if (getItemImage(comp.menuItemId); as img) {
+                    <img class="formula-item-img" [src]="img" [alt]="getItemName(comp.menuItemId)" />
+                  }
+                  <div class="formula-item-info">
+                    <p class="formula-item-name">{{ getItemName(comp.menuItemId) }}</p>
+                    <p class="formula-item-cat">{{ getCategoryName(menuItems().find(i => i.id === comp.menuItemId)?.categoryId ?? '') }}</p>
+                  </div>
+                  <span class="formula-supplement-label">Supplément {{ formatPrice(comp.supplementPrice) }}</span>
+                  <button type="button" class="btn-icon danger" (click)="deleteComposition(comp.id)"><svg lucideX></svg></button>
+                </div>
+              } @empty {
+                <div class="formula-empty"><svg lucideCirclePlus></svg><p>Aucun accompagnement ajouté</p></div>
               }
-            </select>
+            </div>
           </div>
-          <div>
-            <label class="block text-xs text-dark-shale mb-1">Supplément (€)</label>
-            <input
-              type="number"
-              step="0.01"
-              formControlName="supplementPrice"
-              class="w-24 px-3 py-2 rounded-radius-2xl border border-light-pearl bg-canvas-white text-sm outline-none focus:border-midnight-graphite"
-            />
+
+          <!-- Drinks -->
+          <div class="formula-panel">
+            <div class="formula-panel-header">
+              <h3 class="formula-panel-title"><svg lucideGlassWater></svg> Boissons</h3>
+              <span class="formula-panel-count">{{ drinkCompositions().length }}</span>
+            </div>
+            <div class="formula-add-row">
+              <app-product-picker
+                [items]="eligibleItems()"
+                [categories]="categories()"
+                [value]="drinkItemId()"
+                (selection)="drinkItemId.set($event)" />
+              <app-price-input class="formula-supplement-control" [step]="0.1" placeholder="+0,00"
+                               [formControl]="drinkSupplement" />
+              <button type="button" class="btn-add-formula" (click)="addComposition('boisson')"><svg lucidePlus></svg> Ajouter</button>
+            </div>
+            <div class="formula-panel-body">
+              @for (comp of drinkCompositions(); track comp.id) {
+                <div class="formula-item">
+                  @if (getItemImage(comp.menuItemId); as img) {
+                    <img class="formula-item-img" [src]="img" [alt]="getItemName(comp.menuItemId)" />
+                  }
+                  <div class="formula-item-info">
+                    <p class="formula-item-name">{{ getItemName(comp.menuItemId) }}</p>
+                    <p class="formula-item-cat">{{ getCategoryName(menuItems().find(i => i.id === comp.menuItemId)?.categoryId ?? '') }}</p>
+                  </div>
+                  <span class="formula-supplement-label">Supplément {{ formatPrice(comp.supplementPrice) }}</span>
+                  <button type="button" class="btn-icon danger" (click)="deleteComposition(comp.id)"><svg lucideX></svg></button>
+                </div>
+              } @empty {
+                <div class="formula-empty"><svg lucideCirclePlus></svg><p>Aucune boisson ajoutée</p></div>
+              }
+            </div>
           </div>
-          <button
-            type="submit"
-            [disabled]="compositionForm.invalid"
-            class="px-5 py-2 rounded-radius-2xl bg-midnight-graphite text-canvas-white text-sm hover:opacity-90 disabled:opacity-40"
-          >
-            Ajouter
-          </button>
-        </form>
+        </div>
+
+        <div class="stepper-nav">
+          <button type="button" class="btn-secondary" (click)="prevStep()"><svg lucideArrowLeft></svg> Retour</button>
+          <button type="button" class="btn-primary" (click)="nextStep()">Étape suivante <svg lucideArrowRight></svg></button>
+        </div>
+      }
+    </section>
+  }
+
+  <!-- ═══ Step 4: Récapitulatif ═══ -->
+  @if (currentStep() === 4) {
+    <section class="step-content active">
+      <div class="add-section intro">
+        <h2 class="add-section-title">Récapitulatif du menu</h2>
+        <p class="section-desc">Vue d'ensemble de votre menu avant publication.</p>
       </div>
 
-      <!-- Compositions List -->
-      <div class="space-y-2">
-        @for (comp of filteredCompositions(); track comp.id) {
-          <div
-            class="flex items-center gap-4 p-4 rounded-radius-lg border border-light-pearl bg-canvas-white"
-          >
-            <span
-              class="px-2 py-0.5 rounded-radius-full text-xs"
-              [class]="
-                comp.compositionType === 'accompagnement'
-                  ? 'bg-warm-ivory text-data-gold'
-                  : 'bg-cloud-whisper text-dark-shale'
-              "
-            >
-              {{ comp.compositionType === 'accompagnement' ? 'Accompagnement' : 'Boisson' }}
-            </span>
-            <span class="flex-1 text-sm text-midnight-graphite">{{
-              getItemName(comp.menuItemId)
-            }}</span>
-            <span class="text-sm text-dark-shale">
-              {{ comp.supplementPrice === 0 ? 'Inclus' : '+ ' + formatPrice(comp.supplementPrice) }}
-            </span>
-            <button
-              (click)="deleteComposition(comp.id)"
-              class="px-2 py-1 text-xs text-sunset-orange border border-light-pearl rounded-radius-2xl hover:bg-slate-mist"
-            >
-              Supprimer
-            </button>
+      <div class="summary-grid">
+        <div class="summary-card">
+          <div class="summary-icon blue"><svg lucideLayoutGrid></svg></div>
+          <div class="summary-body">
+            <p class="summary-value">{{ categories().length }}</p>
+            <p class="summary-label">Catégories</p>
           </div>
-        } @empty {
-          <p class="text-silver-ash text-sm text-center py-8">
-            Aucune composition. Ajoutez-en une ci-dessus.
-          </p>
+        </div>
+        <div class="summary-card">
+          <div class="summary-icon amber"><svg lucideUtensils></svg></div>
+          <div class="summary-body">
+            <p class="summary-value">{{ menuItems().filter(i => i.menuVariantOf === null).length }}</p>
+            <p class="summary-label">Articles</p>
+          </div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-icon green"><svg lucideCircleCheckBig></svg></div>
+          <div class="summary-body">
+            <p class="summary-value">{{ menuItems().filter(i => i.menuVariantOf !== null).length }}</p>
+            <p class="summary-label">Variantes menu</p>
+          </div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-icon teal"><svg lucideUtensilsCrossed></svg></div>
+          <div class="summary-body">
+            <p class="summary-value">{{ compositions().length }}</p>
+            <p class="summary-label">Options formules</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="menu-preview">
+        <div class="menu-preview-header">Structure du menu</div>
+        @for (cat of categories(); track cat.id) {
+          <div class="menu-preview-cat">
+            <div class="menu-preview-cat-header">
+              <h3>{{ cat.name }}</h3>
+              @if (cat.hasMenu) { <span class="mp-cat-badge">Menu</span> }
+            </div>
+            @for (item of menuItems().filter(i => i.categoryId === cat.id && i.menuVariantOf === null); track item.id) {
+              <div class="menu-preview-dish">
+                <span class="menu-preview-dish-name">{{ item.name }}</span>
+                <span class="menu-preview-dish-price">{{ formatPrice(item.price) }}</span>
+                @if (menuVariantOf(item); as v) {
+                  <span class="menu-preview-dish-menu-price">Menu {{ formatPrice(v.price) }}</span>
+                }
+              </div>
+            }
+          </div>
         }
+      </div>
+
+      <div class="summary-cta">
+        <button type="button" class="btn-preview" (click)="toast.show('Aperçu du menu bientôt disponible')">
+          <svg lucideEye></svg> Voir l'aperçu du menu
+        </button>
+        <button type="button" class="btn-outline" (click)="toast.show('Menu publié 🎉')">
+          <svg lucideSend></svg> Publier le menu
+        </button>
+      </div>
+
+      <div class="stepper-nav">
+        <button type="button" class="btn-secondary" (click)="prevStep()"><svg lucideArrowLeft></svg> Retour</button>
+        <span></span>
       </div>
     </section>
   }
