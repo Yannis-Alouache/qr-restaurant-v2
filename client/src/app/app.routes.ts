@@ -2,20 +2,58 @@ import { Routes } from '@angular/router';
 
 export const routes: Routes = [
   {
+    // Écran 1 — grille de catégories
     path: 'menu/:slug/:tableId',
-    loadComponent: () => import('./features/menu/pages/menu-page/menu-page.component').then(m => m.MenuPageComponent),
+    loadComponent: () =>
+      import('./features/menu/pages/categories-screen/categories-screen.component').then(
+        m => m.CategoriesScreenComponent,
+      ),
   },
   {
+    // Écran 2 — choix Formule Menu / Article solo
+    path: 'menu/:slug/:tableId/c/:categoryId',
+    loadComponent: () =>
+      import('./features/menu/pages/order-type-screen/order-type-screen.component').then(
+        m => m.OrderTypeScreenComponent,
+      ),
+  },
+  {
+    // Écran 3 — composition de la Formule Menu (3 étapes)
+    path: 'menu/:slug/:tableId/c/:categoryId/menu',
+    loadComponent: () =>
+      import('./features/menu/pages/menu-stepper-screen/menu-stepper-screen.component').then(
+        m => m.MenuStepperScreenComponent,
+      ),
+  },
+  {
+    // Écran 4 — articles solo de la catégorie
+    path: 'menu/:slug/:tableId/c/:categoryId/solo',
+    loadComponent: () =>
+      import('./features/menu/pages/products-screen/products-screen.component').then(
+        m => m.ProductsScreenComponent,
+      ),
+  },
+  {
+    // Écran 5 — récapitulatif + paiement Stripe
     path: 'checkout/:slug/:tableId',
-    loadComponent: () => import('./features/order/pages/checkout-page/checkout-page.component').then(m => m.CheckoutPageComponent),
+    loadComponent: () =>
+      import('./features/order/pages/checkout-page/checkout-page.component').then(
+        m => m.CheckoutPageComponent,
+      ),
   },
   {
     path: 'order/:orderId/confirmation',
-    loadComponent: () => import('./features/order/pages/confirmation-page/confirmation-page.component').then(m => m.ConfirmationPageComponent),
+    loadComponent: () =>
+      import('./features/order/pages/confirmation-page/confirmation-page.component').then(
+        m => m.ConfirmationPageComponent,
+      ),
   },
   {
     path: 'order/:orderId/cancelled',
-    loadComponent: () => import('./features/order/pages/cancellation-page/cancellation-page.component').then(m => m.CancellationPageComponent),
+    loadComponent: () =>
+      import('./features/order/pages/cancellation-page/cancellation-page.component').then(
+        m => m.CancellationPageComponent,
+      ),
   },
   {
     path: '',

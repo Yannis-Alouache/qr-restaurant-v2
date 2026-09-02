@@ -1,0 +1,17 @@
+<header class="header" [style.height.px]="heightPx()">
+  @if (coverPath(); as cover) {
+    <img class="header-img" [src]="cover" [alt]="restaurantName()" />
+  } @else {
+    <div class="header-img header-img--fallback" [attr.aria-hidden]="true"></div>
+  }
+
+  @if (logoPath(); as logo) {
+    <img class="header-logo" [src]="logo" [alt]="restaurantName()" />
+  } @else {
+    <div class="header-name"><span>{{ restaurantName() }}</span></div>
+  }
+
+  <div class="header-overlay" [style.height.px]="heightPx()" aria-hidden="true"></div>
+
+  <ng-content />
+</header>

@@ -1,0 +1,105 @@
+<div class="app">
+
+  <app-restaurant-header
+    [coverPath]="coverPath()"
+    [logoPath]="logoPath()"
+    [restaurantName]="restaurantName() || 'Restaurant'"
+  >
+    <button class="back-btn" type="button" (click)="goBackToMenu()">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+      Retour
+    </button>
+  </app-restaurant-header>
+
+  @if (error()) {
+    <!-- Erreur : réessayer le paiement ou revenir au menu -->
+    <div class="error-state">
+      <div class="error-icon">😕</div>
+      <h1 class="error-title">Une erreur est survenue</h1>
+      <p class="error-text">{{ error() }}</p>
+      <div class="error-actions">
+        <button class="error-btn error-btn--primary" type="button" (click)="retryPayment()">
+          @if (createdOrderId()) { Réessayer le paiement } @else { Réessayer }
+        </button>
+        <button class="error-btn" type="button" (click)="goBackToMenu()">Retour au menu</button>
+      </div>
+    </div>
+  } @else if (cart.isEmpty()) {
+    <!-- Panier vide -->
+    <div class="page-title-section">
+      <h1 class="page-title">Récapitulatif de commande</h1>
+      <p class="page-subtitle">Aucun article dans votre commande</p>
+    </div>
+    <div class="empty-state">
+      <div class="empty-icon">🛒</div>
+      <div class="empty-text">Votre panier est vide</div>
+      <div class="empty-sub">Ajoutez des articles depuis le menu pour passer commande.</div>
+      <button class="empty-link" type="button" (click)="goBackToMenu()">Voir le menu</button>
+    </div>
+  } @else {
+    <!-- Récapitulatif -->
+    <div class="page-title-section">
+      <h1 class="page-title">Récapitulatif de commande</h1>
+      <p class="page-subtitle">
+        {{ itemCountLabel() }}@if (restaurantName()) {<span> — {{ restaurantName() }}</span>}
+      </p>
+    </div>
+
+    <div class="order-items">
+      @for (entry of cart.cartEntries(); track entry.cartId) {
+        <div class="order-item">
+          <div class="order-item-img-wrap">
+            @if (entryImg(entry); as img) {
+              <img [src]="img" [alt]="entryName(entry)" loading="lazy" />
+            } @else {
+              <div class="order-item-placeholder" aria-hidden="true">🍽️</div>
+            }
+          </div>
+          <div class="order-item-info">
+            <div class="order-item-name">{{ entryName(entry) }}</div>
+            @if (entryMenuDetail(entry); as detail) {
+              <div class="menu-detail">{{ detail }}</div>
+            }
+            <div class="order-item-detail">Qté : {{ entry.quantity }}</div>
+          </div>
+          <div class="order-item-price-col">
+            <div class="order-item-unit-price">{{ entryUnitPrice(entry) | price }}</div>
+            <div class="order-item-total-price">{{ entryUnitPrice(entry) * entry.quantity | price }}</div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="summary-box">
+      <div class="summary-row">
+        <span class="summary-label">Sous-total</span>
+        <span class="summary-value">{{ cart.total() | price }}</span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-label">Service en salle</span>
+        <span class="summary-value">Inclus</span>
+      </div>
+      <div class="summary-row total">
+        <span class="summary-label">Total</span>
+        <span class="summary-value">{{ cart.total() | price }}</span>
+      </div>
+    </div>
+
+    <!-- CTA fixe -->
+    <div class="cta-bar">
+      <div class="cta-inner">
+        <button class="pay-btn" type="button" [class.processing]="payState() === 'processing'" (click)="pay()">
+          @if (payState() === 'processing') {
+            Traitement…
+          } @else {
+            Payer<span class="btn-price">· {{ cart.total() | price }}</span>
+          }
+        </button>
+        <span class="secure-label">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Paiement sécurisé par Stripe
+        </span>
+      </div>
+    </div>
+  }
+</div>

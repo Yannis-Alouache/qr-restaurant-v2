@@ -1,0 +1,87 @@
+<div class="drawer-overlay" [class.open]="open()" (click)="closed.emit()"></div>
+
+<div
+  class="drawer"
+  [class.open]="open()"
+  [class.dragging]="dragOffset() !== null"
+  [style.transform]="dragOffset() !== null ? 'translateY(' + dragOffset() + 'px)' : null"
+>
+  <div
+    class="drawer-handle-area"
+    (touchstart)="onTouchStart($event)"
+    (touchmove)="onTouchMove($event)"
+    (touchend)="onTouchEnd()"
+  >
+    <div class="drawer-handle"></div>
+    <button class="drawer-close-btn" type="button" aria-label="Fermer le panier" (click)="closed.emit()">✕</button>
+  </div>
+
+  <div class="drawer-header">
+    <div class="drawer-header-left">
+      <div class="drawer-title">Votre panier</div>
+      <div class="drawer-subtitle">
+        @if (cart.isEmpty()) {
+          Aucun article
+        } @else {
+          {{ cart.itemCount() }} article{{ cart.itemCount() > 1 ? 's' : '' }}
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="drawer-items">
+    @if (cart.isEmpty()) {
+      <div class="drawer-empty">
+        <div class="drawer-empty-icon">🛒</div>
+        <div class="drawer-empty-text">Votre panier est vide</div>
+      </div>
+    } @else {
+      @for (entry of cart.cartEntries(); track entry.cartId) {
+        <div class="drawer-item">
+          <div class="drawer-item-img">
+            @if (entryImg(entry); as img) {
+              <img [src]="img" [alt]="entryName(entry)" loading="lazy" />
+            } @else {
+              <div class="drawer-item-placeholder" aria-hidden="true">🍽️</div>
+            }
+          </div>
+          <div class="drawer-item-info">
+            <div class="drawer-item-name">{{ entryName(entry) }}</div>
+            <div class="drawer-item-price">
+              @if (entryDetail(entry); as detail) {
+                {{ detail }} — {{ entryPrice(entry) | price }}
+              } @else {
+                {{ entryPrice(entry) | price }}
+              }
+            </div>
+          </div>
+          <div class="drawer-item-controls">
+            <button
+              class="qty-btn"
+              type="button"
+              aria-label="Retirer un"
+              (click)="cart.updateQuantity(entry.cartId, entry.quantity - 1)"
+            >−</button>
+            <span class="qty-value">{{ entry.quantity }}</span>
+            <button
+              class="qty-btn"
+              type="button"
+              aria-label="Ajouter un"
+              (click)="cart.updateQuantity(entry.cartId, entry.quantity + 1)"
+            >+</button>
+          </div>
+        </div>
+      }
+    }
+  </div>
+
+  @if (!cart.isEmpty()) {
+    <div class="drawer-footer">
+      <div class="drawer-total-row">
+        <span class="drawer-total-label">Total</span>
+        <span class="drawer-total-amount">{{ cart.total() | price }}</span>
+      </div>
+      <button class="drawer-pay-btn" type="button" (click)="pay.emit()">Aller au paiement</button>
+    </div>
+  }
+</div>

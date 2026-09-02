@@ -1,135 +1,142 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { OrderService } from '../../services/order.service';
+import { MenuService } from '../../../menu/services/menu.service';
 import { CartService } from '../../../cart/services/cart.service';
+import { CartEntry } from '../../../cart/models/cart.model';
+import { ThemeService } from '../../../../shared/services/theme.service';
+import { PricePipe } from '../../../../shared/pipes/price.pipe';
+import { RestaurantHeaderComponent } from '../../../../shared/components/restaurant-header/restaurant-header.component';
+import { categoryCover } from '../../../menu/utils/menu-utils';
 
+type PayState = 'idle' | 'processing';
+
+/** Écran 5 de la maquette : récapitulatif de commande puis paiement Stripe. */
 @Component({
   selector: 'app-checkout-page',
-  standalone: true,
-  template: `
-    <div class="min-h-screen bg-surface px-4 py-8 sm:px-6">
-      <div
-        class="mx-auto flex min-h-[calc(100dvh-4rem)] w-full max-w-[32rem] items-center justify-center"
-      >
-        @if (error()) {
-          <div
-            class="w-full rounded-[2rem] border border-outline-variant/60 bg-surface-container-low p-8 text-center shadow-[var(--shadow-soft)]"
-          >
-            <div class="mb-4 text-5xl">😕</div>
-            <h1 class="mb-2 font-display text-2xl font-bold text-on-surface">
-              Une erreur est survenue
-            </h1>
-            <p class="mb-6 text-sm text-on-surface-variant">{{ error() }}</p>
-            <div class="flex flex-col items-center justify-center gap-3 sm:flex-row">
-              @if (createdOrderId()) {
-                <button
-                  class="rounded-full bg-primary px-6 py-3 text-sm font-bold text-on-primary"
-                  (click)="retryPayment()"
-                >
-                  Réessayer le paiement
-                </button>
-              }
-              <button
-                class="rounded-full border border-outline px-6 py-3 text-sm font-bold text-on-surface"
-                (click)="goBack()"
-              >
-                Retour au menu
-              </button>
-            </div>
-          </div>
-        } @else {
-          <div
-            class="w-full rounded-[2rem] border border-outline-variant/60 bg-surface-container-low p-8 text-center shadow-[var(--shadow-soft)]"
-          >
-            <div
-              class="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-primary/10"
-            >
-              <div
-                class="h-10 w-10 rounded-full border-[3px] border-primary border-t-transparent animate-spin"
-              ></div>
-            </div>
-            <h1 class="font-display text-2xl font-bold text-on-surface">
-              Redirection vers le paiement
-            </h1>
-            <p class="mt-2 text-sm text-on-surface-variant">
-              Vérification de votre commande et ouverture du paiement sécurisé…
-            </p>
-          </div>
-        }
-      </div>
-    </div>
-  `,
-  styles: [
-    `
-      .animate-spin {
-        animation: spin 1s linear infinite;
-      }
-      @keyframes spin {
-        to {
-          transform: rotate(360deg);
-        }
-      }
-    `,
-  ],
+  templateUrl: './checkout-page.component.html',
+  styleUrl: './checkout-page.component.scss',
+  imports: [PricePipe, RestaurantHeaderComponent],
 })
 export class CheckoutPageComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly orderService = inject(OrderService);
-  private readonly cart = inject(CartService);
+  private readonly menuService = inject(MenuService);
+  private readonly themeService = inject(ThemeService);
+  readonly cart = inject(CartService);
 
+  restaurantName = signal<string>('');
+  logoPath = signal<string | null>(null);
+  coverPath = signal<string | null>(null);
+
+  payState = signal<PayState>('idle');
   error = signal<string | null>(null);
   createdOrderId = signal<string | null>(null);
 
-  ngOnInit(): void {
-    const slug = this.route.snapshot.paramMap.get('slug');
-    const tableId = this.route.snapshot.paramMap.get('tableId');
+  protected readonly slug = this.route.snapshot.paramMap.get('slug') ?? '';
+  protected readonly tableId = this.route.snapshot.paramMap.get('tableId') ?? '';
 
-    if (!slug || !tableId) {
+  readonly itemCountLabel = computed(() => {
+    const count = this.cart.itemCount();
+    return `${count} article${count > 1 ? 's' : ''}`;
+  });
+
+  ngOnInit(): void {
+    if (this.slug) {
+      // Le menu est en cache : simple rafraîchissement d'identité du restaurant.
+      this.menuService.getMenu(this.slug).subscribe({
+        next: menu => {
+          this.themeService.apply(menu.restaurant.themeId);
+          this.restaurantName.set(menu.restaurant.name);
+          this.logoPath.set(menu.restaurant.logoPath);
+          for (const category of menu.categories) {
+            const cover = categoryCover(category);
+            if (cover) {
+              this.coverPath.set(cover);
+              break;
+            }
+          }
+        },
+        error: () => {
+          // Le récapitulatif reste utilisable sans l'identité du restaurant.
+        },
+      });
+    }
+  }
+
+  entryName(entry: CartEntry): string {
+    return entry.type === 'standalone' ? entry.name : entry.mainItem.name;
+  }
+
+  entryImg(entry: CartEntry): string | null {
+    if (entry.type === 'standalone') return entry.imagePath;
+    return entry.mainItem.imagePath;
+  }
+
+  /** Détail de composition affiché en italique sous le nom d'un menu. */
+  entryMenuDetail(entry: CartEntry): string | null {
+    if (entry.type !== 'combo') return null;
+    return `${entry.sideItem.name} + ${entry.drinkItem.name}`;
+  }
+
+  entryUnitPrice(entry: CartEntry): number {
+    if (entry.type === 'standalone') return entry.price;
+    return entry.mainItem.price + entry.sideItem.supplementPrice + entry.drinkItem.supplementPrice;
+  }
+
+  pay(): void {
+    if (this.payState() === 'processing') return;
+
+    if (!this.slug || !this.tableId) {
       this.error.set('Informations manquantes');
       return;
     }
-
     if (this.cart.isEmpty()) {
       this.error.set('Votre panier est vide');
       return;
     }
 
-    const entries = this.cart.cartEntries();
+    this.payState.set('processing');
+    this.error.set(null);
 
-    this.orderService.createOrder(slug, tableId, entries).subscribe({
-      next: (order) => {
+    this.orderService.createOrder(this.slug, this.tableId, this.cart.cartEntries()).subscribe({
+      next: order => {
         this.createdOrderId.set(order.id);
         this.openCheckout(order.id);
       },
-      error: (err) => {
-        this.error.set(this.extractErrorMessage(err, 'Erreur lors de la création de la commande'));
-      },
+      error: err => this.fail(this.extractErrorMessage(err, 'Erreur lors de la création de la commande')),
     });
   }
 
   retryPayment(): void {
-    const orderId = this.createdOrderId();
-    if (!orderId) {
+    if (!this.createdOrderId()) {
+      this.error.set(null);
+      this.payState.set('idle');
       return;
     }
-    this.openCheckout(orderId);
+    this.error.set(null);
+    this.payState.set('processing');
+    this.openCheckout(this.createdOrderId()!);
   }
 
-  goBack(): void {
-    history.back();
+  goBackToMenu(): void {
+    void this.router.navigate(['/menu', this.slug, this.tableId]);
   }
 
   private openCheckout(orderId: string): void {
-    this.error.set(null);
     this.orderService.createCheckoutSession(orderId).subscribe({
-      next: (session) => {
+      next: session => {
         this.cart.clear();
         window.location.href = session.checkoutUrl;
       },
-      error: (err) => {
-        this.error.set(this.extractErrorMessage(err, 'Erreur lors de la création du paiement'));
-      },
+      error: err => this.fail(this.extractErrorMessage(err, 'Erreur lors de la création du paiement')),
     });
+  }
+
+  private fail(message: string): void {
+    this.error.set(message);
+    this.payState.set('idle');
   }
 
   private extractErrorMessage(error: unknown, fallback: string): string {

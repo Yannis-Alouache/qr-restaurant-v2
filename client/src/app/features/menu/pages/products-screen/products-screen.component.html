@@ -1,0 +1,72 @@
+@if (loading()) {
+  <div class="screen-state">
+    <div class="spinner" role="status" aria-label="Chargement"></div>
+    <p>Chargement du menu…</p>
+  </div>
+} @else if (error()) {
+  <div class="screen-state">
+    <div class="state-icon">😕</div>
+    <p>{{ error() }}</p>
+  </div>
+} @else if (menu(); as menu) {
+  <div class="app app--with-cart-bar">
+
+    <app-restaurant-header
+      [coverPath]="coverPath()"
+      [logoPath]="menu.restaurant.logoPath"
+      [restaurantName]="menu.restaurant.name"
+      [heightPx]="170"
+    >
+      <button class="back-btn" type="button" aria-label="Retour" (click)="goBack()">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M19 12H5"></path>
+          <path d="M12 19l-7-7 7-7"></path>
+        </svg>
+        <span class="back-btn-label">Retour</span>
+      </button>
+    </app-restaurant-header>
+
+    <app-category-carousel
+      [categories]="carouselCategories()"
+      [selectedId]="category()?.id ?? null"
+      (select)="selectCategory($event)"
+    />
+
+    <h1 class="page-title">{{ category()?.name }}</h1>
+
+    <section class="products">
+      <div class="product-grid">
+        @for (item of items(); track item.id; let i = $index) {
+          <button type="button" class="product-item" (click)="openProductSheet(item)">
+            <div class="product-card" [style.background]="item.imagePath ? '' : colorFor(i)">
+              @if (item.imagePath; as img) {
+                <img [src]="img" [alt]="item.name" loading="lazy" />
+              } @else {
+                <span class="product-initial" aria-hidden="true">{{ item.name.charAt(0) }}</span>
+              }
+            </div>
+            <span class="product-label">{{ item.name }}</span>
+            <span class="product-price">{{ item.price | price }}</span>
+          </button>
+        }
+      </div>
+    </section>
+
+  </div>
+
+  <app-cart-bar (openCart)="showCartDrawer.set(true)" />
+  <app-cart-drawer
+    [open]="showCartDrawer()"
+    (closed)="showCartDrawer.set(false)"
+    (pay)="goToCheckout()"
+  />
+
+  <app-product-sheet
+    [product]="sheetProduct()"
+    addButtonLabel="Ajouter au panier"
+    (closed)="sheetProduct.set(null)"
+    (add)="addFromSheet()"
+  />
+
+  <app-confirm-toast title="Article ajouté au panier" />
+}

@@ -1,0 +1,31 @@
+<div class="cat-carousel">
+  <button class="cat-carousel-arrow arrow-left" type="button" aria-label="Catégories précédentes" (click)="scrollBy(-1)">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+  </button>
+
+  <div class="cat-carousel-track-wrapper">
+    <div class="cat-carousel-track" #track (scroll)="onTrackScroll()">
+      @for (item of loopItems(); track item.loopIndex) {
+        <button
+          type="button"
+          class="cat-carousel-item"
+          [class.active]="isActive(item)"
+          (click)="select.emit(item.id)"
+        >
+          <div class="cat-carousel-img-wrap" [style.background]="colorFor(item.loopIndex)">
+            @if (item.imagePath; as img) {
+              <img [src]="img" [alt]="item.name" loading="lazy" />
+            } @else {
+              <span class="cat-carousel-initial" aria-hidden="true">{{ item.name.charAt(0) }}</span>
+            }
+          </div>
+          <span class="cat-carousel-name">{{ item.name }}</span>
+        </button>
+      }
+    </div>
+  </div>
+
+  <button class="cat-carousel-arrow arrow-right" type="button" aria-label="Catégories suivantes" (click)="scrollBy(1)">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18l6-6-6-6"></path></svg>
+  </button>
+</div>

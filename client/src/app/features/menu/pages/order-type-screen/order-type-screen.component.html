@@ -1,0 +1,102 @@
+@if (loading()) {
+  <div class="screen-state">
+    <div class="spinner" role="status" aria-label="Chargement"></div>
+    <p>Chargement du menu…</p>
+  </div>
+} @else if (error()) {
+  <div class="screen-state">
+    <div class="state-icon">😕</div>
+    <p>{{ error() }}</p>
+  </div>
+} @else if (category(); as category) {
+  <div class="app">
+
+    <div class="top-bar">
+      <button class="close-btn" type="button" aria-label="Fermer" (click)="goBack()">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+      <span class="top-bar-title">{{ category.name }}</span>
+      <div class="top-bar-spacer"></div>
+    </div>
+
+    <p class="subtitle">Comment souhaitez-vous<br>commander ?</p>
+
+    <div class="options-split">
+
+      <!-- Carte Formule Menu (mise en avant) -->
+      <button class="split-card split-card--menu" type="button" (click)="chooseMenu()">
+        <div class="split-card-media" [style.background]="menuCover() ? '' : 'var(--accent-soft)'">
+          @if (menuCover(); as img) {
+            <img class="split-card-img" [src]="img" alt="Formule Menu" loading="eager" />
+          }
+        </div>
+        <div class="split-card-gradient"></div>
+        <div class="split-card-content">
+          <div class="split-card-badges">
+            <span class="split-card-badge badge--popular">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              Populaire
+            </span>
+            @if (savingsLabel(); as label) {
+              <span class="split-card-badge badge--save">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v6m0 4v8m-4-6h8"/><circle cx="12" cy="12" r="10"/></svg>
+                {{ label }}
+              </span>
+            }
+          </div>
+          <div class="split-card-title">Formule Menu</div>
+          <div class="split-card-desc">Un plat, un accompagnement et une boisson — le repas complet à prix réduit.</div>
+          <div class="split-card-footer">
+            <div class="split-card-composition">
+              <span class="comp-pill">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 002-2V2"/><path d="M7 2v20"/></svg>
+                {{ category.name }}
+              </span>
+              <span class="comp-sep">+</span>
+              <span class="comp-pill">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 002-2V2"/><path d="M7 2v20"/></svg>
+                Accomp.
+              </span>
+              <span class="comp-sep">+</span>
+              <span class="comp-pill">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 8h1a4 4 0 010 8h-1"/><path d="M3 8h14v9a4 4 0 01-4 4H7a4 4 0 01-4-4V8z"/></svg>
+                Boisson
+              </span>
+            </div>
+            <span class="split-choose-btn split-choose-btn--accent">Choisir</span>
+          </div>
+        </div>
+      </button>
+
+      <!-- Carte Article solo -->
+      <button class="split-card" type="button" (click)="chooseSolo()">
+        <div class="split-card-media" [style.background]="soloCover() ? '' : 'var(--accent-soft)'">
+          @if (soloCover(); as img) {
+            <img class="split-card-img" [src]="img" alt="Article solo" loading="lazy" />
+          }
+        </div>
+        <div class="split-card-gradient"></div>
+        <div class="split-card-content">
+          <div class="split-card-title">Article solo</div>
+          <div class="split-card-desc">Commandez uniquement l'article de votre choix, sans accompagnement.</div>
+          <div class="split-card-footer split-card-footer--end">
+            <span class="split-choose-btn split-choose-btn--white">Choisir</span>
+          </div>
+        </div>
+      </button>
+
+    </div>
+
+    <button class="back-link" type="button" (click)="goBack()">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M19 12H5"></path>
+        <path d="M12 19l-7-7 7-7"></path>
+      </svg>
+      Revenir à la sélection des catégories
+    </button>
+
+  </div>
+}
