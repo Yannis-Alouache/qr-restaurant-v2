@@ -1,0 +1,90 @@
+.cancellation {
+  padding: 24px 16px calc(24px + var(--safe-bottom));
+}
+
+.cancellation-card {
+  width: 100%;
+  margin-top: 24px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 32px 24px;
+  text-align: center;
+}
+
+.cancel-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 16px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  display: grid;
+  place-items: center;
+}
+
+.cancel-icon svg {
+  width: 40px;
+  height: 40px;
+  stroke: var(--accent);
+  stroke-width: 2;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.page-title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--fg);
+  margin-bottom: 8px;
+}
+
+.page-subtitle {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.5;
+  margin-bottom: 24px;
+}
+
+.error-text {
+  font-size: 14px;
+  color: var(--accent-strong);
+  margin-bottom: 16px;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.action-btn {
+  width: 100%;
+  padding: 14px 24px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  color: var(--fg);
+  transition: transform 0.15s, opacity 0.15s;
+}
+
+.action-btn:active {
+  transform: scale(0.98);
+}
+
+.action-btn:disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.action-btn--primary {
+  background: var(--fg);
+  color: var(--surface);
+  border-color: var(--fg);
+}

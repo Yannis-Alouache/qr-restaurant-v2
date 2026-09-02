@@ -56,7 +56,7 @@ describe('ConfirmationPageComponent', () => {
     fixture.detectChanges();
 
     expect(orderService.getOrder).toHaveBeenCalledWith('order-1');
-    expect(orderStatusRealtimeService.connect).toHaveBeenCalledWith('order-1', expect.any(Function));
+    expect(orderStatusRealtimeService.connect).toHaveBeenCalledWith('order-1', expect.any(Function), expect.any(Function));
     expect(fixture.nativeElement.textContent).toContain('Paiement en cours de confirmation');
     expect(fixture.nativeElement.textContent).not.toContain('Commande confirmée !');
   });

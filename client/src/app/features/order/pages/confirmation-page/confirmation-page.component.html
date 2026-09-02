@@ -1,0 +1,63 @@
+<div class="app confirmation">
+  <div class="confirmation-inner">
+
+    @if (loading()) {
+      <div class="state-card">
+        <div class="spinner" role="status" aria-label="Chargement"></div>
+        <p class="state-text">Chargement de votre commande…</p>
+      </div>
+    } @else if (error()) {
+      <div class="state-card">
+        <div class="state-icon">😕</div>
+        <h1 class="state-title">Commande introuvable</h1>
+        <p class="state-text">{{ error() }}</p>
+      </div>
+    } @else if (order()) {
+      <!-- Success icon -->
+      <div class="success-icon">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+          <polyline points="22 4 12 14.01 9 11.01" />
+        </svg>
+      </div>
+
+      <h1 class="page-title" data-testid="confirmation-title">{{ pageTitle() }}</h1>
+      <p class="page-subtitle">{{ pageDescription() }}</p>
+
+      <!-- Status Timeline -->
+      <div class="card">
+        <h2 class="card-title">Suivi de votre commande</h2>
+        <div class="status-list">
+          @for (status of statusSteps; track status.key) {
+            <div class="status-row">
+              <div class="status-circle" [class.reached]="isStatusReached(status.key)" [attr.data-testid]="'status-step-' + status.key">
+                @if (isStatusReached(status.key)) {
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+                }
+              </div>
+              <span class="status-label" [class.reached]="isStatusReached(status.key)">{{ status.label }}</span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Order Summary -->
+      <div class="card">
+        <h2 class="card-title">Récapitulatif</h2>
+        @for (item of order()!.items; track item.id) {
+          <div class="summary-line">
+            <span>{{ item.quantity }}× {{ item.name }}</span>
+            <span>{{ item.unitPrice * item.quantity | price }}</span>
+          </div>
+        }
+        <div class="summary-total">
+          <span>Total</span>
+          <span>{{ order()!.total | price }}</span>
+        </div>
+      </div>
+
+      <p class="auto-update">Cette page se met à jour automatiquement</p>
+    }
+
+  </div>
+</div>

@@ -1,0 +1,187 @@
+:host {
+  display: contents;
+}
+
+.product-sheet-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: oklch(15% 0.02 240 / 0.45);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  animation: sheetFadeIn 0.3s ease forwards;
+}
+
+.product-sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 310;
+  max-width: 430px;
+  margin: 0 auto;
+  background: var(--surface);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  transform: translateY(100%);
+  transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+  max-height: 90dvh;
+  display: flex;
+  flex-direction: column;
+  will-change: transform;
+  box-shadow: 0 -8px 40px oklch(15% 0.02 240 / 0.12);
+  overflow: hidden;
+  animation: sheetUp 0.35s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+}
+
+.product-sheet.dragging {
+  transition: none;
+  animation: none;
+  transform: translateY(var(--drag, 0));
+}
+
+@keyframes sheetUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+@keyframes sheetFadeIn {
+  from { opacity: 0; visibility: hidden; }
+  to   { opacity: 1; visibility: visible; }
+}
+
+/* ─── Handle ─── */
+.product-sheet-handle-area {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 5;
+  padding: 12px 0 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: grab;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: none;
+}
+
+.product-sheet-handle {
+  width: 36px;
+  height: 5px;
+  border-radius: 999px;
+  background: oklch(100% 0 0 / 0.6);
+  transition: background 0.15s;
+}
+
+.product-sheet-handle-area:active .product-sheet-handle {
+  background: oklch(100% 0 0 / 0.8);
+}
+
+.product-sheet-close {
+  position: absolute;
+  right: 16px;
+  top: 8px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: oklch(15% 0.02 240 / 0.35);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  color: #fff;
+  font-size: 16px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: background 0.15s;
+  line-height: 1;
+  padding: 0;
+  z-index: 6;
+}
+
+.product-sheet-close:active {
+  background: oklch(15% 0.02 240 / 0.55);
+}
+
+/* ─── Image ─── */
+.product-sheet-img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  display: block;
+}
+
+.product-sheet-img--placeholder {
+  display: grid;
+  place-items: center;
+  font-size: 56px;
+  background: var(--accent-soft);
+}
+
+/* ─── Body ─── */
+.product-sheet-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.product-sheet-title-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.product-sheet-name {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--fg);
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+.product-sheet-price {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.product-sheet-desc {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+/* ─── Footer ─── */
+.product-sheet-footer {
+  flex-shrink: 0;
+  padding: 16px 20px calc(12px + var(--safe-bottom));
+}
+
+.product-sheet-add-btn {
+  width: 100%;
+  padding: 16px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--fg);
+  color: var(--surface);
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.15s;
+  letter-spacing: 0.01em;
+}
+
+.product-sheet-add-btn:active {
+  opacity: 0.9;
+  transform: scale(0.98);
+}

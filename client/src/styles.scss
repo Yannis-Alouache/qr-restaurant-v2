@@ -1,170 +1,165 @@
-@import "tailwindcss";
+/* ============================================================
+   Thèmes — G La Dalle · App de commande restaurant
+   ────────────────────────────────────────────────────────────
+   Switch via l'attribut data-theme sur <html>.
+   Persisté dans localStorage, clé : "qr-restaurant-theme".
+   ============================================================ */
 
-@theme {
-  --font-display: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
-  --font-body: 'Be Vietnam Pro', ui-sans-serif, system-ui, sans-serif;
+/* Tokens structurels (constants) */
+:root {
+  --font-display: 'Söhne', 'Avenir Next', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-body:    -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
 
-  --radius-sm: 0.5rem;
-  --radius-md: 1rem;
-  --radius-lg: 1.5rem;
-  --radius-xl: 2rem;
-  --radius-2xl: 3rem;
-  --radius-full: 9999px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-:root,
-html[data-theme='classique'] {
-  --color-surface: #fbf7f2;
-  --color-surface-dim: #ddd8d0;
-  --color-surface-container: #ece6de;
-  --color-surface-container-low: #f5efe7;
-  --color-surface-container-high: #e5ded6;
-  --color-surface-container-highest: #ddd6ce;
-  --color-on-surface: #231b16;
-  --color-on-surface-variant: #66564b;
-  --color-inverse-surface: #342c27;
-  --color-inverse-on-surface: #f8efe8;
-  --color-outline: #8c7a6f;
-  --color-outline-variant: #dcc6b6;
-  --color-surface-tint: #8d3d19;
-  --color-primary: #8d3d19;
-  --color-on-primary: #ffffff;
-  --color-primary-container: #b34f1f;
-  --color-on-primary-container: #fff8f5;
-  --color-inverse-primary: #ffb99a;
-  --color-secondary: #7b5b1e;
-  --color-on-secondary: #ffffff;
-  --color-secondary-container: #f3c96d;
-  --color-on-secondary-container: #4f3904;
-  --color-error: #ba1a1a;
-  --color-on-error: #ffffff;
-  --color-error-container: #ffdad6;
+/* ─── Classique (teal) — défaut ─── */
+[data-theme="classique"],
+:root:not([data-theme]),
+:root[data-theme=""] {
+  --bg:           oklch(98% 0.004 240);
+  --surface:      oklch(100% 0 0);
+  --fg:           oklch(20% 0.02 240);
+  --muted:        oklch(50% 0.018 240);
+  --border:       oklch(90% 0.006 240);
+  --accent:       oklch(56% 0.12 170);
+  --accent-soft:  oklch(56% 0.12 170 / 0.1);
+  --accent-mid:   oklch(56% 0.12 170 / 0.15);
+  --accent-strong:oklch(48% 0.15 170);
+  --badge-bg:     oklch(62% 0.2 25);
+  --success:      oklch(64% 0.15 150);
+  --cat-burgers:  oklch(72% 0.08 45);
+  --cat-sandwichs:oklch(75% 0.07 75);
+  --cat-salades:  oklch(78% 0.1 145);
+  --cat-pizzas:   oklch(74% 0.09 55);
+  --cat-desserts: oklch(76% 0.1 330);
+  --cat-boissons: oklch(70% 0.08 220);
+  --cat-accompagnements: oklch(74% 0.07 80);
 }
 
-html[data-theme='chaud'] {
-  --color-surface: #f7f9ff;
-  --color-surface-dim: #d7dadf;
-  --color-surface-container: #ebeef3;
-  --color-surface-container-low: #f1f4f9;
-  --color-surface-container-high: #e5e8ee;
-  --color-surface-container-highest: #e0e3e8;
-  --color-on-surface: #181c20;
-  --color-on-surface-variant: #594138;
-  --color-inverse-surface: #2d3135;
-  --color-inverse-on-surface: #eef1f6;
-  --color-outline: #8d7166;
-  --color-outline-variant: #e1bfb2;
-  --color-surface-tint: #a43d00;
-  --color-primary: #a03b00;
-  --color-on-primary: #ffffff;
-  --color-primary-container: #c94c00;
-  --color-on-primary-container: #fffbff;
-  --color-inverse-primary: #ffb597;
-  --color-secondary: #805600;
-  --color-on-secondary: #ffffff;
-  --color-secondary-container: #ffb636;
-  --color-on-secondary-container: #6e4900;
-  --color-error: #ba1a1a;
-  --color-on-error: #ffffff;
-  --color-error-container: #ffdad6;
+/* ─── Chaud (tons chauds) ─── */
+[data-theme="chaud"] {
+  --bg:           oklch(98% 0.008 60);
+  --surface:      oklch(100% 0.005 60);
+  --fg:           oklch(22% 0.025 50);
+  --muted:        oklch(50% 0.02 50);
+  --border:       oklch(90% 0.012 60);
+  --accent:       oklch(62% 0.18 30);
+  --accent-soft:  oklch(62% 0.18 30 / 0.1);
+  --accent-mid:   oklch(62% 0.18 30 / 0.15);
+  --accent-strong:oklch(52% 0.2 25);
+  --badge-bg:     oklch(62% 0.2 25);
+  --success:      oklch(64% 0.15 150);
+  --cat-burgers:  oklch(72% 0.1 45);
+  --cat-sandwichs:oklch(74% 0.08 70);
+  --cat-salades:  oklch(76% 0.08 90);
+  --cat-pizzas:   oklch(73% 0.1 50);
+  --cat-desserts: oklch(75% 0.12 350);
+  --cat-boissons: oklch(71% 0.07 55);
+  --cat-accompagnements: oklch(73% 0.08 65);
 }
 
-html[data-theme='nature'] {
-  --color-surface: #f4fbf4;
-  --color-surface-dim: #d3ddd1;
-  --color-surface-container: #e5efe3;
-  --color-surface-container-low: #eef6ec;
-  --color-surface-container-high: #dde7db;
-  --color-surface-container-highest: #d4dfd3;
-  --color-on-surface: #17201a;
-  --color-on-surface-variant: #4f6354;
-  --color-inverse-surface: #28332a;
-  --color-inverse-on-surface: #edf6ec;
-  --color-outline: #7b9180;
-  --color-outline-variant: #c7d7c8;
-  --color-surface-tint: #2f6b45;
-  --color-primary: #2f6b45;
-  --color-on-primary: #ffffff;
-  --color-primary-container: #4a8a5f;
-  --color-on-primary-container: #f8fff8;
-  --color-inverse-primary: #9fdab0;
-  --color-secondary: #6a5c2d;
-  --color-on-secondary: #ffffff;
-  --color-secondary-container: #d9c986;
-  --color-on-secondary-container: #403400;
-  --color-error: #b3261e;
-  --color-on-error: #ffffff;
-  --color-error-container: #f9dedc;
+/* ─── Nature (tons naturels) ─── */
+[data-theme="nature"] {
+  --bg:           oklch(97% 0.006 120);
+  --surface:      oklch(100% 0.004 100);
+  --fg:           oklch(18% 0.02 100);
+  --muted:        oklch(48% 0.015 100);
+  --border:       oklch(89% 0.01 110);
+  --accent:       oklch(52% 0.1 140);
+  --accent-soft:  oklch(52% 0.1 140 / 0.1);
+  --accent-mid:   oklch(52% 0.1 140 / 0.15);
+  --accent-strong:oklch(44% 0.12 145);
+  --badge-bg:     oklch(52% 0.1 140);
+  --success:      oklch(60% 0.15 150);
+  --cat-burgers:  oklch(70% 0.09 50);
+  --cat-sandwichs:oklch(72% 0.07 80);
+  --cat-salades:  oklch(75% 0.12 145);
+  --cat-pizzas:   oklch(71% 0.08 55);
+  --cat-desserts: oklch(73% 0.1 320);
+  --cat-boissons: oklch(68% 0.06 200);
+  --cat-accompagnements: oklch(72% 0.08 95);
 }
 
-html[data-theme='elegant'] {
-  --color-surface: #15131d;
-  --color-surface-dim: #24212f;
-  --color-surface-container: #211d2b;
-  --color-surface-container-low: #1a1724;
-  --color-surface-container-high: #2a2635;
-  --color-surface-container-highest: #353142;
-  --color-on-surface: #f6effb;
-  --color-on-surface-variant: #c8bdd7;
-  --color-inverse-surface: #f2eaf7;
-  --color-inverse-on-surface: #201b29;
-  --color-outline: #8d81a4;
-  --color-outline-variant: #4a4358;
-  --color-surface-tint: #c99cff;
-  --color-primary: #c99cff;
-  --color-on-primary: #2f114b;
-  --color-primary-container: #8e68be;
-  --color-on-primary-container: #fff7ff;
-  --color-inverse-primary: #744ba0;
-  --color-secondary: #f0c35d;
-  --color-on-secondary: #342300;
-  --color-secondary-container: #5d4920;
-  --color-on-secondary-container: #ffe7b5;
-  --color-error: #ffb4ab;
-  --color-on-error: #690005;
-  --color-error-container: #93000a;
+/* ─── Élégant (tons élégants) ─── */
+[data-theme="elegant"] {
+  --bg:           oklch(97% 0.006 300);
+  --surface:      oklch(100% 0.004 300);
+  --fg:           oklch(18% 0.02 310);
+  --muted:        oklch(48% 0.015 300);
+  --border:       oklch(90% 0.01 300);
+  --accent:       oklch(42% 0.14 310);
+  --accent-soft:  oklch(42% 0.14 310 / 0.1);
+  --accent-mid:   oklch(42% 0.14 310 / 0.15);
+  --accent-strong:oklch(35% 0.16 315);
+  --badge-bg:     oklch(42% 0.14 310);
+  --success:      oklch(58% 0.13 150);
+  --cat-burgers:  oklch(65% 0.08 40);
+  --cat-sandwichs:oklch(68% 0.06 75);
+  --cat-salades:  oklch(72% 0.08 150);
+  --cat-pizzas:   oklch(66% 0.07 50);
+  --cat-desserts: oklch(70% 0.1 330);
+  --cat-boissons: oklch(65% 0.06 260);
+  --cat-accompagnements: oklch(68% 0.07 90);
 }
+
+/* ============================================================
+   Base
+   ============================================================ */
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
 html {
-  color-scheme: light;
-  --app-max-width: 42rem;
-  --shadow-soft: 0 18px 40px rgba(24, 28, 32, 0.12);
-  --shadow-strong: 0 24px 56px rgba(24, 28, 32, 0.18);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-html[data-theme='elegant'] {
-  color-scheme: dark;
-  --shadow-soft: 0 18px 40px rgba(6, 4, 10, 0.45);
-  --shadow-strong: 0 24px 56px rgba(6, 4, 10, 0.6);
+html, body {
+  height: 100%;
 }
 
 body {
   font-family: var(--font-body);
-  color: var(--color-on-surface);
-  background-color: var(--color-surface);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  min-height: 100dvh;
-  background-image:
-    radial-gradient(circle at top, color-mix(in srgb, var(--color-primary) 10%, transparent), transparent 42%),
-    linear-gradient(180deg, color-mix(in srgb, var(--color-surface-container-low) 55%, transparent), transparent 18rem);
+  background: var(--bg);
+  color: var(--fg);
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
 }
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-display);
 }
 
-button,
-input,
-select,
-textarea {
-  min-height: 48px;
+button {
+  font-family: inherit;
 }
 
-.safe-bottom-pad {
-  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 1rem);
+/* Shell commun : colonne centrée façon app mobile */
+.app {
+  max-width: 430px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
 }
 
-.safe-bottom-space {
-  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 7rem);
+.app--with-cart-bar {
+  padding-bottom: calc(80px + var(--safe-bottom));
+}
+
+/* Images : jamais déformées */
+img {
+  display: block;
+  max-width: 100%;
+}
+
+/* Accessibilité : focus visible */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }

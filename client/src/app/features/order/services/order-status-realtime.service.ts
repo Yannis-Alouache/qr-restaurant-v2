@@ -7,7 +7,17 @@ export class OrderStatusRealtimeService {
   private client: Client | null = null;
   private subscription: StompSubscription | null = null;
 
-  connect(orderId: string, onStatusChange: (status: string) => void): void {
+  /**
+   * Suit le statut d'une commande via WebSocket.
+   * `onConnected` est appelé à chaque (re)connexion : le consommateur peut
+   * alors rafraîchir son état pour ne manquer aucune transition émise
+   * pendant que la connexion était en cours d'établissement.
+   */
+  connect(
+    orderId: string,
+    onStatusChange: (status: string) => void,
+    onConnected?: () => void,
+  ): void {
     if (!orderId || this.client?.active) {
       return;
     }
@@ -25,6 +35,7 @@ export class OrderStatusRealtimeService {
             }
           } catch {}
         });
+        onConnected?.();
       },
     });
 

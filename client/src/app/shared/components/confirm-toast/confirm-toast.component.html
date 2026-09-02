@@ -1,0 +1,11 @@
+<div class="toast" [class.show]="visible()" role="status">
+  <div class="toast-icon">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6L9 17l-5-5"></path></svg>
+  </div>
+  <div class="toast-text">
+    {{ title() }}
+    @if (detail(); as detail) {
+      <span>{{ detail }}</span>
+    }
+  </div>
+</div>

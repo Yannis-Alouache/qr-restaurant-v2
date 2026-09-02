@@ -1,0 +1,62 @@
+@if (loading()) {
+  <div class="screen-state">
+    <div class="spinner" role="status" aria-label="Chargement"></div>
+    <p>Chargement du menu…</p>
+  </div>
+} @else if (error()) {
+  <div class="screen-state">
+    <div class="state-icon">😕</div>
+    <p>{{ error() }}</p>
+  </div>
+} @else if (menu(); as menu) {
+  <div class="app app--with-cart-bar">
+    <app-restaurant-header
+      [coverPath]="coverPath()"
+      [logoPath]="menu.restaurant.logoPath"
+      [restaurantName]="menu.restaurant.name"
+      [heightPx]="170"
+    />
+
+    <div class="title-row">
+      <h1 class="title-row-title">Explorer le menu</h1>
+      <div class="pills">
+        <button
+          type="button"
+          class="pill"
+          [class.active]="activeFilter() === 'menu'"
+          (click)="setFilter('menu')"
+        >Menu</button>
+        <button
+          type="button"
+          class="pill"
+          [class.active]="activeFilter() === 'populaire'"
+          (click)="setFilter('populaire')"
+        >Populaire</button>
+      </div>
+    </div>
+
+    <section class="categories">
+      <div class="category-grid">
+        @for (category of menu.categories; track category.id; let i = $index) {
+          <button type="button" class="category-item" (click)="openCategory(category.id)">
+            <div class="category-card" [style.background]="colorFor(i)">
+              @if (category.imagePath; as img) {
+                <img [src]="img" [alt]="category.name" loading="lazy" />
+              } @else {
+                <span class="category-initial" aria-hidden="true">{{ category.name.charAt(0) }}</span>
+              }
+            </div>
+            <span class="category-label">{{ category.name }}</span>
+          </button>
+        }
+      </div>
+    </section>
+  </div>
+
+  <app-cart-bar (openCart)="showCartDrawer.set(true)" />
+  <app-cart-drawer
+    [open]="showCartDrawer()"
+    (closed)="showCartDrawer.set(false)"
+    (pay)="goToCheckout()"
+  />
+}

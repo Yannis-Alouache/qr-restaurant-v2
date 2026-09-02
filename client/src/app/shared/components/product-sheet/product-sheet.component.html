@@ -1,0 +1,49 @@
+@if (product(); as product) {
+  <div class="product-sheet-overlay" (click)="closed.emit()"></div>
+
+  <div
+    class="product-sheet"
+    [class.dragging]="dragOffset() !== null"
+    [style.transform]="dragOffset() !== null ? 'translateY(' + dragOffset() + 'px)' : null"
+  >
+    <div
+      class="product-sheet-handle-area"
+      (touchstart)="onTouchStart($event)"
+      (touchmove)="onTouchMove($event)"
+      (touchend)="onTouchEnd()"
+    >
+      <div class="product-sheet-handle"></div>
+      <button class="product-sheet-close" type="button" aria-label="Fermer" (click)="closed.emit()">✕</button>
+    </div>
+
+    @if (product.imagePath; as img) {
+      <img class="product-sheet-img" [src]="img" [alt]="product.name" />
+    } @else {
+      <div class="product-sheet-img product-sheet-img--placeholder" aria-hidden="true">🍽️</div>
+    }
+
+    <div class="product-sheet-body">
+      <div class="product-sheet-title-row">
+        <span class="product-sheet-name">{{ product.name }}</span>
+        <span class="product-sheet-price">
+          @if (product.priceLabel; as label) {
+            {{ label }}
+          } @else {
+            {{ product.price | price }}
+          }
+        </span>
+      </div>
+      @if (product.description) {
+        <p class="product-sheet-desc">{{ product.description }}</p>
+      } @else {
+        <p class="product-sheet-desc">Préparé avec des ingrédients frais et de qualité.</p>
+      }
+    </div>
+
+    <div class="product-sheet-footer">
+      <button class="product-sheet-add-btn" type="button" (click)="add.emit()">
+        {{ addButtonLabel() }}
+      </button>
+    </div>
+  </div>
+}
