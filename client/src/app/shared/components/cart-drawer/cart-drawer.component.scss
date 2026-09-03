@@ -149,12 +149,13 @@
   overflow: hidden;
   flex-shrink: 0;
   background: var(--border);
+  padding: 6px;
 }
 
 .drawer-item-img img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .drawer-item-placeholder {
