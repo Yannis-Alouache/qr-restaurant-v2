@@ -88,7 +88,10 @@
   transition: border-color 0.2s, transform 0.15s;
   box-shadow: 0 1px 3px oklch(20% 0.02 240 / 0.06);
   display: grid;
+  grid-template-rows: 100%;
+  grid-template-columns: 100%;
   place-items: center;
+  padding: 6px;
 }
 
 .cat-carousel-item.active .cat-carousel-img-wrap {
@@ -102,7 +105,7 @@
 .cat-carousel-img-wrap img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   display: block;
 }
 
