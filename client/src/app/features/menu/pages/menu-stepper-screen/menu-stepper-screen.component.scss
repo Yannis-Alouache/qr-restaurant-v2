@@ -240,7 +240,10 @@
   box-shadow: 0 1px 3px oklch(20% 0.02 240 / 0.06), 0 4px 12px oklch(20% 0.02 240 / 0.04);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   display: grid;
+  grid-template-rows: 100%;
+  grid-template-columns: 100%;
   place-items: center;
+  padding: 8px;
 }
 
 .product-item:active .product-card {
@@ -255,7 +258,7 @@
 .product-card img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   display: block;
 }
 

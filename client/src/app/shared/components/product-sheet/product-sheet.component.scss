@@ -71,12 +71,14 @@
   width: 36px;
   height: 5px;
   border-radius: 999px;
-  background: oklch(100% 0 0 / 0.6);
+  /* L'image étant désormais détachée du haut du drawer, la poignée repose
+     sur le fond de la feuille : teinte sombre pour rester visible. */
+  background: oklch(15% 0.02 240 / 0.25);
   transition: background 0.15s;
 }
 
 .product-sheet-handle-area:active .product-sheet-handle {
-  background: oklch(100% 0 0 / 0.8);
+  background: oklch(15% 0.02 240 / 0.45);
 }
 
 .product-sheet-close {
@@ -107,9 +109,12 @@
 
 /* ─── Image ─── */
 .product-sheet-img {
-  width: 100%;
+  width: calc(100% - 40px);
+  margin: 44px auto 0;
   aspect-ratio: 4 / 3;
-  object-fit: cover;
+  object-fit: contain;
+  border-radius: var(--radius-md);
+  background: var(--accent-soft);
   display: block;
 }
 
@@ -117,7 +122,6 @@
   display: grid;
   place-items: center;
   font-size: 56px;
-  background: var(--accent-soft);
 }
 
 /* ─── Body ─── */

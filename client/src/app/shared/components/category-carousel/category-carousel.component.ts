@@ -86,7 +86,8 @@ export class CategoryCarouselComponent {
     const el = this.track().nativeElement;
     const items = el.querySelectorAll<HTMLElement>('.cat-carousel-item');
     const itemWidth = items.length > 0 ? items[0].offsetWidth + 8 : 70;
-    el.scrollLeft += itemWidth * 5 * direction;
+    // Avancer d'une seule catégorie par clic de flèche.
+    el.scrollLeft += itemWidth * direction;
   }
 
   private itemCount(): number {
@@ -95,6 +96,8 @@ export class CategoryCarouselComponent {
 
   private initializeScroll(): void {
     this.singleSetWidth = this.measureSetWidth();
+    // Démarrer au début de la liste réelle avant de centrer l'item actif.
+    this.jumpTo(this.singleSetWidth + 8);
     this.scrollActiveIntoView();
     setTimeout(() => {
       const el = this.track().nativeElement;
@@ -118,19 +121,27 @@ export class CategoryCarouselComponent {
 
   private scrollActiveIntoView(): void {
     const el = this.track().nativeElement;
-    const count = this.itemCount();
-    const items = el.querySelectorAll<HTMLElement>('.cat-carousel-item');
-    let activeEl: HTMLElement | null = null;
-    for (let i = count; i < count * 2 && i < items.length; i++) {
-      if (items[i].classList.contains('active')) {
-        activeEl = items[i];
-        break;
+    const activeItems = el.querySelectorAll<HTMLElement>('.cat-carousel-item.active');
+    if (activeItems.length === 0) return;
+
+    // Chaque catégorie existe en 3 exemplaires (clones) : centrer celui qui
+    // est le plus proche du viewport actuel, sinon la sélection fait sauter
+    // le carrousel d'un bout à l'autre et casse l'illusion de boucle infinie.
+    const trackRect = el.getBoundingClientRect();
+    const trackCenter = trackRect.left + trackRect.width / 2;
+    let bestEl: HTMLElement | null = null;
+    let bestDistance = Infinity;
+    for (const item of Array.from(activeItems)) {
+      const rect = item.getBoundingClientRect();
+      const distance = Math.abs(rect.left + rect.width / 2 - trackCenter);
+      if (distance < bestDistance) {
+        bestDistance = distance;
+        bestEl = item;
       }
     }
-    if (!activeEl) return;
+    if (!bestEl) return;
 
-    const trackRect = el.getBoundingClientRect();
-    const elRect = activeEl.getBoundingClientRect();
+    const elRect = bestEl.getBoundingClientRect();
     const offset = elRect.left - trackRect.left - trackRect.width / 2 + elRect.width / 2;
     el.scrollLeft += offset;
   }
