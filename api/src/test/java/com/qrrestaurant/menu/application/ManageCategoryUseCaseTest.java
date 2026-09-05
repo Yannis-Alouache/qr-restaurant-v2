@@ -32,7 +32,7 @@ class ManageCategoryUseCaseTest {
         var ctx = setup();
         Category category = ctx.categoryRepository.save(Category.from(
                 UUID.randomUUID(), ctx.restaurantId, "Burgers", ctx.oldImage, 0, true));
-        String newImage = "http://localhost:8333/category-images/new.png";
+        String newImage = "/api/images/category-images/new.png";
 
         ctx.useCase.update(ctx.ownerId, category.getId(), "Burgers", newImage, 0, true);
 
@@ -78,7 +78,7 @@ class ManageCategoryUseCaseTest {
         Context ctx = new Context();
         ctx.ownerId = ownerId;
         ctx.restaurantId = restaurantId;
-        ctx.oldImage = "http://localhost:8333/category-images/old.png";
+        ctx.oldImage = "/api/images/category-images/old.png";
         ctx.categoryRepository = categoryRepository;
         ctx.useCase = useCase;
         ctx.storage = storage;

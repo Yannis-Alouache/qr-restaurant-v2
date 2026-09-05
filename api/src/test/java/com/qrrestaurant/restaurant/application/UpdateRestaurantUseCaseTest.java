@@ -18,28 +18,28 @@ class UpdateRestaurantUseCaseTest {
 
     @Test
     void shouldDeletePreviousLogoWhenLogoIsReplaced() {
-        var ctx = setup("http://localhost:8333/logos/old.png");
-        String newLogo = "http://localhost:8333/logos/new.png";
+        var ctx = setup("/api/images/logos/old.png");
+        String newLogo = "/api/images/logos/new.png";
 
         ctx.useCase.execute(ctx.ownerId, "Bistro", null, newLogo, null, null);
 
-        verify(ctx.storage).delete("http://localhost:8333/logos/old.png");
+        verify(ctx.storage).delete("/api/images/logos/old.png");
         verify(ctx.storage, never()).delete(newLogo);
     }
 
     @Test
     void shouldDeleteLogoWhenRemovedViaBlankValue() {
-        var ctx = setup("http://localhost:8333/logos/old.png");
+        var ctx = setup("/api/images/logos/old.png");
 
         // Le front admin envoie logoPath="" pour supprimer le logo.
         ctx.useCase.execute(ctx.ownerId, "Bistro", null, "", null, null);
 
-        verify(ctx.storage).delete("http://localhost:8333/logos/old.png");
+        verify(ctx.storage).delete("/api/images/logos/old.png");
     }
 
     @Test
     void shouldNotTouchStorageWhenLogoIsUnchanged() {
-        String logo = "http://localhost:8333/logos/keep.png";
+        String logo = "/api/images/logos/keep.png";
         var ctx = setup(logo);
 
         ctx.useCase.execute(ctx.ownerId, "Bistro Renommé", null, null, null, null);

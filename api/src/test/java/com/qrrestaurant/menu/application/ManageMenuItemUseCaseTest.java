@@ -127,7 +127,7 @@ class ManageMenuItemUseCaseTest {
         UUID ownerId = UUID.randomUUID();
         UUID restaurantId = UUID.randomUUID();
         UUID categoryId = UUID.randomUUID();
-        String oldImage = "http://localhost:8333/menu-images/old.png";
+        String oldImage = "/api/images/menu-images/old.png";
 
         InMemoryRestaurantRepository restaurantRepository = new InMemoryRestaurantRepository();
         InMemoryCategoryRepository categoryRepository = new InMemoryCategoryRepository();
@@ -151,8 +151,8 @@ class ManageMenuItemUseCaseTest {
         UUID ownerId = UUID.randomUUID();
         UUID restaurantId = UUID.randomUUID();
         UUID categoryId = UUID.randomUUID();
-        String oldImage = "http://localhost:8333/menu-images/old.png";
-        String newImage = "http://localhost:8333/menu-images/new.png";
+        String oldImage = "/api/images/menu-images/old.png";
+        String newImage = "/api/images/menu-images/new.png";
 
         InMemoryRestaurantRepository restaurantRepository = new InMemoryRestaurantRepository();
         InMemoryCategoryRepository categoryRepository = new InMemoryCategoryRepository();
@@ -177,7 +177,7 @@ class ManageMenuItemUseCaseTest {
         UUID ownerId = UUID.randomUUID();
         UUID restaurantId = UUID.randomUUID();
         UUID categoryId = UUID.randomUUID();
-        String image = "http://localhost:8333/menu-images/keep.png";
+        String image = "/api/images/menu-images/keep.png";
 
         InMemoryRestaurantRepository restaurantRepository = new InMemoryRestaurantRepository();
         InMemoryCategoryRepository categoryRepository = new InMemoryCategoryRepository();
