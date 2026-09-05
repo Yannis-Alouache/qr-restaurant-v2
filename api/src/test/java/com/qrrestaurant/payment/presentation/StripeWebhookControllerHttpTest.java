@@ -29,6 +29,12 @@ class StripeWebhookControllerHttpTest extends AbstractPostgresIntegrationTest {
 
     private static final String WEBHOOK_SECRET = "whsec_test";
 
+    /**
+     * Version d'API du compte Stripe, différente de celle épinglée par le SDK :
+     * c'est la version des événements réels livrés par Stripe (dashboard ou CLI).
+     */
+    private static final String ACCOUNT_API_VERSION = "2025-04-30.basil";
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -75,9 +81,69 @@ class StripeWebhookControllerHttpTest extends AbstractPostgresIntegrationTest {
     }
 
     @Test
+    void shouldAcceptWebhookWhoseApiVersionDiffersFromSdkPinnedVersion() throws Exception {
+        String orderId = createStandaloneOrder();
+
+        mockMvc.perform(post("/api/webhooks/stripe")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Stripe-Signature", stripeSignature(checkoutCompletedPayload(orderId, "pi_test_version_mismatch", ACCOUNT_API_VERSION)))
+                        .content(checkoutCompletedPayload(orderId, "pi_test_version_mismatch", ACCOUNT_API_VERSION)))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/public/orders/" + orderId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("nouvelle"));
+    }
+
+    @Test
+    void shouldTolerateDuplicateCheckoutCompletionDelivery() throws Exception {
+        String orderId = createStandaloneOrder();
+        String payload = checkoutCompletedPayload(orderId, "pi_test_duplicate", Stripe.API_VERSION);
+
+        for (int i = 0; i < 2; i++) {
+            mockMvc.perform(post("/api/webhooks/stripe")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .header("Stripe-Signature", stripeSignature(payload))
+                            .content(payload))
+                    .andExpect(status().isOk());
+        }
+
+        mockMvc.perform(get("/api/public/orders/" + orderId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("nouvelle"));
+        org.junit.jupiter.api.Assertions.assertEquals(
+                "pi_test_duplicate",
+                orderRepository.findById(java.util.UUID.fromString(orderId)).orElseThrow().getPaymentTransactionId());
+    }
+
+    @Test
+    void shouldAcknowledgeButIgnoreUnrelatedEventTypes() throws Exception {
+        String payload = """
+                {
+                  "id": "evt_charge_succeeded",
+                  "object": "event",
+                  "api_version": "%s",
+                  "type": "charge.succeeded",
+                  "data": {
+                    "object": {
+                      "id": "ch_test",
+                      "object": "charge"
+                    }
+                  }
+                }
+                """.formatted(ACCOUNT_API_VERSION);
+
+        mockMvc.perform(post("/api/webhooks/stripe")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Stripe-Signature", stripeSignature(payload))
+                        .content(payload))
+                .andExpect(status().isOk());
+    }
+
+    @Test
     void shouldAcceptAValidSignedCheckoutCompletionWebhook() throws Exception {
         String orderId = createStandaloneOrder();
-        String payload = checkoutCompletedPayload(orderId, "pi_test_123");
+        String payload = checkoutCompletedPayload(orderId, "pi_test_123", Stripe.API_VERSION);
 
         mockMvc.perform(post("/api/webhooks/stripe")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -93,26 +159,30 @@ class StripeWebhookControllerHttpTest extends AbstractPostgresIntegrationTest {
                 orderRepository.findById(java.util.UUID.fromString(orderId)).orElseThrow().getPaymentTransactionId());
     }
 
+    /**
+     * Événement signé dont le JSON est lisible par le SDK (data.object est un
+     * objet JSON) mais dont la session ne peut pas être désérialisée : le champ
+     * metadata, attendu comme objet, est un nombre.
+     */
     private String deserializationFailurePayload() {
         return """
                 {
-                  "id": "evt_missing_api_version",
+                  "id": "evt_unreadable_session",
                   "object": "event",
+                  "api_version": "%s",
                   "type": "checkout.session.completed",
                   "data": {
                     "object": {
-                      "id": "cs_missing_api_version",
+                      "id": "cs_unreadable_session",
                       "object": "checkout.session",
-                      "metadata": {
-                        "order_id": "b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22"
-                      }
+                      "metadata": 42
                     }
                   }
                 }
-                """;
+                """.formatted(ACCOUNT_API_VERSION);
     }
 
-    private String checkoutCompletedPayload(String orderId, String paymentIntentId) {
+    private String checkoutCompletedPayload(String orderId, String paymentIntentId, String apiVersion) {
         return """
                 {
                   "id": "evt_checkout_completed",
@@ -130,7 +200,7 @@ class StripeWebhookControllerHttpTest extends AbstractPostgresIntegrationTest {
                     }
                   }
                 }
-                """.formatted(Stripe.API_VERSION, orderId, paymentIntentId, orderId);
+                """.formatted(apiVersion, orderId, paymentIntentId, orderId);
     }
 
     private String createStandaloneOrder() throws Exception {

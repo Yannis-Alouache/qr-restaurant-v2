@@ -25,19 +25,20 @@ public class HandleWebhookUseCase {
         Order order = orderRepository.findById(UUID.fromString(orderId))
                 .orElseThrow(() -> new IllegalArgumentException("Commande introuvable: " + orderId));
 
-        order.markCheckoutCompleted(paymentTransactionId);
-        orderRepository.save(order);
-
-        eventPublisher.publishOrderUpdate(order.getRestaurantId(), order.getId(), OrderStatus.nouvelle.name());
+        // Livraison en double : rien à sauver ni diffuser, on acquitte simplement.
+        if (order.markCheckoutCompleted(paymentTransactionId)) {
+            orderRepository.save(order);
+            eventPublisher.publishOrderUpdate(order.getRestaurantId(), order.getId(), OrderStatus.nouvelle.name());
+        }
     }
 
     public void handleCheckoutExpired(String orderId) {
         Order order = orderRepository.findById(UUID.fromString(orderId))
                 .orElseThrow(() -> new IllegalArgumentException("Commande introuvable: " + orderId));
 
-        order.markCheckoutExpired();
-        orderRepository.save(order);
-
-        eventPublisher.publishOrderUpdate(order.getRestaurantId(), order.getId(), OrderStatus.paiement_echoue.name());
+        if (order.markCheckoutExpired()) {
+            orderRepository.save(order);
+            eventPublisher.publishOrderUpdate(order.getRestaurantId(), order.getId(), OrderStatus.paiement_echoue.name());
+        }
     }
 }

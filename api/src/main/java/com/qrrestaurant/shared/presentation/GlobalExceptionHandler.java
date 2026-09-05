@@ -5,7 +5,7 @@ import com.qrrestaurant.order.application.CreateOrderUseCase;
 import com.qrrestaurant.order.domain.OrderPricingPolicy;
 import com.qrrestaurant.payment.application.CreateCheckoutSessionUseCase;
 import com.qrrestaurant.payment.domain.PaymentGateway;
-import com.qrrestaurant.payment.presentation.StripeWebhookController;
+import com.qrrestaurant.payment.presentation.StripeWebhookPayloadParser;
 import com.qrrestaurant.restaurant.application.RestaurantSlugGenerator;
 import com.qrrestaurant.restaurant.domain.Restaurant;
 import com.qrrestaurant.restaurant.domain.RestaurantTheme;
@@ -73,9 +73,9 @@ public class GlobalExceptionHandler {
             OrderPricingPolicy.ItemUnavailableException.class,
             OrderPricingPolicy.InvalidOrderItemException.class,
             Restaurant.PaymentNotConfiguredException.class,
-            StripeWebhookController.InvalidWebhookSignatureException.class,
-            StripeWebhookController.MissingOrderMetadataException.class,
-            StripeWebhookController.InvalidWebhookPayloadException.class,
+            StripeWebhookPayloadParser.InvalidWebhookSignatureException.class,
+            StripeWebhookPayloadParser.MissingOrderMetadataException.class,
+            StripeWebhookPayloadParser.InvalidWebhookPayloadException.class,
             IllegalArgumentException.class
     })
     public ResponseEntity<ApiErrorResponse> handleBadRequest(RuntimeException ex) {

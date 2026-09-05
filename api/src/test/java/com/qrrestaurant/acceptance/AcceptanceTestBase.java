@@ -6,7 +6,6 @@ import com.qrrestaurant.payment.domain.PaymentGateway;
 import com.qrrestaurant.payment.infrastructure.gateway.DeterministicPaymentGateway;
 import com.qrrestaurant.support.AbstractPostgresIntegrationTest;
 import com.qrrestaurant.support.TestAuthCookies;
-import com.stripe.Stripe;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -224,6 +223,13 @@ abstract class AcceptanceTestBase extends AbstractPostgresIntegrationTest {
 
     // ── Stripe helpers ────────────────────────────────────────────────
 
+    /**
+     * Version d'API du compte Stripe, différente de celle épinglée par le SDK :
+     * les événements réels (dashboard, CLI) arrivent dans cette version, le
+     * webhook doit donc les accepter malgré l'écart.
+     */
+    private static final String STRIPE_ACCOUNT_API_VERSION = "2025-04-30.basil";
+
     void postStripeWebhook(String payload) throws Exception {
         mockMvc.perform(post("/api/webhooks/stripe")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -250,7 +256,7 @@ abstract class AcceptanceTestBase extends AbstractPostgresIntegrationTest {
                     }
                   }
                 }
-                """.formatted(Stripe.API_VERSION, orderId, paymentIntentId, orderId);
+                """.formatted(STRIPE_ACCOUNT_API_VERSION, orderId, paymentIntentId, orderId);
     }
 
     String checkoutExpiredPayload(String orderId) {
@@ -270,7 +276,7 @@ abstract class AcceptanceTestBase extends AbstractPostgresIntegrationTest {
                     }
                   }
                 }
-                """.formatted(Stripe.API_VERSION, orderId, orderId);
+                """.formatted(STRIPE_ACCOUNT_API_VERSION, orderId, orderId);
     }
 
     private String stripeSignature(String payload) throws Exception {

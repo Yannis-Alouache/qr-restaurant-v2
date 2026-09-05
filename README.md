@@ -109,6 +109,24 @@ Après migration complète, le compte seed local est :
 
 Pour une validation manuelle bout en bout avec Stripe réel en local, utilisez de vraies clés de test Stripe et un secret webhook valable, puis rejouez les événements via Stripe CLI.
 
+## Webhooks Stripe en local
+
+Stripe ne peut pas appeler `localhost` : il faut le CLI pour forwarder les événements (sinon les commandes payées restent `en_attente_paiement` et n'apparaissent jamais côté admin).
+
+```bash
+stripe listen --forward-to localhost:8080/api/webhooks/stripe
+```
+
+Le secret affiché (`whsec_...`) doit correspondre à `STRIPE_WEBHOOK_SECRET` du `.env` (le CLI réutilise le même secret sur une même machine). Pour rejouer un événement déjà émis : `stripe events resend <evt_id>`.
+
+L'API accepte les événements quelle que soit leur version d'API : le SDK Java épine la sienne (`Stripe.API_VERSION`) et un fallback désérialise quand même les événements rendus dans une autre version (compte, CLI).
+
+### En production
+
+- créez le webhook endpoint dans le dashboard Stripe avec la **même version d'API que le SDK** (visible au démarrage de l'API dans les logs) ;
+- renseignez `STRIPE_WEBHOOK_ENDPOINT_ID` (identifiant `we_...`) : au démarrage, l'API compare la version de l'endpoint avec celle du SDK et loggue un **WARN** en cas d'écart ;
+- à chaque montée de version de `stripe-java`, mettez à jour la version de l'endpoint dans le dashboard **dans le même changement**.
+
 ## E2E navigateur
 
 Les scénarios Playwright couvrent :

@@ -8,6 +8,8 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class OrderTest {
@@ -53,11 +55,26 @@ class OrderTest {
     }
 
     @Test
-    void shouldRejectCheckoutCompletionWhenOrderIsAlreadyBeingPrepared() {
+    void shouldIgnoreDuplicateCheckoutCompletionWhenOrderIsAlreadyBeingPrepared() {
         Order order = orderWithStatus(OrderStatus.en_preparation);
 
-        assertThrows(Order.InvalidStatusTransitionException.class,
-                () -> order.markCheckoutCompleted("pi_123456"));
+        boolean changed = order.markCheckoutCompleted("pi_123456");
+
+        assertFalse(changed);
+        assertEquals(OrderStatus.en_preparation, order.getStatus());
+        assertNull(order.getPaymentTransactionId());
+    }
+
+    @Test
+    void shouldBeIdempotentWhenCheckoutCompletionIsDeliveredTwice() {
+        Order order = orderWithStatus(OrderStatus.en_attente_paiement);
+        order.markCheckoutCompleted("pi_first");
+
+        boolean replayChanged = order.markCheckoutCompleted("pi_second");
+
+        assertFalse(replayChanged);
+        assertEquals(OrderStatus.nouvelle, order.getStatus());
+        assertEquals("pi_first", order.getPaymentTransactionId());
     }
 
     private Order orderWithStatus(OrderStatus status) {
