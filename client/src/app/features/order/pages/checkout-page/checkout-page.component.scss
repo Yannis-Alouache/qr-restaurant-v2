@@ -84,6 +84,7 @@
   overflow: hidden;
   flex-shrink: 0;
   background: var(--border);
+  padding: 6px;
   display: grid;
   place-items: center;
 }
@@ -91,7 +92,7 @@
 .order-item-img-wrap img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   display: block;
 }
 
