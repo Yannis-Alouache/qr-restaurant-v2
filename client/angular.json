@@ -87,7 +87,8 @@
           "builder": "@angular/build:dev-server",
           "options": {
             "port": 4300,
-            "proxyConfig": "proxy.conf.json"
+            "proxyConfig": "proxy.conf.json",
+            "allowedHosts": [".trycloudflare.com"]
           },
           "configurations": {
             "production": {

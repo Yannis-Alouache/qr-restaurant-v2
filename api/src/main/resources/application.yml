@@ -34,6 +34,8 @@ stripe:
   secret-key: ${STRIPE_SECRET_KEY}
   public-key: ${STRIPE_PUBLIC_KEY}
   webhook-secret: ${STRIPE_WEBHOOK_SECRET:}
+  # Identifiant we_... de l'endpoint dashboard : active le contrôle de version au démarrage.
+  webhook-endpoint-id: ${STRIPE_WEBHOOK_ENDPOINT_ID:}
 
 storage:
   seaweedfs:

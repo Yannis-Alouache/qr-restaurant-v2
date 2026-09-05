@@ -5,7 +5,9 @@ export const adminBaseUrl = 'http://localhost:4200';
 export const clientBaseUrl = 'http://localhost:4300';
 const apiBaseUrl = 'http://localhost:8080';
 const webhookSecret = 'whsec_test';
-const stripeApiVersion = '2026-04-22.dahlia';
+// Version d'API du compte Stripe (différente de celle épinglée par le SDK Java) :
+// c'est la version des événements réels, le webhook doit les accepter malgré l'écart.
+const stripeApiVersion = '2025-04-30.basil';
 const seedOwnerEmail = 'owner@test.com';
 const seedOwnerPassword = 'Secret123!';
 const tableId = 'c0eebc99-9c0b-4ef8-bb6d-6bb9bd380a01';

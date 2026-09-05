@@ -69,13 +69,32 @@ public class Order {
         }
     }
 
-    public void markCheckoutCompleted(String paymentTransactionId) {
+    /**
+     * Confirme le paiement de la commande. Idempotent : Stripe peut livrer
+     * plusieurs fois le même événement, une rediffusion ne change rien.
+     *
+     * @return true si la commande est passée en nouvelle, false si elle était
+     *         déjà confirmée (livraison en double).
+     */
+    public boolean markCheckoutCompleted(String paymentTransactionId) {
+        if (status != OrderStatus.en_attente_paiement) {
+            return false;
+        }
         this.paymentTransactionId = paymentTransactionId;
         transitionTo(OrderStatus.nouvelle);
+        return true;
     }
 
-    public void markCheckoutExpired() {
+    /**
+     * Marque le paiement comme expiré. Idempotent : sans effet si la commande
+     * a déjà été confirmée (expiration tardive) ou déjà marquée échouée.
+     */
+    public boolean markCheckoutExpired() {
+        if (status != OrderStatus.en_attente_paiement) {
+            return false;
+        }
         transitionTo(OrderStatus.paiement_echoue);
+        return true;
     }
 
     public UUID getId() { return id; }
