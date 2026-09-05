@@ -93,6 +93,32 @@ class SafeFlywayMigrationStrategyTest {
     }
 
     @Test
+    void shouldApplyPendingMigrationsOnAnUpToDateDatabase() throws IOException {
+        Path upToDateMigrations = Files.createTempDirectory("up-to-date-migrations");
+        copyMigration(upToDateMigrations, "V1__create_initial_schema.sql");
+        copyMigration(upToDateMigrations, "V2__seed_test_data.sql");
+        copyMigration(upToDateMigrations, "V3__enforce_single_restaurant_per_owner.sql");
+        copyMigration(upToDateMigrations, "V4__align_seed_owner_password.sql");
+        copyMigration(upToDateMigrations, "V5__repair_legacy_restaurant_uniqueness.sql");
+        copyMigration(upToDateMigrations, "V6__strengthen_seed_owner_password.sql");
+
+        Flyway.configure()
+                .dataSource(dataSource)
+                .locations("filesystem:" + upToDateMigrations)
+                .baselineVersion("4")
+                .baselineDescription("legacy-safe-baseline")
+                .load()
+                .migrate();
+
+        // V7 est résolue mais non appliquée : la validation seule échouerait
+        // (« not applied to database »), la stratégie doit l'appliquer sans erreur.
+        new SafeFlywayMigrationStrategy(dataSource).migrate(newFlyway());
+
+        assertEquals(LATEST_MIGRATION_VERSION, newFlyway().info().current().getVersion().getVersion());
+        deleteDirectory(upToDateMigrations);
+    }
+
+    @Test
     void shouldRejectABrokenLegacySchemaInsteadOfSilentlyBaseliningIt() {
         jdbcTemplate.execute("""
                 CREATE TABLE app_user (

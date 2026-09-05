@@ -38,9 +38,12 @@ public class SafeFlywayMigrationStrategy implements FlywayMigrationStrategy {
             if (!validationResult.validationSuccessful) {
                 if (shouldRepairLegacySeedChecksum(validationResult)) {
                     flyway.repair();
-                } else {
+                } else if (!hasOnlyPendingMigrations(validationResult)) {
                     flyway.validate();
                 }
+                // Des migrations uniquement en attente (une nouvelle migration venant
+                // d'être ajoutée) ne sont pas une invalide : flyway.migrate() les
+                // applique juste après.
             }
             flyway.migrate();
             return;
@@ -98,5 +101,10 @@ public class SafeFlywayMigrationStrategy implements FlywayMigrationStrategy {
         return invalidMigration.errorDetails != null
                 && invalidMigration.errorDetails.errorMessage != null
                 && invalidMigration.errorDetails.errorMessage.contains("not applied to database");
+    }
+
+    private boolean hasOnlyPendingMigrations(ValidateResult validationResult) {
+        return !validationResult.invalidMigrations.isEmpty()
+                && validationResult.invalidMigrations.stream().allMatch(this::isPendingMigration);
     }
 }
