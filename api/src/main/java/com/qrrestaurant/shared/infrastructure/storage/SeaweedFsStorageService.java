@@ -12,6 +12,8 @@ import software.amazon.awssdk.services.s3.model.BucketAlreadyExistsException;
 import software.amazon.awssdk.services.s3.model.BucketAlreadyOwnedByYouException;
 import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.core.exception.SdkClientException;
@@ -22,7 +24,6 @@ import java.net.URI;
 public class SeaweedFsStorageService implements StorageService {
 
     private final S3Client s3Client;
-    private final String endpoint;
 
     @Autowired
     public SeaweedFsStorageService(@Value("${storage.seaweedfs.s3-endpoint}") String endpoint) {
@@ -37,14 +38,12 @@ public class SeaweedFsStorageService implements StorageService {
                         // S3 authentication". Send anonymous (unsigned) requests for now;
                         // see #14 for adding real S3 auth.
                         .credentialsProvider(AnonymousCredentialsProvider.create())
-                        .build(),
-                endpoint
+                        .build()
         );
     }
 
-    public SeaweedFsStorageService(S3Client s3Client, String endpoint) {
+    public SeaweedFsStorageService(S3Client s3Client) {
         this.s3Client = s3Client;
-        this.endpoint = endpoint;
     }
 
     @Override
@@ -59,32 +58,39 @@ public class SeaweedFsStorageService implements StorageService {
                             .build(),
                     RequestBody.fromBytes(data)
             );
-            return normalizeEndpoint(endpoint) + "/" + bucket + "/" + key;
+            return PUBLIC_BASE_PATH + "/" + bucket + "/" + key;
         } catch (S3Exception | SdkClientException exception) {
             throw new StorageService.StorageUploadException("Service de stockage indisponible", exception);
         }
     }
 
     @Override
-    public void delete(String reference) {
-        if (reference == null || reference.isBlank()) {
-            return;
+    public StoredObject download(String reference) {
+        String[] bucketAndKey = resolveBucketAndKey(reference);
+        if (bucketAndKey == null) {
+            throw new StorageService.StorageObjectNotFoundException("Image introuvable");
         }
         try {
-            URI uri = URI.create(reference);
-            String path = uri.getPath();
-            if (path == null || path.length() < 2 || path.indexOf('/', 1) < 0) {
-                return; // référence non interprétable : rien à supprimer
-            }
-            // path = "/<bucket>/<key...>" — on découpe le premier segment puis le reste.
-            String trimmed = path.substring(1); // supprime le '/' initial
-            int split = trimmed.indexOf('/');
-            String bucket = trimmed.substring(0, split);
-            String key = trimmed.substring(split + 1);
-            if (bucket.isBlank() || key.isBlank()) {
-                return;
-            }
-            s3Client.deleteObject(DeleteObjectRequest.builder().bucket(bucket).key(key).build());
+            var response = s3Client.getObjectAsBytes(
+                    GetObjectRequest.builder().bucket(bucketAndKey[0]).key(bucketAndKey[1]).build()
+            );
+            String contentType = response.response().contentType();
+            return new StoredObject(response.asByteArray(), contentType == null ? "application/octet-stream" : contentType);
+        } catch (NoSuchKeyException exception) {
+            throw new StorageService.StorageObjectNotFoundException("Image introuvable");
+        } catch (S3Exception | SdkClientException exception) {
+            throw new StorageService.StorageDownloadException("Service de stockage indisponible", exception);
+        }
+    }
+
+    @Override
+    public void delete(String reference) {
+        String[] bucketAndKey = resolveBucketAndKey(reference);
+        if (bucketAndKey == null) {
+            return; // référence non interprétable : rien à supprimer
+        }
+        try {
+            s3Client.deleteObject(DeleteObjectRequest.builder().bucket(bucketAndKey[0]).key(bucketAndKey[1]).build());
         } catch (S3Exception | SdkClientException exception) {
             throw new StorageService.StorageDeleteException("Service de stockage indisponible", exception);
         }
@@ -105,10 +111,34 @@ public class SeaweedFsStorageService implements StorageService {
         }
     }
 
-    private String normalizeEndpoint(String rawEndpoint) {
-        if (rawEndpoint.endsWith("/")) {
-            return rawEndpoint.substring(0, rawEndpoint.length() - 1);
+    /**
+     * Résout {@code <bucket, key>} depuis une référence stockée. Deux formats coexistent :
+     * le chemin relatif actuel {@code /api/images/<bucket>/<key>} et l'URL absolue
+     * historique {@code http://<host>/<bucket>/<key>} (données antérieures à la migration
+     * V7) — seul le chemin compte, le host est ignoré.
+     */
+    private String[] resolveBucketAndKey(String reference) {
+        if (reference == null || reference.isBlank()) {
+            return null;
         }
-        return rawEndpoint;
+        String path = reference.trim();
+        if (path.startsWith("http://") || path.startsWith("https://")) {
+            path = URI.create(path).getPath();
+        }
+        if (path == null || path.length() < 2 || path.indexOf('/', 1) < 0) {
+            return null;
+        }
+        if (path.startsWith(PUBLIC_BASE_PATH + "/")) {
+            path = path.substring(PUBLIC_BASE_PATH.length() + 1);
+        }
+        // path = "<bucket>/<key...>" — on découpe le premier segment puis le reste.
+        String trimmed = path.startsWith("/") ? path.substring(1) : path;
+        int split = trimmed.indexOf('/');
+        String bucket = trimmed.substring(0, split);
+        String key = trimmed.substring(split + 1);
+        if (bucket.isBlank() || key.isBlank()) {
+            return null;
+        }
+        return new String[]{bucket, key};
     }
 }

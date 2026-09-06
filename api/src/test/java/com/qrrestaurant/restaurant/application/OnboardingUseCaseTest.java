@@ -21,7 +21,7 @@ class OnboardingUseCaseTest {
                 restaurantRepository, tableRepository, slugGenerator);
 
         UUID userId = UUID.randomUUID();
-        String logoPath = "http://localhost:8333/logos/abc-bistro-bruno.png";
+        String logoPath = "/api/images/logos/abc-bistro-bruno.png";
 
         OnboardingResponse response = useCase.execute(userId, "Bistro Bruno", 4, "chaud", logoPath);
 

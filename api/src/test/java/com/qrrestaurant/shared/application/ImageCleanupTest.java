@@ -16,9 +16,9 @@ class ImageCleanupTest {
         StorageService storage = mock(StorageService.class);
         ImageCleanup cleanup = new ImageCleanup(storage);
 
-        cleanup.delete("http://localhost:8333/logos/abc.png");
+        cleanup.delete("/api/images/logos/abc.png");
 
-        verify(storage).delete("http://localhost:8333/logos/abc.png");
+        verify(storage).delete("/api/images/logos/abc.png");
     }
 
     @Test
@@ -36,12 +36,12 @@ class ImageCleanupTest {
     void shouldSwallowStorageErrorsSoBusinessOperationSucceeds() {
         StorageService storage = mock(StorageService.class);
         doThrow(new StorageService.StorageDeleteException("down"))
-                .when(storage).delete("http://localhost:8333/logos/abc.png");
+                .when(storage).delete("/api/images/logos/abc.png");
         ImageCleanup cleanup = new ImageCleanup(storage);
 
         // Ne doit pas propager — best-effort.
-        cleanup.delete("http://localhost:8333/logos/abc.png");
+        cleanup.delete("/api/images/logos/abc.png");
 
-        verify(storage).delete("http://localhost:8333/logos/abc.png");
+        verify(storage).delete("/api/images/logos/abc.png");
     }
 }

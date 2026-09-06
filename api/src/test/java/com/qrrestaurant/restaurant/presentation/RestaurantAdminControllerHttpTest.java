@@ -93,7 +93,7 @@ class RestaurantAdminControllerHttpTest extends AbstractPostgresIntegrationTest 
                 email,
                 "encoded-password");
 
-        String logoPath = "http://localhost:8333/logos/abc-bistro-bruno.png";
+        String logoPath = "/api/images/logos/abc-bistro-bruno.png";
 
         String payload = """
                 {
@@ -174,7 +174,7 @@ class RestaurantAdminControllerHttpTest extends AbstractPostgresIntegrationTest 
     void shouldClearLogoPathWhenSettingsUpdateProvidesBlankValue() throws Exception {
         jdbcTemplate.update(
                 "UPDATE restaurant SET logo_path = ? WHERE id = ?",
-                "http://localhost:8333/logos/naia-seed.png",
+                "/api/images/logos/naia-seed.png",
                 RESTAURANT_ID);
 
         mockMvc.perform(put("/api/admin/restaurant")

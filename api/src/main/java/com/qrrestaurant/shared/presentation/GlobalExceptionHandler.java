@@ -123,6 +123,16 @@ public class GlobalExceptionHandler {
         return respond(HttpStatus.SERVICE_UNAVAILABLE, ex.getMessage());
     }
 
+    @ExceptionHandler(StorageService.StorageDownloadException.class)
+    public ResponseEntity<ApiErrorResponse> handleStorageDownloadError(StorageService.StorageDownloadException ex) {
+        return respond(HttpStatus.SERVICE_UNAVAILABLE, ex.getMessage());
+    }
+
+    @ExceptionHandler(StorageService.StorageObjectNotFoundException.class)
+    public ResponseEntity<ApiErrorResponse> handleStorageObjectNotFound(StorageService.StorageObjectNotFoundException ex) {
+        return respond(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
     @ExceptionHandler(PaymentGateway.CheckoutSessionCreationException.class)
     public ResponseEntity<ApiErrorResponse> handlePaymentUnavailable(PaymentGateway.CheckoutSessionCreationException ex) {
         return respond(HttpStatus.SERVICE_UNAVAILABLE, ex.getMessage());

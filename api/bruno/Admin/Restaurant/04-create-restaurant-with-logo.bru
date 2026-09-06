@@ -23,7 +23,7 @@ body:json {
     "name": "Bistro Bruno",
     "tableCount": 4,
     "themeId": "chaud",
-    "logoPath": "http://localhost:8333/logos/your-uploaded-logo.png"
+    "logoPath": "/api/images/logos/your-uploaded-logo.png"
   }
 }
 
@@ -35,7 +35,7 @@ docs {
   Flow recommandé en 2 étapes (pattern existant, séparé de la transaction d'onboarding) :
 
   1. Uploader d'abord l'image via `POST {{baseUrl}}/api/admin/images/logos` (multipart).
-     Réponse : `{ "url": "http://localhost:8333/logos/<key>.png" }`.
+     Réponse : `{ "url": "/api/images/logos/<key>.png" }` (chemin relatif, servi par `GET {{baseUrl}}/api/images/<bucket>/<key>`).
   2. Passer cette URL dans `logoPath` lors de la création du restaurant.
 
   La photo est stockée sur le champ existant `logo_path` (réutilisé, pas de nouvelle colonne).
