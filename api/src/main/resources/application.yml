@@ -51,11 +51,19 @@ jwt:
 app:
   client-base-url: ${CLIENT_BASE_URL:http://localhost:4300}
   admin-base-url: ${ADMIN_BASE_URL:http://localhost:4200}
+  cors:
+    # Patterns d'origines additionnels (séparés par des virgules). Par défaut en dev :
+    # les tunnels trycloudflare (sous-domaine aléatoire à chaque lancement) pour tester
+    # depuis un appareil extérieur. Vide en prod — y ajouter les origines réelles.
+    extra-origin-patterns: ${CORS_EXTRA_ORIGIN_PATTERNS:https://*.trycloudflare.com}
 
 ---
 spring:
   config:
     activate:
       on-profile: prod
+app:
+  cors:
+    extra-origin-patterns: ${CORS_EXTRA_ORIGIN_PATTERNS:}
 jwt:
   expiration: 604800000 # 7 jours en production

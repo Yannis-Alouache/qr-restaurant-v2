@@ -71,7 +71,9 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(allowedOriginResolver.resolve());
+        // Patterns (et non origines exactes) pour supporter les jokers du
+        // AllowedOriginResolver — cf. WebSocketConfig, même mécanique.
+        config.setAllowedOriginPatterns(allowedOriginResolver.resolve());
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("Content-Type", "Stripe-Signature"));
         config.setExposedHeaders(List.of("Location"));

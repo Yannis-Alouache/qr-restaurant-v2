@@ -11,7 +11,8 @@ class AllowedOriginResolverTest {
     void shouldExposeConfiguredDeploymentOriginsAlongsideTheLocalDevelopmentOnes() {
         AllowedOriginResolver resolver = new AllowedOriginResolver(
                 "https://client.qr-restaurant.example/menu",
-                "https://admin.qr-restaurant.example:4443/backoffice"
+                "https://admin.qr-restaurant.example:4443/backoffice",
+                ""
         );
 
         assertEquals(
@@ -20,6 +21,46 @@ class AllowedOriginResolverTest {
                         "https://admin.qr-restaurant.example:4443",
                         "http://localhost:4200",
                         "http://localhost:4300",
+                        "http://127.0.0.1:4200",
+                        "http://127.0.0.1:4300"
+                ),
+                resolver.resolve()
+        );
+    }
+
+    @Test
+    void shouldAppendConfiguredOriginPatternsAfterTheStandardOrigins() {
+        AllowedOriginResolver resolver = new AllowedOriginResolver(
+                "http://localhost:4300",
+                "http://localhost:4200",
+                " https://*.trycloudflare.com ,https://preview.example.com"
+        );
+
+        assertEquals(
+                java.util.List.of(
+                        "http://localhost:4300",
+                        "http://localhost:4200",
+                        "http://127.0.0.1:4200",
+                        "http://127.0.0.1:4300",
+                        "https://*.trycloudflare.com",
+                        "https://preview.example.com"
+                ),
+                resolver.resolve()
+        );
+    }
+
+    @Test
+    void shouldIgnoreBlankExtraOriginPatterns() {
+        AllowedOriginResolver resolver = new AllowedOriginResolver(
+                "http://localhost:4300",
+                "http://localhost:4200",
+                "  , ,"
+        );
+
+        assertEquals(
+                java.util.List.of(
+                        "http://localhost:4300",
+                        "http://localhost:4200",
                         "http://127.0.0.1:4200",
                         "http://127.0.0.1:4300"
                 ),
