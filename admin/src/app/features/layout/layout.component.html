@@ -48,10 +48,25 @@
           <div class="notification-header">
             <span>Notifications</span>
           </div>
-          <div class="notification-empty">
-            <svg lucideBellOff></svg>
-            <p>Aucune notification pour le moment.</p>
-          </div>
+          @if (activeOrders().length > 0) {
+            <div class="notification-list">
+              @for (order of activeOrders().slice(0, 5); track order.id) {
+                <a routerLink="/orders" class="notification-item" (click)="closeNotifications()">
+                  <span class="notification-item-table">Table {{ order.tableNumber }}</span>
+                  <span class="notification-item-status">{{ statusLabels[order.status] }}</span>
+                  <span class="notification-item-meta">{{ formatTime(order.createdAt) }} · {{ formatPrice(order.total) }}</span>
+                </a>
+              }
+            </div>
+            <a routerLink="/orders" class="notification-footer" (click)="closeNotifications()">
+              Voir toutes les commandes
+            </a>
+          } @else {
+            <div class="notification-empty">
+              <svg lucideBellOff></svg>
+              <p>Aucune notification pour le moment.</p>
+            </div>
+          }
         </div>
       }
     </div>

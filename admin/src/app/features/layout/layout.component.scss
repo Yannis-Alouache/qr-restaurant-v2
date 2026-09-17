@@ -146,6 +146,57 @@
   margin: 0;
   font-size: var(--text-sm);
 }
+.notification-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  max-height: 320px;
+  overflow-y: auto;
+}
+.notification-item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas:
+    "table meta"
+    "status meta";
+  align-items: center;
+  column-gap: var(--space-3);
+  row-gap: 2px;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  transition: background var(--motion-fast) var(--ease-standard);
+}
+.notification-item:hover { background: var(--bg); }
+.notification-item-table {
+  grid-area: table;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--fg);
+}
+.notification-item-status {
+  grid-area: status;
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+.notification-item-meta {
+  grid-area: meta;
+  font-size: var(--text-xs);
+  color: var(--muted);
+  white-space: nowrap;
+}
+.notification-footer {
+  display: block;
+  padding: var(--space-2) var(--space-3) var(--space-1);
+  margin-top: var(--space-1);
+  border-top: 1px solid var(--border-soft);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--accent);
+  text-decoration: none;
+  text-align: center;
+}
+.notification-footer:hover { text-decoration: underline; }
 
 /* ─── Profile dropdown ──────────────────────────────────────────────── */
 .profile-menu { position: relative; }
