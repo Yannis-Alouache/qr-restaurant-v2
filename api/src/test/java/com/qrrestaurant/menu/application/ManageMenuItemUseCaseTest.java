@@ -2,8 +2,10 @@ package com.qrrestaurant.menu.application;
 import com.qrrestaurant.menu.application.dto.MenuItemView;
 
 import com.qrrestaurant.menu.domain.Category;
+import com.qrrestaurant.menu.domain.MenuComposition;
 import com.qrrestaurant.menu.domain.MenuItem;
 import com.qrrestaurant.menu.infrastructure.persistence.category.InMemoryCategoryRepository;
+import com.qrrestaurant.menu.infrastructure.persistence.composition.InMemoryMenuCompositionRepository;
 import com.qrrestaurant.menu.infrastructure.persistence.item.InMemoryMenuItemRepository;
 import com.qrrestaurant.restaurant.domain.Restaurant;
 import com.qrrestaurant.restaurant.infrastructure.persistence.restaurant.InMemoryRestaurantRepository;
@@ -16,6 +18,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -38,7 +41,7 @@ class ManageMenuItemUseCaseTest {
                 UUID.randomUUID(), categoryId, "Burger", null, new BigDecimal("12.00"), null, true, null));
 
         ManageMenuItemUseCase useCase = new ManageMenuItemUseCase(
-                menuItemRepository, categoryRepository, restaurantRepository,
+                menuItemRepository, categoryRepository, new InMemoryMenuCompositionRepository(), restaurantRepository,
                 new ImageCleanup(mock(StorageService.class)));
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> useCase.create(
@@ -71,7 +74,7 @@ class ManageMenuItemUseCaseTest {
                 UUID.randomUUID(), dessertsCategoryId, "Brownie", null, new BigDecimal("5.00"), null, true, null));
 
         ManageMenuItemUseCase useCase = new ManageMenuItemUseCase(
-                menuItemRepository, categoryRepository, restaurantRepository,
+                menuItemRepository, categoryRepository, new InMemoryMenuCompositionRepository(), restaurantRepository,
                 new ImageCleanup(mock(StorageService.class)));
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> useCase.create(
@@ -103,7 +106,7 @@ class ManageMenuItemUseCaseTest {
                 new BigDecimal("12.00"), null, true, null));
 
         ManageMenuItemUseCase useCase = new ManageMenuItemUseCase(
-                menuItemRepository, categoryRepository, restaurantRepository,
+                menuItemRepository, categoryRepository, new InMemoryMenuCompositionRepository(), restaurantRepository,
                 new ImageCleanup(mock(StorageService.class)));
 
         MenuItemView updated = useCase.update(
@@ -139,7 +142,7 @@ class ManageMenuItemUseCaseTest {
 
         StorageService storage = mock(StorageService.class);
         ManageMenuItemUseCase useCase = new ManageMenuItemUseCase(
-                menuItemRepository, categoryRepository, restaurantRepository, new ImageCleanup(storage));
+                menuItemRepository, categoryRepository, new InMemoryMenuCompositionRepository(), restaurantRepository, new ImageCleanup(storage));
 
         useCase.delete(ownerId, item.getId());
 
@@ -164,7 +167,7 @@ class ManageMenuItemUseCaseTest {
 
         StorageService storage = mock(StorageService.class);
         ManageMenuItemUseCase useCase = new ManageMenuItemUseCase(
-                menuItemRepository, categoryRepository, restaurantRepository, new ImageCleanup(storage));
+                menuItemRepository, categoryRepository, new InMemoryMenuCompositionRepository(), restaurantRepository, new ImageCleanup(storage));
 
         useCase.update(ownerId, item.getId(), "Burger", null, new BigDecimal("12.00"), newImage, null);
 
@@ -189,11 +192,114 @@ class ManageMenuItemUseCaseTest {
 
         StorageService storage = mock(StorageService.class);
         ManageMenuItemUseCase useCase = new ManageMenuItemUseCase(
-                menuItemRepository, categoryRepository, restaurantRepository, new ImageCleanup(storage));
+                menuItemRepository, categoryRepository, new InMemoryMenuCompositionRepository(), restaurantRepository,
+                new ImageCleanup(storage));
 
         // imagePath null => inchangé, seul le prix change.
         useCase.update(ownerId, item.getId(), "Burger", null, new BigDecimal("14.00"), null, null);
 
         verify(storage, never()).delete(image);
+    }
+
+    @Test
+    void shouldSoftDeleteItemInsteadOfRemovingIt() {
+        UUID ownerId = UUID.randomUUID();
+        UUID restaurantId = UUID.randomUUID();
+        UUID categoryId = UUID.randomUUID();
+
+        InMemoryRestaurantRepository restaurantRepository = new InMemoryRestaurantRepository();
+        InMemoryCategoryRepository categoryRepository = new InMemoryCategoryRepository();
+        InMemoryMenuItemRepository menuItemRepository = new InMemoryMenuItemRepository();
+        restaurantRepository.save(restaurant(ownerId, restaurantId));
+        categoryRepository.save(Category.from(categoryId, restaurantId, "Burgers", null, 0, true));
+        MenuItem item = menuItemRepository.save(MenuItem.from(
+                UUID.randomUUID(), categoryId, "Burger", null, new BigDecimal("12.00"), null, true, null));
+
+        ManageMenuItemUseCase useCase = new ManageMenuItemUseCase(
+                menuItemRepository, categoryRepository, new InMemoryMenuCompositionRepository(), restaurantRepository,
+                new ImageCleanup(mock(StorageService.class)));
+
+        useCase.delete(ownerId, item.getId());
+
+        assertTrue(menuItemRepository.findById(item.getId()).isEmpty());
+        assertTrue(menuItemRepository.findByCategoryId(categoryId).isEmpty());
+    }
+
+    @Test
+    void shouldRejectDeletingAnAlreadyDeletedItem() {
+        UUID ownerId = UUID.randomUUID();
+        UUID restaurantId = UUID.randomUUID();
+        UUID categoryId = UUID.randomUUID();
+
+        InMemoryRestaurantRepository restaurantRepository = new InMemoryRestaurantRepository();
+        InMemoryCategoryRepository categoryRepository = new InMemoryCategoryRepository();
+        InMemoryMenuItemRepository menuItemRepository = new InMemoryMenuItemRepository();
+        restaurantRepository.save(restaurant(ownerId, restaurantId));
+        categoryRepository.save(Category.from(categoryId, restaurantId, "Burgers", null, 0, true));
+        MenuItem item = menuItemRepository.save(MenuItem.from(
+                UUID.randomUUID(), categoryId, "Burger", null, new BigDecimal("12.00"), null, true, null));
+
+        ManageMenuItemUseCase useCase = new ManageMenuItemUseCase(
+                menuItemRepository, categoryRepository, new InMemoryMenuCompositionRepository(), restaurantRepository,
+                new ImageCleanup(mock(StorageService.class)));
+
+        useCase.delete(ownerId, item.getId());
+
+        assertThrows(ManageMenuItemUseCase.MenuItemNotFoundException.class,
+                () -> useCase.delete(ownerId, item.getId()));
+    }
+
+    @Test
+    void shouldSoftDeleteMenuVariantsWithBaseItem() {
+        UUID ownerId = UUID.randomUUID();
+        UUID restaurantId = UUID.randomUUID();
+        UUID categoryId = UUID.randomUUID();
+
+        InMemoryRestaurantRepository restaurantRepository = new InMemoryRestaurantRepository();
+        InMemoryCategoryRepository categoryRepository = new InMemoryCategoryRepository();
+        InMemoryMenuItemRepository menuItemRepository = new InMemoryMenuItemRepository();
+        restaurantRepository.save(restaurant(ownerId, restaurantId));
+        categoryRepository.save(Category.from(categoryId, restaurantId, "Burgers", null, 0, true));
+        MenuItem baseItem = menuItemRepository.save(MenuItem.from(
+                UUID.randomUUID(), categoryId, "Burger", null, new BigDecimal("12.00"), null, true, null));
+        MenuItem variant = menuItemRepository.save(MenuItem.from(
+                UUID.randomUUID(), categoryId, "Menu Burger", null, new BigDecimal("15.00"), null, true,
+                baseItem.getId()));
+
+        ManageMenuItemUseCase useCase = new ManageMenuItemUseCase(
+                menuItemRepository, categoryRepository, new InMemoryMenuCompositionRepository(), restaurantRepository,
+                new ImageCleanup(mock(StorageService.class)));
+
+        useCase.delete(ownerId, baseItem.getId());
+
+        assertTrue(menuItemRepository.findById(baseItem.getId()).isEmpty());
+        assertTrue(menuItemRepository.findById(variant.getId()).isEmpty());
+        assertTrue(menuItemRepository.findByMenuVariantOf(baseItem.getId()).isEmpty());
+    }
+
+    @Test
+    void shouldDeleteCompositionsReferencingDeletedItem() {
+        UUID ownerId = UUID.randomUUID();
+        UUID restaurantId = UUID.randomUUID();
+        UUID categoryId = UUID.randomUUID();
+
+        InMemoryRestaurantRepository restaurantRepository = new InMemoryRestaurantRepository();
+        InMemoryCategoryRepository categoryRepository = new InMemoryCategoryRepository();
+        InMemoryMenuItemRepository menuItemRepository = new InMemoryMenuItemRepository();
+        InMemoryMenuCompositionRepository compositionRepository = new InMemoryMenuCompositionRepository();
+        restaurantRepository.save(restaurant(ownerId, restaurantId));
+        categoryRepository.save(Category.from(categoryId, restaurantId, "Burgers", null, 0, true));
+        MenuItem item = menuItemRepository.save(MenuItem.from(
+                UUID.randomUUID(), categoryId, "Frites", null, new BigDecimal("3.50"), null, true, null));
+        MenuComposition composition = compositionRepository.save(MenuComposition.create(
+                restaurantId, MenuComposition.CompositionType.accompagnement, item.getId(), BigDecimal.ZERO));
+
+        ManageMenuItemUseCase useCase = new ManageMenuItemUseCase(
+                menuItemRepository, categoryRepository, compositionRepository, restaurantRepository,
+                new ImageCleanup(mock(StorageService.class)));
+
+        useCase.delete(ownerId, item.getId());
+
+        assertTrue(compositionRepository.findByRestaurantId(restaurantId).isEmpty());
     }
 }

@@ -2,6 +2,7 @@ package com.qrrestaurant.menu.infrastructure.persistence.item;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.UUID;
 
 @Entity
@@ -32,6 +33,9 @@ public class MenuItemJpaEntity {
     @Column(name = "menu_variant_of")
     private UUID menuVariantOf;
 
+    @Column(name = "deleted_at")
+    private Instant deletedAt;
+
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
 
@@ -55,4 +59,7 @@ public class MenuItemJpaEntity {
 
     public UUID getMenuVariantOf() { return menuVariantOf; }
     public void setMenuVariantOf(UUID menuVariantOf) { this.menuVariantOf = menuVariantOf; }
+
+    public Instant getDeletedAt() { return deletedAt; }
+    public void setDeletedAt(Instant deletedAt) { this.deletedAt = deletedAt; }
 }

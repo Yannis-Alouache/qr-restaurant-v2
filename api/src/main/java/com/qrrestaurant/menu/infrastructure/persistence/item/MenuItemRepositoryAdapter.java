@@ -19,7 +19,7 @@ public class MenuItemRepositoryAdapter implements MenuItemRepository {
 
     @Override
     public List<MenuItem> findByCategoryId(UUID categoryId) {
-        return jpaRepo.findByCategoryId(categoryId).stream()
+        return jpaRepo.findByCategoryIdAndDeletedAtIsNull(categoryId).stream()
                 .map(this::toDomain).toList();
     }
 
@@ -32,23 +32,24 @@ public class MenuItemRepositoryAdapter implements MenuItemRepository {
 
     @Override
     public Optional<MenuItem> findById(UUID id) {
-        return jpaRepo.findById(id).map(this::toDomain);
+        return jpaRepo.findByIdAndDeletedAtIsNull(id).map(this::toDomain);
     }
 
     @Override
     public List<MenuItem> findAllById(List<UUID> ids) {
-        return jpaRepo.findAllById(ids).stream().map(this::toDomain).toList();
+        return jpaRepo.findAllByIdInAndDeletedAtIsNull(ids).stream().map(this::toDomain).toList();
     }
 
     @Override
-    public void deleteById(UUID id) {
-        jpaRepo.deleteById(id);
+    public List<MenuItem> findByMenuVariantOf(UUID baseItemId) {
+        return jpaRepo.findByMenuVariantOfAndDeletedAtIsNull(baseItemId).stream()
+                .map(this::toDomain).toList();
     }
 
     private MenuItem toDomain(MenuItemJpaEntity e) {
         return MenuItem.from(e.getId(), e.getCategoryId(), e.getName(),
                 e.getDescription(), e.getPrice(), e.getImagePath(),
-                e.isAvailable(), e.getMenuVariantOf());
+                e.isAvailable(), e.getMenuVariantOf(), e.getDeletedAt());
     }
 
     private MenuItemJpaEntity toEntity(MenuItem d) {
@@ -61,6 +62,7 @@ public class MenuItemRepositoryAdapter implements MenuItemRepository {
         e.setImagePath(d.getImagePath());
         e.setAvailable(d.isAvailable());
         e.setMenuVariantOf(d.getMenuVariantOf());
+        e.setDeletedAt(d.getDeletedAt());
         return e;
     }
 }

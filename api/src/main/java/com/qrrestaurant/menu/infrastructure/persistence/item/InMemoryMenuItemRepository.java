@@ -15,22 +15,24 @@ public class InMemoryMenuItemRepository implements MenuItemRepository {
     @Override
     public MenuItem save(MenuItem item) {
         UUID id = item.getId() != null ? item.getId() : UUID.randomUUID();
-        MenuItem saved = MenuItem.from(id, item.getCategoryId(), item.getName(), item.getDescription(),
-                item.getPrice(), item.getImagePath(), item.isAvailable(), item.getMenuVariantOf());
+        MenuItem saved = copy(item, id);
         items.put(id, saved);
-        return copy(saved);
+        return copy(saved, id);
     }
 
     @Override
     public Optional<MenuItem> findById(UUID id) {
-        return Optional.ofNullable(items.get(id)).map(this::copy);
+        return items.values().stream()
+                .filter(item -> id.equals(item.getId()) && !item.isDeleted())
+                .map(item -> copy(item, id))
+                .findFirst();
     }
 
     @Override
     public List<MenuItem> findByCategoryId(UUID categoryId) {
         return items.values().stream()
-                .filter(item -> categoryId.equals(item.getCategoryId()))
-                .map(this::copy)
+                .filter(item -> categoryId.equals(item.getCategoryId()) && !item.isDeleted())
+                .map(item -> copy(item, item.getId()))
                 .toList();
     }
 
@@ -38,18 +40,22 @@ public class InMemoryMenuItemRepository implements MenuItemRepository {
     public List<MenuItem> findAllById(List<UUID> ids) {
         return ids.stream()
                 .map(items::get)
-                .filter(item -> item != null)
-                .map(this::copy)
+                .filter(item -> item != null && !item.isDeleted())
+                .map(item -> copy(item, item.getId()))
                 .toList();
     }
 
     @Override
-    public void deleteById(UUID id) {
-        items.remove(id);
+    public List<MenuItem> findByMenuVariantOf(UUID baseItemId) {
+        return items.values().stream()
+                .filter(item -> baseItemId.equals(item.getMenuVariantOf()) && !item.isDeleted())
+                .map(item -> copy(item, item.getId()))
+                .toList();
     }
 
-    private MenuItem copy(MenuItem item) {
-        return MenuItem.from(item.getId(), item.getCategoryId(), item.getName(), item.getDescription(),
-                item.getPrice(), item.getImagePath(), item.isAvailable(), item.getMenuVariantOf());
+    private MenuItem copy(MenuItem item, UUID id) {
+        return MenuItem.from(id, item.getCategoryId(), item.getName(), item.getDescription(),
+                item.getPrice(), item.getImagePath(), item.isAvailable(), item.getMenuVariantOf(),
+                item.getDeletedAt());
     }
 }
