@@ -263,7 +263,27 @@ export class MenuManagementComponent implements OnInit {
 
     if (editId) {
       this.menu.updateMenuItem(editId, payload).subscribe({
-        next: afterSaved,
+        next: (item) => {
+          const variant = this.menuVariantOf(item);
+          if (!variant) {
+            afterSaved(item);
+            return;
+          }
+          // Keep the "Menu X" variant in sync with its base item.
+          this.menu
+            .updateMenuItem(variant.id, {
+              name: `Menu ${val.name!}`,
+              price: val.comboPrice ?? variant.price,
+            })
+            .subscribe({
+              next: () => afterSaved(item),
+              error: () => {
+                this.menu.loadMenuItems().subscribe();
+                this.toast.show('Article modifié (prix menu non mis à jour)');
+                this.cancelItemEdit();
+              },
+            });
+        },
         error: (err) => this.toast.show(err.error?.message ?? err.error?.error ?? 'Erreur'),
       });
     } else {
@@ -302,12 +322,13 @@ export class MenuManagementComponent implements OnInit {
   editItem(item: MenuItemView): void {
     this.editingItemId.set(item.id);
     this.selectCategory(item.categoryId);
+    const variant = this.menuVariantOf(item);
     this.itemForm.patchValue({
       name: item.name,
       description: item.description ?? '',
       price: item.price,
-      isCombo: false,
-      comboPrice: 0,
+      isCombo: !!variant,
+      comboPrice: variant ? variant.price : 0,
     });
     this.itemImageFile.set(null);
     this.itemImagePreview.set(item.imagePath ?? '');

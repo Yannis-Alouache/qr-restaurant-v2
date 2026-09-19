@@ -3,6 +3,8 @@ import com.qrrestaurant.menu.application.dto.MenuItemView;
 
 import com.qrrestaurant.menu.domain.Category;
 import com.qrrestaurant.menu.domain.CategoryRepository;
+import com.qrrestaurant.menu.domain.MenuComposition;
+import com.qrrestaurant.menu.domain.MenuCompositionRepository;
 import com.qrrestaurant.menu.domain.MenuItem;
 import com.qrrestaurant.menu.domain.MenuItemRepository;
 import com.qrrestaurant.restaurant.domain.Restaurant;
@@ -20,15 +22,18 @@ public class ManageMenuItemUseCase {
 
     private final MenuItemRepository menuItemRepository;
     private final CategoryRepository categoryRepository;
+    private final MenuCompositionRepository compositionRepository;
     private final RestaurantRepository restaurantRepository;
     private final ImageCleanup imageCleanup;
 
     public ManageMenuItemUseCase(MenuItemRepository menuItemRepository,
                                   CategoryRepository categoryRepository,
+                                  MenuCompositionRepository compositionRepository,
                                   RestaurantRepository restaurantRepository,
                                   ImageCleanup imageCleanup) {
         this.menuItemRepository = menuItemRepository;
         this.categoryRepository = categoryRepository;
+        this.compositionRepository = compositionRepository;
         this.restaurantRepository = restaurantRepository;
         this.imageCleanup = imageCleanup;
     }
@@ -75,7 +80,24 @@ public class ManageMenuItemUseCase {
         MenuItem item = menuItemRepository.findById(itemId)
                 .orElseThrow(MenuItemNotFoundException::new);
         verifyCategoryBelongsToRestaurant(item.getCategoryId(), restaurant);
-        menuItemRepository.deleteById(itemId);
+
+        // Suppression logique : l'historique des commandes (order_item) référence
+        // menu_item en ON DELETE RESTRICT, la ligne doit donc rester en base.
+        for (MenuItem variant : menuItemRepository.findByMenuVariantOf(itemId)) {
+            variant.delete();
+            menuItemRepository.save(variant);
+            imageCleanup.delete(variant.getImagePath());
+        }
+        // Les compositions de formule sont des données dérivées : elles étaient
+        // supprimées en cascade par la FK en suppression physique, on le fait
+        // explicitement pour garder les listes de formules propres.
+        for (MenuComposition composition : compositionRepository.findByRestaurantId(restaurant.getId())) {
+            if (composition.getMenuItemId().equals(itemId)) {
+                compositionRepository.deleteById(composition.getId());
+            }
+        }
+        item.delete();
+        menuItemRepository.save(item);
         imageCleanup.delete(item.getImagePath());
     }
 

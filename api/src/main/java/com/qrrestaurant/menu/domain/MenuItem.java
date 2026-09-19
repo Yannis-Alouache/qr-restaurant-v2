@@ -1,6 +1,7 @@
 package com.qrrestaurant.menu.domain;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -14,9 +15,11 @@ public class MenuItem {
     private String imagePath;
     private boolean available;
     private UUID menuVariantOf;
+    private Instant deletedAt;
 
     private MenuItem(UUID id, UUID categoryId, String name, String description,
-                     BigDecimal price, String imagePath, boolean available, UUID menuVariantOf) {
+                     BigDecimal price, String imagePath, boolean available, UUID menuVariantOf,
+                     Instant deletedAt) {
         this.id = id;
         this.categoryId = categoryId;
         this.name = name;
@@ -25,6 +28,7 @@ public class MenuItem {
         this.imagePath = imagePath;
         this.available = available;
         this.menuVariantOf = menuVariantOf;
+        this.deletedAt = deletedAt;
     }
 
     public static MenuItem create(UUID categoryId, String name, String description,
@@ -33,12 +37,19 @@ public class MenuItem {
         Objects.requireNonNull(name, "name");
         Objects.requireNonNull(price, "price");
         return new MenuItem(null, categoryId, name, normalizeDescription(description),
-                price, imagePath, true, menuVariantOf);
+                price, imagePath, true, menuVariantOf, null);
     }
 
     public static MenuItem from(UUID id, UUID categoryId, String name, String description,
                                 BigDecimal price, String imagePath, boolean available, UUID menuVariantOf) {
-        return new MenuItem(id, categoryId, name, description, price, imagePath, available, menuVariantOf);
+        return from(id, categoryId, name, description, price, imagePath, available, menuVariantOf, null);
+    }
+
+    public static MenuItem from(UUID id, UUID categoryId, String name, String description,
+                                BigDecimal price, String imagePath, boolean available, UUID menuVariantOf,
+                                Instant deletedAt) {
+        return new MenuItem(id, categoryId, name, description, price, imagePath, available,
+                menuVariantOf, deletedAt);
     }
 
     public void update(String name, String description, BigDecimal price, String imagePath, UUID menuVariantOf) {
@@ -53,6 +64,18 @@ public class MenuItem {
         this.available = available;
     }
 
+    /**
+     * Suppression logique : la ligne reste en base pour l'historique des commandes
+     * (order_item référence menu_item en ON DELETE RESTRICT) mais disparaît de
+     * tous les chemins de lecture.
+     */
+    public void delete() {
+        if (deletedAt == null) {
+            this.deletedAt = Instant.now();
+        }
+    }
+
+    public boolean isDeleted() { return deletedAt != null; }
     public boolean isMenuVariant() { return menuVariantOf != null; }
 
     private static String normalizeDescription(String description) {
@@ -70,4 +93,5 @@ public class MenuItem {
     public String getImagePath() { return imagePath; }
     public boolean isAvailable() { return available; }
     public UUID getMenuVariantOf() { return menuVariantOf; }
+    public Instant getDeletedAt() { return deletedAt; }
 }
