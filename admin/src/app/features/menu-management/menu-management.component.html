@@ -68,11 +68,15 @@
 
         <div class="form-actions">
           @if (editingCategoryId()) {
-            <button type="button" class="btn-secondary" (click)="cancelCategoryEdit()">Annuler</button>
+            <button type="button" class="btn-secondary" [disabled]="savingCategory()" (click)="cancelCategoryEdit()">Annuler</button>
           }
-          <button type="submit" class="btn-primary">
-            <svg lucidePlus></svg>
-            {{ editingCategoryId() ? 'Enregistrer' : 'Ajouter' }}
+          <button type="submit" class="btn-primary" [disabled]="savingCategory()">
+            @if (savingCategory()) {
+              <svg lucideLoaderCircle class="spin"></svg>
+            } @else {
+              <svg lucidePlus></svg>
+            }
+            {{ categorySaveLabel() }}
           </button>
         </div>
       </form>
@@ -106,8 +110,10 @@
                   }
                 </div>
                 <div class="cat-card-actions">
-                  <button type="button" class="btn-icon" (click)="editCategory(cat)" data-tooltip="Modifier"><svg lucidePencil></svg></button>
-                  <button type="button" class="btn-icon danger" (click)="deleteCategory(cat.id)" data-tooltip="Supprimer"><svg lucideTrash2></svg></button>
+                  <button type="button" class="btn-icon" [disabled]="busyIds().has(cat.id)" (click)="editCategory(cat)" data-tooltip="Modifier"><svg lucidePencil></svg></button>
+                  <button type="button" class="btn-icon danger" [disabled]="busyIds().has(cat.id)" (click)="deleteCategory(cat.id)" data-tooltip="Supprimer">
+                    @if (busyIds().has(cat.id)) { <svg lucideLoaderCircle class="spin"></svg> } @else { <svg lucideTrash2></svg> }
+                  </button>
                 </div>
               </div>
             </div>
@@ -181,9 +187,13 @@
                 </label>
               </div>
             </div>
-            <button type="submit" class="btn-primary">
-              <svg lucidePlus></svg>
-              {{ editingItemId() ? 'Enregistrer' : 'Ajouter' }}
+            <button type="submit" class="btn-primary" [disabled]="savingItem()">
+              @if (savingItem()) {
+                <svg lucideLoaderCircle class="spin"></svg>
+              } @else {
+                <svg lucidePlus></svg>
+              }
+              {{ itemSaveLabel() }}
             </button>
           </form>
 
@@ -195,7 +205,7 @@
             </div>
           }
           @if (editingItemId()) {
-            <div class="form-actions"><button type="button" class="btn-secondary" (click)="cancelItemEdit()">Annuler</button></div>
+            <div class="form-actions"><button type="button" class="btn-secondary" [disabled]="savingItem()" (click)="cancelItemEdit()">Annuler</button></div>
           }
         </div>
 
@@ -226,16 +236,23 @@
                   </div>
                   <div class="dish-card-actions">
                     <button type="button" class="btn-icon"
+                            [disabled]="busyIds().has(item.id)"
                             [attr.data-tooltip]="item.available ? 'Marquer indisponible' : 'Marquer disponible'"
                             [attr.aria-label]="item.available ? 'Marquer comme indisponible' : 'Marquer comme disponible'"
                             [attr.aria-pressed]="item.available"
                             (click)="toggleAvailability(item)">
-                      <svg lucideCircleCheckBig
-                           [style.color]="item.available ? 'var(--success)' : 'var(--muted)'"
-                           [style.opacity]="item.available ? 1 : 0.4"></svg>
+                      @if (busyIds().has(item.id)) {
+                        <svg lucideLoaderCircle class="spin"></svg>
+                      } @else {
+                        <svg lucideCircleCheckBig
+                             [style.color]="item.available ? 'var(--success)' : 'var(--muted)'"
+                             [style.opacity]="item.available ? 1 : 0.4"></svg>
+                      }
                     </button>
-                    <button type="button" class="btn-icon" (click)="editItem(item)" data-tooltip="Modifier"><svg lucidePencil></svg></button>
-                    <button type="button" class="btn-icon danger" (click)="deleteItem(item.id)" data-tooltip="Supprimer"><svg lucideTrash2></svg></button>
+                    <button type="button" class="btn-icon" [disabled]="busyIds().has(item.id)" (click)="editItem(item)" data-tooltip="Modifier"><svg lucidePencil></svg></button>
+                    <button type="button" class="btn-icon danger" [disabled]="busyIds().has(item.id)" (click)="deleteItem(item.id)" data-tooltip="Supprimer">
+                      @if (busyIds().has(item.id)) { <svg lucideLoaderCircle class="spin"></svg> } @else { <svg lucideTrash2></svg> }
+                    </button>
                   </div>
                 </div>
               </div>
