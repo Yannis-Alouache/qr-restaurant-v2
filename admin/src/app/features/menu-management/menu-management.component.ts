@@ -29,6 +29,13 @@ export class MenuManagementComponent implements OnInit {
   currentStep = signal(1);
   loading = signal(false);
 
+  // Pending states: a save/delete chains several requests (create, image
+  // upload, refresh), so the triggering button stays disabled with a spinner
+  // until the whole chain ends — this also blocks double submissions.
+  savingCategory = signal(false);
+  savingItem = signal(false);
+  busyIds = signal<ReadonlySet<string>>(new Set());
+
   editingCategoryId = signal<string | null>(null);
   editingItemId = signal<string | null>(null);
   selectedCategoryId = signal<string | null>(null);
@@ -57,6 +64,15 @@ export class MenuManagementComponent implements OnInit {
   drinkCompositions = computed(() =>
     this.compositions().filter(c => c.compositionType === 'boisson'),
   );
+
+  categorySaveLabel = computed(() => {
+    if (this.savingCategory()) return this.editingCategoryId() ? 'Enregistrement…' : 'Ajout…';
+    return this.editingCategoryId() ? 'Enregistrer' : 'Ajouter';
+  });
+  itemSaveLabel = computed(() => {
+    if (this.savingItem()) return this.editingItemId() ? 'Enregistrement…' : 'Ajout…';
+    return this.editingItemId() ? 'Enregistrer' : 'Ajouter';
+  });
 
   // ── Category form ──────────────────────────────────────────────────
   categoryForm = new FormGroup({
@@ -133,10 +149,16 @@ export class MenuManagementComponent implements OnInit {
     const editId = this.editingCategoryId();
     const file = this.catImageFile();
 
+    this.savingCategory.set(true);
     const done = () => {
+      this.savingCategory.set(false);
       this.toast.show(editId ? 'Catégorie modifiée' : 'Catégorie ajoutée');
       this.menu.loadCategories().subscribe();
       this.cancelCategoryEdit();
+    };
+    const fail = (err: any) => {
+      this.savingCategory.set(false);
+      this.toast.show(err.error?.message ?? err.error?.error ?? 'Erreur');
     };
 
     if (editId) {
@@ -144,26 +166,26 @@ export class MenuManagementComponent implements OnInit {
         next: (cat) => {
           if (file) {
             this.image.upload('category-images', file).subscribe({
-              next: (res) => this.menu.updateCategory(cat.id, { imagePath: res.url }).subscribe({ next: done }),
+              next: (res) => this.menu.updateCategory(cat.id, { imagePath: res.url }).subscribe({ next: done, error: fail }),
             });
           } else {
             done();
           }
         },
-        error: (err) => this.toast.show(err.error?.message ?? err.error?.error ?? 'Erreur'),
+        error: fail,
       });
     } else {
       this.menu.createCategory({ name: val.name!, hasMenu: val.hasMenu ?? false }).subscribe({
         next: (cat) => {
           if (file) {
             this.image.upload('category-images', file).subscribe({
-              next: (res) => this.menu.updateCategory(cat.id, { imagePath: res.url }).subscribe({ next: done }),
+              next: (res) => this.menu.updateCategory(cat.id, { imagePath: res.url }).subscribe({ next: done, error: fail }),
             });
           } else {
             done();
           }
         },
-        error: (err) => this.toast.show(err.error?.message ?? err.error?.error ?? 'Erreur'),
+        error: fail,
       });
     }
   }
@@ -194,15 +216,20 @@ export class MenuManagementComponent implements OnInit {
     if (!confirmed) {
       return;
     }
+    this.setBusy(id, true);
     this.menu.deleteCategory(id).subscribe({
       next: () => {
+        this.setBusy(id, false);
         if (this.selectedCategoryId() === id) {
           this.selectedCategoryId.set(null);
         }
         this.toast.show('Catégorie supprimée');
         this.loadAll();
       },
-      error: (err) => this.toast.show(err.error?.message ?? err.error?.error ?? 'Erreur'),
+      error: (err) => {
+        this.setBusy(id, false);
+        this.toast.show(err.error?.message ?? err.error?.error ?? 'Erreur');
+      },
     });
   }
 
@@ -246,15 +273,21 @@ export class MenuManagementComponent implements OnInit {
       price: val.price!,
     };
 
+    this.savingItem.set(true);
+    const fail = (err: any) => {
+      this.savingItem.set(false);
+      this.toast.show(err.error?.message ?? err.error?.error ?? 'Erreur');
+    };
     const afterSaved = (item: MenuItemView) => {
       const finish = () => {
+        this.savingItem.set(false);
         this.menu.loadMenuItems().subscribe();
         this.toast.show(editId ? 'Article modifié' : 'Article ajouté');
         this.cancelItemEdit();
       };
       if (file) {
         this.image.upload('menu-images', file).subscribe({
-          next: (res) => this.menu.updateMenuItem(item.id, { imagePath: res.url }).subscribe({ next: finish }),
+          next: (res) => this.menu.updateMenuItem(item.id, { imagePath: res.url }).subscribe({ next: finish, error: fail }),
         });
       } else {
         finish();
@@ -278,13 +311,14 @@ export class MenuManagementComponent implements OnInit {
             .subscribe({
               next: () => afterSaved(item),
               error: () => {
+                this.savingItem.set(false);
                 this.menu.loadMenuItems().subscribe();
                 this.toast.show('Article modifié (prix menu non mis à jour)');
                 this.cancelItemEdit();
               },
             });
         },
-        error: (err) => this.toast.show(err.error?.message ?? err.error?.error ?? 'Erreur'),
+        error: fail,
       });
     } else {
       this.menu.createMenuItem(payload).subscribe({
@@ -308,13 +342,14 @@ export class MenuManagementComponent implements OnInit {
             .subscribe({
               next: () => afterSaved(item),
               error: () => {
+                this.savingItem.set(false);
                 this.menu.loadMenuItems().subscribe();
                 this.toast.show('Article ajouté (variante menu ignorée)');
                 this.cancelItemEdit();
               },
             });
         },
-        error: (err) => this.toast.show(err.error?.message ?? err.error?.error ?? 'Erreur'),
+        error: fail,
       });
     }
   }
@@ -342,9 +377,16 @@ export class MenuManagementComponent implements OnInit {
   }
 
   toggleAvailability(item: MenuItemView): void {
+    this.setBusy(item.id, true);
     this.menu.toggleAvailability(item.id, !item.available).subscribe({
-      next: () => this.menu.loadMenuItems().subscribe(),
-      error: (err) => this.toast.show(err.error?.message ?? err.error?.error ?? 'Erreur'),
+      next: () => {
+        this.setBusy(item.id, false);
+        this.menu.loadMenuItems().subscribe();
+      },
+      error: (err) => {
+        this.setBusy(item.id, false);
+        this.toast.show(err.error?.message ?? err.error?.error ?? 'Erreur');
+      },
     });
   }
 
@@ -358,14 +400,30 @@ export class MenuManagementComponent implements OnInit {
     if (!confirmed) {
       return;
     }
+    this.setBusy(id, true);
     this.menu.deleteMenuItem(id).subscribe({
       next: () => {
+        this.setBusy(id, false);
         this.menu.loadMenuItems().subscribe();
         this.menu.loadCompositions().subscribe();
         this.toast.show('Article supprimé');
       },
-      error: (err) => this.toast.show(err.error?.message ?? err.error?.error ?? 'Erreur'),
+      error: (err) => {
+        this.setBusy(id, false);
+        this.toast.show(err.error?.message ?? err.error?.error ?? 'Erreur');
+      },
     });
+  }
+
+  /** Marks one card (category or item) as busy so its actions show a spinner. */
+  private setBusy(id: string, busy: boolean): void {
+    const next = new Set(this.busyIds());
+    if (busy) {
+      next.add(id);
+    } else {
+      next.delete(id);
+    }
+    this.busyIds.set(next);
   }
 
   onItemImagePicked(event: Event): void {

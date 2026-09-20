@@ -292,6 +292,7 @@ h1, h2, h3 { text-wrap: balance; font-family: var(--font-display); }
 }
 .btn-secondary:hover { border-color: var(--fg-2); }
 .btn-secondary svg { width: 16px; height: 16px; }
+.btn-secondary:disabled { opacity: 0.6; cursor: not-allowed; pointer-events: none; }
 
 .btn-action {
   display: inline-flex;
@@ -345,6 +346,7 @@ h1, h2, h3 { text-wrap: balance; font-family: var(--font-display); }
 .btn-icon:hover { background: var(--bg); color: var(--fg); }
 .btn-icon.danger:hover { background: var(--danger-bg); color: var(--danger); }
 .btn-icon svg { width: 16px; height: 16px; }
+.btn-icon:disabled { opacity: 0.45; cursor: not-allowed; pointer-events: none; }
 
 /* Hover tooltip — opt-in via [data-tooltip]. Replaces slow native title tooltips. */
 [data-tooltip] { position: relative; }
