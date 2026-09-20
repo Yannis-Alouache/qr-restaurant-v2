@@ -74,6 +74,27 @@
 }
 .logo-loading svg { width: 22px; height: 22px; color: var(--accent); opacity: 1; }
 .logo-actions { display: flex; flex-direction: column; gap: var(--space-2); }
+.cover-current {
+  width: 216px;
+  height: 84px;
+  border-radius: var(--radius-md);
+  border: 2px dashed var(--border);
+  background: var(--bg);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  overflow: hidden;
+  position: relative;
+  transition: border-color var(--motion-fast) var(--ease-standard);
+}
+.cover-current.has-logo { border-style: solid; border-color: var(--border-soft); }
+.cover-current img { width: 100%; height: 100%; object-fit: cover; }
+.cover-current svg { width: 28px; height: 28px; color: var(--muted); opacity: 0.4; }
+.cover-hint {
+  margin: var(--space-2) 0 0 0;
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
 .btn-upload {
   display: inline-flex;
   align-items: center;

@@ -29,6 +29,9 @@ public class RestaurantJpaEntity {
     @Column(name = "logo_path")
     private String logoPath;
 
+    @Column(name = "cover_path")
+    private String coverPath;
+
     @Column(name = "theme_id", nullable = false)
     private String themeId = "classique";
 
@@ -62,6 +65,9 @@ public class RestaurantJpaEntity {
 
     public String getLogoPath() { return logoPath; }
     public void setLogoPath(String logoPath) { this.logoPath = logoPath; }
+
+    public String getCoverPath() { return coverPath; }
+    public void setCoverPath(String coverPath) { this.coverPath = coverPath; }
 
     public String getThemeId() { return themeId; }
     public void setThemeId(String themeId) { this.themeId = themeId; }

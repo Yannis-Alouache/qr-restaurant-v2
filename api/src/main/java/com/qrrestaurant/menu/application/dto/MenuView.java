@@ -15,6 +15,7 @@ public record MenuView(
         String slug,
         String address,
         String logoPath,
+        String coverPath,
         String themeId
     ) {}
 

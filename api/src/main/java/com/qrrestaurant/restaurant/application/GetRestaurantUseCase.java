@@ -42,12 +42,12 @@ public class GetRestaurantUseCase {
 
     private RestaurantView toView(Restaurant r) {
         return new RestaurantView(r.getId().toString(), r.getName(), r.getSlug(),
-                r.getAddress(), r.getLogoPath(), r.getThemeId(),
+                r.getAddress(), r.getLogoPath(), r.getCoverPath(), r.getThemeId(),
                 r.getPaymentProviderAccountId(), clientBaseUrl);
     }
 
     public record RestaurantView(String id, String name, String slug, String address,
-                                   String logoPath, String themeId, String paymentProviderAccountId,
+                                   String logoPath, String coverPath, String themeId, String paymentProviderAccountId,
                                    String clientBaseUrl) {}
     public record TableView(UUID id, int number) {}
 

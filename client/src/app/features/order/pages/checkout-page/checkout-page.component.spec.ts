@@ -30,6 +30,7 @@ describe('CheckoutPageComponent', () => {
             slug: 'naia-burger',
             address: null,
             logoPath: null,
+            coverPath: null,
             themeId: 'chaud',
           },
           categories: [],

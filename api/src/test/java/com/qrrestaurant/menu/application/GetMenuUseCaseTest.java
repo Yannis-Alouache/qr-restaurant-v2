@@ -63,6 +63,6 @@ class GetMenuUseCaseTest {
     }
 
     private Restaurant restaurant(UUID restaurantId) {
-        return Restaurant.from(restaurantId, null, "Naia Burger", "naia-burger", null, null, "chaud", null, null);
+        return Restaurant.from(restaurantId, null, "Naia Burger", "naia-burger", null, null, null, "chaud", null, null);
     }
 }

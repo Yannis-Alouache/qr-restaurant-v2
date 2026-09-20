@@ -33,7 +33,7 @@ class RestaurantTest {
     void shouldClearLogoPathWhenUpdateProvidesBlankValue() {
         Restaurant restaurant = restaurantWithLogo("http://cdn/logos/naia.png");
 
-        restaurant.update(null, null, "   ", null, null);
+        restaurant.update(null, null, "   ", null, null, null);
 
         assertThat(restaurant.getLogoPath()).isNull();
     }
@@ -42,17 +42,40 @@ class RestaurantTest {
     void shouldKeepLogoPathWhenUpdateOmitsIt() {
         Restaurant restaurant = restaurantWithLogo("http://cdn/logos/naia.png");
 
-        restaurant.update("Naia Burger", null, null, null, null);
+        restaurant.update("Naia Burger", null, null, null, null, null);
 
         assertThat(restaurant.getLogoPath()).isEqualTo("http://cdn/logos/naia.png");
     }
 
+    @Test
+    void shouldClearCoverPathWhenUpdateProvidesBlankValue() {
+        Restaurant restaurant = restaurantWithCover("http://cdn/covers/naia.png");
+
+        restaurant.update(null, null, null, "   ", null, null);
+
+        assertThat(restaurant.getCoverPath()).isNull();
+    }
+
+    @Test
+    void shouldKeepCoverPathWhenUpdateOmitsIt() {
+        Restaurant restaurant = restaurantWithCover("http://cdn/covers/naia.png");
+
+        restaurant.update("Naia Burger", null, null, null, null, null);
+
+        assertThat(restaurant.getCoverPath()).isEqualTo("http://cdn/covers/naia.png");
+    }
+
     private Restaurant restaurantWithPaymentAccount(String paymentProviderAccountId) {
-        return Restaurant.from(null, null, null, null, null, null, "classique", paymentProviderAccountId, null);
+        return Restaurant.from(null, null, null, null, null, null, null, "classique", paymentProviderAccountId, null);
     }
 
     private Restaurant restaurantWithLogo(String logoPath) {
         return Restaurant.from(null, null, "Naia Burger", "naia-burger", null,
-                logoPath, "classique", null, null);
+                logoPath, null, "classique", null, null);
+    }
+
+    private Restaurant restaurantWithCover(String coverPath) {
+        return Restaurant.from(null, null, "Naia Burger", "naia-burger", null,
+                null, coverPath, "classique", null, null);
     }
 }

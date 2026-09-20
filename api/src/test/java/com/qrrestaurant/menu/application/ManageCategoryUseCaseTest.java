@@ -73,7 +73,7 @@ class ManageCategoryUseCaseTest {
         UUID ownerId = UUID.randomUUID();
         UUID restaurantId = UUID.randomUUID();
         restaurantRepository.save(Restaurant.from(
-                restaurantId, ownerId, null, "naia-burger", null, null, "classique", null, null));
+                restaurantId, ownerId, null, "naia-burger", null, null, null, "classique", null, null));
 
         Context ctx = new Context();
         ctx.ownerId = ownerId;

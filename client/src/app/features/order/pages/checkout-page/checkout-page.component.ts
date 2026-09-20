@@ -7,7 +7,7 @@ import { CartEntry } from '../../../cart/models/cart.model';
 import { ThemeService } from '../../../../shared/services/theme.service';
 import { PricePipe } from '../../../../shared/pipes/price.pipe';
 import { RestaurantHeaderComponent } from '../../../../shared/components/restaurant-header/restaurant-header.component';
-import { categoryCover } from '../../../menu/utils/menu-utils';
+import { restaurantCover } from '../../../menu/utils/menu-utils';
 
 type PayState = 'idle' | 'processing';
 
@@ -50,13 +50,7 @@ export class CheckoutPageComponent implements OnInit {
           this.themeService.apply(menu.restaurant.themeId);
           this.restaurantName.set(menu.restaurant.name);
           this.logoPath.set(menu.restaurant.logoPath);
-          for (const category of menu.categories) {
-            const cover = categoryCover(category);
-            if (cover) {
-              this.coverPath.set(cover);
-              break;
-            }
-          }
+          this.coverPath.set(restaurantCover(menu));
         },
         error: () => {
           // Le récapitulatif reste utilisable sans l'identité du restaurant.
