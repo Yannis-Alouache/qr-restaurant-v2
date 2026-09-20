@@ -461,7 +461,6 @@ h1, h2, h3 { text-wrap: balance; font-family: var(--font-display); }
   inset: 0;
   z-index: 300;
   background: rgba(15, 23, 42, 0.45);
-  backdrop-filter: blur(2px);
   display: grid;
   place-items: center;
   padding: var(--space-6);
