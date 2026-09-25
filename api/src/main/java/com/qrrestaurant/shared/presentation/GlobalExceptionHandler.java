@@ -39,7 +39,8 @@ public class GlobalExceptionHandler {
             com.qrrestaurant.menu.application.ManageCompositionUseCase.CompositionNotFoundException.class,
             com.qrrestaurant.order.application.GetOrderUseCase.OrderNotFoundException.class,
             com.qrrestaurant.order.application.UpdateOrderStatusUseCase.OrderNotFoundException.class,
-            CreateCheckoutSessionUseCase.OrderNotFoundException.class
+            CreateCheckoutSessionUseCase.OrderNotFoundException.class,
+            com.qrrestaurant.payment.application.RefundOrderUseCase.OrderNotFoundException.class
     })
     public ResponseEntity<ApiErrorResponse> handleNotFound(RuntimeException ex) {
         return respond(HttpStatus.NOT_FOUND, ex.getMessage());
@@ -50,7 +51,8 @@ public class GlobalExceptionHandler {
             com.qrrestaurant.menu.application.GetAdminMenuUseCase.NoRestaurantException.class,
             com.qrrestaurant.order.application.GetRestaurantOrdersUseCase.NoRestaurantException.class,
             com.qrrestaurant.order.application.UpdateOrderStatusUseCase.NoRestaurantException.class,
-            com.qrrestaurant.restaurant.application.GetRestaurantUseCase.NoRestaurantException.class
+            com.qrrestaurant.restaurant.application.GetRestaurantUseCase.NoRestaurantException.class,
+            com.qrrestaurant.payment.application.RefundOrderUseCase.NoRestaurantException.class
     })
     public ResponseEntity<ApiErrorResponse> handleNoRestaurant(RuntimeException ex) {
         return respond(HttpStatus.NOT_FOUND, ex.getMessage());
@@ -59,7 +61,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({
             com.qrrestaurant.order.domain.Order.InvalidStatusTransitionException.class,
             com.qrrestaurant.order.domain.Order.CheckoutUnavailableException.class,
-            com.qrrestaurant.order.domain.Order.UnpaidOrderStatusUpdateException.class
+            com.qrrestaurant.order.domain.Order.UnpaidOrderStatusUpdateException.class,
+            com.qrrestaurant.order.domain.Order.RefundUnavailableException.class
     })
     public ResponseEntity<ApiErrorResponse> handleConflict(RuntimeException ex) {
         return respond(HttpStatus.CONFLICT, ex.getMessage());
@@ -142,8 +145,11 @@ public class GlobalExceptionHandler {
         return respond(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
-    @ExceptionHandler(PaymentGateway.CheckoutSessionCreationException.class)
-    public ResponseEntity<ApiErrorResponse> handlePaymentUnavailable(PaymentGateway.CheckoutSessionCreationException ex) {
+    @ExceptionHandler({
+            PaymentGateway.CheckoutSessionCreationException.class,
+            PaymentGateway.RefundException.class
+    })
+    public ResponseEntity<ApiErrorResponse> handlePaymentUnavailable(RuntimeException ex) {
         return respond(HttpStatus.SERVICE_UNAVAILABLE, ex.getMessage());
     }
 

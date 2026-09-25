@@ -27,11 +27,13 @@ export const STATUS_LABELS: Record<string, string> = {
   en_preparation: 'En préparation',
   prete: 'Prête',
   servie: 'Servie',
+  rembourse: 'Remboursée',
   en_attente_paiement: 'En attente',
   paiement_echoue: 'Échouée'
 };
 
 export const STATUS_ORDER = ['nouvelle', 'en_preparation', 'prete', 'servie'];
+export const TERMINAL_STATUSES = ['servie', 'rembourse'];
 export const NEXT_STATUS: Record<string, string> = {
   nouvelle: 'en_preparation',
   en_preparation: 'prete',

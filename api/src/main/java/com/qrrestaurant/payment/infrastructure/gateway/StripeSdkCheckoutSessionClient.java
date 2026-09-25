@@ -2,6 +2,7 @@ package com.qrrestaurant.payment.infrastructure.gateway;
 
 import com.stripe.StripeClient;
 import com.stripe.exception.StripeException;
+import com.stripe.net.RequestOptions;
 import com.stripe.param.checkout.SessionCreateParams;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -16,7 +17,9 @@ public class StripeSdkCheckoutSessionClient implements StripeCheckoutSessionClie
     }
 
     @Override
-    public String createCheckoutSessionUrl(SessionCreateParams params) throws StripeException {
-        return stripeClient.v1().checkout().sessions().create(params).getUrl();
+    public String createCheckoutSessionUrl(SessionCreateParams params, String idempotencyKey) throws StripeException {
+        return stripeClient.v1().checkout().sessions()
+                .create(params, RequestOptions.builder().setIdempotencyKey(idempotencyKey).build())
+                .getUrl();
     }
 }
