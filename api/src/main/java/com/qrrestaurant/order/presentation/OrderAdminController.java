@@ -2,6 +2,7 @@ package com.qrrestaurant.order.presentation;
 
 import com.qrrestaurant.order.application.GetRestaurantOrdersUseCase;
 import com.qrrestaurant.order.application.UpdateOrderStatusUseCase;
+import com.qrrestaurant.payment.application.RefundOrderUseCase;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -18,11 +19,14 @@ public class OrderAdminController {
 
     private final GetRestaurantOrdersUseCase getOrdersUseCase;
     private final UpdateOrderStatusUseCase updateStatusUseCase;
+    private final RefundOrderUseCase refundOrderUseCase;
 
     public OrderAdminController(GetRestaurantOrdersUseCase getOrdersUseCase,
-                                 UpdateOrderStatusUseCase updateStatusUseCase) {
+                                 UpdateOrderStatusUseCase updateStatusUseCase,
+                                 RefundOrderUseCase refundOrderUseCase) {
         this.getOrdersUseCase = getOrdersUseCase;
         this.updateStatusUseCase = updateStatusUseCase;
+        this.refundOrderUseCase = refundOrderUseCase;
     }
 
     @GetMapping
@@ -35,6 +39,12 @@ public class OrderAdminController {
                                               @PathVariable UUID id,
                                               @Valid @RequestBody StatusRequest request) {
         updateStatusUseCase.execute(userId(auth), id, request.status());
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{id}/refund")
+    public ResponseEntity<Void> refund(Authentication auth, @PathVariable UUID id) {
+        refundOrderUseCase.execute(userId(auth), id);
         return ResponseEntity.noContent().build();
     }
 

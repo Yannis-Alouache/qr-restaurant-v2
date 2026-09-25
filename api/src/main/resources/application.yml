@@ -9,7 +9,6 @@ spring:
     username: ${POSTGRES_USER:qr_user}
     password: ${POSTGRES_PASSWORD:qr_password}
     driver-class-name: org.postgresql.Driver
-
   jpa:
     hibernate:
       ddl-auto: validate
@@ -24,11 +23,36 @@ spring:
     baseline-on-migrate: false
     baseline-version: 4
     baseline-description: legacy-safe-baseline
+    clean-disabled: true
+    # Le seed de démo (V2) n'insère ses données que si ce placeholder vaut
+    # "true" — activé explicitement en local via SEED_DEMO_DATA=true dans .env
+    # (et forcé dans les tests). Défaut false : une base de prod vierge reste
+    # vierge de tout compte de démo.
+    placeholders:
+      seed_demo_data: ${SEED_DEMO_DATA:false}
 
   servlet:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
+
+management:
+  endpoints:
+    web:
+      exposure:
+        # Seuls health et info sont exposés : pas de métriques détaillées ni
+        # d'arrêt distant publiquement accessibles.
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: never
+
+logging:
+  level:
+    root: INFO
+    com.qrrestaurant: INFO
 
 stripe:
   secret-key: ${STRIPE_SECRET_KEY}
@@ -40,6 +64,11 @@ stripe:
 storage:
   seaweedfs:
     s3-endpoint: ${SEAWEEDFS_S3_ENDPOINT:http://localhost:8333}
+  upload:
+    # Limite par fichier (au-delà de la limite multipart servlet globale de 10 Mo)
+    max-file-size-bytes: 5242880 # 5 Mo
+    # Quota cumulé par compte restaurateur
+    quota-bytes-by-owner: 104857600 # 100 Mo
 
 jwt:
   secret: ${JWT_SECRET:dGhpcy1pcy1hLWRldmVsb3BtZW50LWp3dC1zZWNyZXQta2V5LWZvci1xci1yZXN0YXVyYW50LXYy}
@@ -66,4 +95,9 @@ app:
   cors:
     extra-origin-patterns: ${CORS_EXTRA_ORIGIN_PATTERNS:}
 jwt:
+  # Pas de valeur par défaut en prod : sans JWT_SECRET, le démarrage échoue
+  # (fail-fast) au lieu de signer les tokens avec le secret de dev committed.
+  secret: ${JWT_SECRET}
   expiration: 604800000 # 7 jours en production
+  cookie:
+    secure: ${JWT_COOKIE_SECURE:true} # HTTPS uniquement par défaut en prod

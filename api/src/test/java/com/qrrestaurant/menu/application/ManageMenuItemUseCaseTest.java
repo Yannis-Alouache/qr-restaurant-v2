@@ -11,6 +11,7 @@ import com.qrrestaurant.restaurant.domain.Restaurant;
 import com.qrrestaurant.restaurant.infrastructure.persistence.restaurant.InMemoryRestaurantRepository;
 import com.qrrestaurant.shared.application.ImageCleanup;
 import com.qrrestaurant.shared.domain.StorageService;
+import com.qrrestaurant.shared.domain.UploadedFileRepository;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -42,7 +43,7 @@ class ManageMenuItemUseCaseTest {
 
         ManageMenuItemUseCase useCase = new ManageMenuItemUseCase(
                 menuItemRepository, categoryRepository, new InMemoryMenuCompositionRepository(), restaurantRepository,
-                new ImageCleanup(mock(StorageService.class)));
+                new ImageCleanup(mock(StorageService.class), mock(UploadedFileRepository.class)));
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> useCase.create(
                 ownerId,
@@ -75,7 +76,7 @@ class ManageMenuItemUseCaseTest {
 
         ManageMenuItemUseCase useCase = new ManageMenuItemUseCase(
                 menuItemRepository, categoryRepository, new InMemoryMenuCompositionRepository(), restaurantRepository,
-                new ImageCleanup(mock(StorageService.class)));
+                new ImageCleanup(mock(StorageService.class), mock(UploadedFileRepository.class)));
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> useCase.create(
                 ownerId,
@@ -107,7 +108,7 @@ class ManageMenuItemUseCaseTest {
 
         ManageMenuItemUseCase useCase = new ManageMenuItemUseCase(
                 menuItemRepository, categoryRepository, new InMemoryMenuCompositionRepository(), restaurantRepository,
-                new ImageCleanup(mock(StorageService.class)));
+                new ImageCleanup(mock(StorageService.class), mock(UploadedFileRepository.class)));
 
         MenuItemView updated = useCase.update(
                 ownerId,
@@ -142,7 +143,7 @@ class ManageMenuItemUseCaseTest {
 
         StorageService storage = mock(StorageService.class);
         ManageMenuItemUseCase useCase = new ManageMenuItemUseCase(
-                menuItemRepository, categoryRepository, new InMemoryMenuCompositionRepository(), restaurantRepository, new ImageCleanup(storage));
+                menuItemRepository, categoryRepository, new InMemoryMenuCompositionRepository(), restaurantRepository, new ImageCleanup(storage, mock(UploadedFileRepository.class)));
 
         useCase.delete(ownerId, item.getId());
 
@@ -167,7 +168,7 @@ class ManageMenuItemUseCaseTest {
 
         StorageService storage = mock(StorageService.class);
         ManageMenuItemUseCase useCase = new ManageMenuItemUseCase(
-                menuItemRepository, categoryRepository, new InMemoryMenuCompositionRepository(), restaurantRepository, new ImageCleanup(storage));
+                menuItemRepository, categoryRepository, new InMemoryMenuCompositionRepository(), restaurantRepository, new ImageCleanup(storage, mock(UploadedFileRepository.class)));
 
         useCase.update(ownerId, item.getId(), "Burger", null, new BigDecimal("12.00"), newImage, null);
 
@@ -193,7 +194,7 @@ class ManageMenuItemUseCaseTest {
         StorageService storage = mock(StorageService.class);
         ManageMenuItemUseCase useCase = new ManageMenuItemUseCase(
                 menuItemRepository, categoryRepository, new InMemoryMenuCompositionRepository(), restaurantRepository,
-                new ImageCleanup(storage));
+                new ImageCleanup(storage, mock(UploadedFileRepository.class)));
 
         // imagePath null => inchangé, seul le prix change.
         useCase.update(ownerId, item.getId(), "Burger", null, new BigDecimal("14.00"), null, null);
@@ -217,7 +218,7 @@ class ManageMenuItemUseCaseTest {
 
         ManageMenuItemUseCase useCase = new ManageMenuItemUseCase(
                 menuItemRepository, categoryRepository, new InMemoryMenuCompositionRepository(), restaurantRepository,
-                new ImageCleanup(mock(StorageService.class)));
+                new ImageCleanup(mock(StorageService.class), mock(UploadedFileRepository.class)));
 
         useCase.delete(ownerId, item.getId());
 
@@ -241,7 +242,7 @@ class ManageMenuItemUseCaseTest {
 
         ManageMenuItemUseCase useCase = new ManageMenuItemUseCase(
                 menuItemRepository, categoryRepository, new InMemoryMenuCompositionRepository(), restaurantRepository,
-                new ImageCleanup(mock(StorageService.class)));
+                new ImageCleanup(mock(StorageService.class), mock(UploadedFileRepository.class)));
 
         useCase.delete(ownerId, item.getId());
 
@@ -268,7 +269,7 @@ class ManageMenuItemUseCaseTest {
 
         ManageMenuItemUseCase useCase = new ManageMenuItemUseCase(
                 menuItemRepository, categoryRepository, new InMemoryMenuCompositionRepository(), restaurantRepository,
-                new ImageCleanup(mock(StorageService.class)));
+                new ImageCleanup(mock(StorageService.class), mock(UploadedFileRepository.class)));
 
         useCase.delete(ownerId, baseItem.getId());
 
@@ -296,7 +297,7 @@ class ManageMenuItemUseCaseTest {
 
         ManageMenuItemUseCase useCase = new ManageMenuItemUseCase(
                 menuItemRepository, categoryRepository, compositionRepository, restaurantRepository,
-                new ImageCleanup(mock(StorageService.class)));
+                new ImageCleanup(mock(StorageService.class), mock(UploadedFileRepository.class)));
 
         useCase.delete(ownerId, item.getId());
 

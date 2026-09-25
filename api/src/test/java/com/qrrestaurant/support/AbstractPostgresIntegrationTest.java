@@ -35,5 +35,7 @@ public abstract class AbstractPostgresIntegrationTest {
         registry.add("stripe.webhook-secret", () -> "whsec_test");
         registry.add("app.client-base-url", () -> "http://localhost:4300");
         registry.add("app.admin-base-url", () -> "http://localhost:4200");
+        // La plupart des tests s'appuient sur le jeu de données seedé (naia-burger).
+        registry.add("spring.flyway.placeholders.seed_demo_data", () -> "true");
     }
 }

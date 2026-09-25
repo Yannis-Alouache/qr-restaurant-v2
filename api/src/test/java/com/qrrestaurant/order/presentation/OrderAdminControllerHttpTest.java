@@ -1,5 +1,6 @@
 package com.qrrestaurant.order.presentation;
 
+import com.qrrestaurant.payment.domain.PaymentGateway;
 import com.qrrestaurant.auth.infrastructure.security.JwtService;
 import com.qrrestaurant.support.AbstractPostgresIntegrationTest;
 import com.qrrestaurant.support.TestAuthCookies;
@@ -7,6 +8,7 @@ import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
@@ -14,8 +16,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.math.BigDecimal;
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -30,6 +34,11 @@ class OrderAdminControllerHttpTest extends AbstractPostgresIntegrationTest {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    // Le remboursement HTTP est testé jusqu'au use case : l'appel Stripe
+    // réseau reste mocké (clés de test dummy).
+    @MockBean
+    private PaymentGateway paymentGateway;
 
     @Test
     void shouldExposeTableNumberInAdminOrders() throws Exception {
@@ -89,6 +98,51 @@ class OrderAdminControllerHttpTest extends AbstractPostgresIntegrationTest {
                                 """))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.message").value("Paiement non confirmé pour cette commande"));
+    }
+
+    @Test
+    void shouldRefundAPaidOrderOnTheAdminBoundary() throws Exception {
+        UUID orderId = UUID.randomUUID();
+        jdbcTemplate.update(
+                """
+                INSERT INTO order_table (id, restaurant_id, table_id, status, total, payment_transaction_id, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, NOW())
+                """,
+                orderId,
+                RESTAURANT_ID,
+                TABLE_1_ID,
+                "nouvelle",
+                new BigDecimal("12.00"),
+                "pi_refund_test");
+
+        mockMvc.perform(post("/api/admin/orders/{id}/refund", orderId)
+                        .cookie(ownerBearerToken()))
+                .andExpect(status().isNoContent());
+
+        assertEquals("rembourse", jdbcTemplate.queryForObject(
+                "SELECT status FROM order_table WHERE id = ?",
+                String.class, orderId));
+    }
+
+    @Test
+    void shouldRejectARefundOnAnUnpaidOrder() throws Exception {
+        UUID orderId = UUID.randomUUID();
+        jdbcTemplate.update(
+                """
+                INSERT INTO order_table (id, restaurant_id, table_id, status, total, payment_transaction_id, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, NOW())
+                """,
+                orderId,
+                RESTAURANT_ID,
+                TABLE_1_ID,
+                "en_attente_paiement",
+                new BigDecimal("12.00"),
+                null);
+
+        mockMvc.perform(post("/api/admin/orders/{id}/refund", orderId)
+                        .cookie(ownerBearerToken()))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message").value("Remboursement impossible pour une commande en statut en_attente_paiement"));
     }
 
     private Cookie ownerBearerToken() {

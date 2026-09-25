@@ -67,6 +67,12 @@ public class RestaurantController {
             String address,
             String logoPath,
             @Pattern(regexp = RestaurantTheme.VALIDATION_PATTERN, message = "Thème invalide") String themeId,
+            // Sanity check de format : un vrai identifiant de compte Stripe
+            // connecté est toujours acct_... (ex. acct_seed_test en local) ;
+            // une valeur blanche est acceptée, elle déconnecte le paiement
+            // (normalisée en null par le domaine). Stripe rejette lui-même un
+            // compte inconnu au moment du checkout.
+            @Pattern(regexp = "^\\s*$|^acct_[A-Za-z0-9_]{6,}$", message = "Identifiant de compte Stripe invalide")
             String paymentProviderAccountId
     ) {}
 }

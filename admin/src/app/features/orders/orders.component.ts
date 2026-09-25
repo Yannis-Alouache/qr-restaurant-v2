@@ -5,6 +5,7 @@ import {
   STATUS_LABELS,
   NEXT_STATUS,
   STATUS_ORDER,
+  TERMINAL_STATUSES,
 } from '../../core/services/order.service';
 import { RestaurantService } from '../../core/services/restaurant.service';
 import { WebSocketService } from '../../core/services/websocket.service';
@@ -61,7 +62,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
   counts = computed(() => {
     const orders = this.orders();
     return {
-      active: orders.filter(o => o.status !== 'servie').length,
+      active: orders.filter(o => !TERMINAL_STATUSES.includes(o.status)).length,
       served: orders.filter(o => o.status === 'servie').length,
       all: orders.length,
       nouvelle: orders.filter(o => o.status === 'nouvelle').length,
@@ -73,7 +74,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
   filteredOrders = computed(() => {
     const f = this.filter();
     const list = this.orders().filter(o => {
-      if (f === 'active') return o.status !== 'servie';
+      if (f === 'active') return !TERMINAL_STATUSES.includes(o.status);
       if (f === 'served') return o.status === 'servie';
       return true;
     });

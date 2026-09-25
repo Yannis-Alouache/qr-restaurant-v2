@@ -11,4 +11,10 @@ public class DeterministicPaymentGateway implements PaymentGateway {
         return "https://checkout.test/session/%s?amount=%s&account=%s"
                 .formatted(orderId, amount.toPlainString(), destinationAccountId);
     }
+
+    @Override
+    public void refundPayment(String paymentIntentId) {
+        // Fake déterministe : rien à rembourser côté Stripe, le use case
+        // marque la commande remboursée.
+    }
 }

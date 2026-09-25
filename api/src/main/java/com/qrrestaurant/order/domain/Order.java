@@ -63,6 +63,25 @@ public class Order {
         }
     }
 
+    /**
+     * Vérifie que la commande peut être remboursée : il faut un paiement
+     * réellement confirmé (identifiant Stripe présent) et un statut qui le
+     * reflète — payée (nouvelle) ou déjà servie (gestion commerciale).
+     */
+    public void assertRefundable() {
+        if (paymentTransactionId == null || paymentTransactionId.isBlank()) {
+            throw new RefundUnavailableException(status);
+        }
+        if (status != OrderStatus.nouvelle && status != OrderStatus.servie) {
+            throw new RefundUnavailableException(status);
+        }
+    }
+
+    /** Marque la commande remboursée, après appel effectif au gateway. */
+    public void markRefunded() {
+        transitionTo(OrderStatus.rembourse);
+    }
+
     public void markCheckoutSessionCreated() {
         if (status == OrderStatus.paiement_echoue) {
             transitionTo(OrderStatus.en_attente_paiement);
@@ -120,6 +139,12 @@ public class Order {
     public static class UnpaidOrderStatusUpdateException extends RuntimeException {
         public UnpaidOrderStatusUpdateException() {
             super("Paiement non confirmé pour cette commande");
+        }
+    }
+
+    public static class RefundUnavailableException extends RuntimeException {
+        public RefundUnavailableException(OrderStatus status) {
+            super("Remboursement impossible pour une commande en statut " + status);
         }
     }
 }

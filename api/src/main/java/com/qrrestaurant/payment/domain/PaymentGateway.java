@@ -8,8 +8,20 @@ public interface PaymentGateway {
                                   String destinationAccountId,
                                   String successUrl, String cancelUrl);
 
+    /**
+     * Rembourse intégralement le paiement associé (et annule le transfert
+     * Connect correspondant).
+     */
+    void refundPayment(String paymentIntentId);
+
     class CheckoutSessionCreationException extends RuntimeException {
         public CheckoutSessionCreationException(String message, Throwable cause) {
+            super(message, cause);
+        }
+    }
+
+    class RefundException extends RuntimeException {
+        public RefundException(String message, Throwable cause) {
             super(message, cause);
         }
     }

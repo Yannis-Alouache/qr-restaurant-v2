@@ -66,7 +66,7 @@ API_PID="$(start_if_missing \
   "http://localhost:8080/api/public/menu/naia-burger" \
   "api" \
   "$API_LOG" \
-  env STRIPE_SECRET_KEY=sk_test_dummy STRIPE_PUBLIC_KEY=pk_test_dummy STRIPE_WEBHOOK_SECRET=whsec_test mvn -q spring-boot:run)"
+  env STRIPE_SECRET_KEY=sk_test_dummy STRIPE_PUBLIC_KEY=pk_test_dummy STRIPE_WEBHOOK_SECRET=whsec_test SEED_DEMO_DATA=true mvn -q spring-boot:run)"
 
 CLIENT_PID="$(start_if_missing \
   "http://localhost:4300/menu/naia-burger/c0eebc99-9c0b-4ef8-bb6d-6bb9bd380a01" \

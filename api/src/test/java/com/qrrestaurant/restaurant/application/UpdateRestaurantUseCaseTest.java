@@ -4,6 +4,7 @@ import com.qrrestaurant.restaurant.domain.Restaurant;
 import com.qrrestaurant.restaurant.infrastructure.persistence.restaurant.InMemoryRestaurantRepository;
 import com.qrrestaurant.shared.application.ImageCleanup;
 import com.qrrestaurant.shared.domain.StorageService;
+import com.qrrestaurant.shared.domain.UploadedFileRepository;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
@@ -51,7 +52,7 @@ class UpdateRestaurantUseCaseTest {
         InMemoryRestaurantRepository restaurantRepository = new InMemoryRestaurantRepository();
         StorageService storage = mock(StorageService.class);
         UpdateRestaurantUseCase useCase = new UpdateRestaurantUseCase(
-                restaurantRepository, new ImageCleanup(storage), CLIENT_BASE_URL);
+                restaurantRepository, new ImageCleanup(storage, mock(UploadedFileRepository.class)), CLIENT_BASE_URL);
 
         UUID ownerId = UUID.randomUUID();
         restaurantRepository.save(Restaurant.from(
