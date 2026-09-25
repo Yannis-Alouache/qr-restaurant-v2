@@ -1,6 +1,7 @@
 package com.qrrestaurant.shared.application;
 
 import com.qrrestaurant.shared.domain.StorageService;
+import com.qrrestaurant.shared.domain.UploadedFileRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -11,7 +12,8 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
  * Nettoyage best-effort des images en stockage : supprime le fichier référencé
  * <strong>après</strong> validation de la transaction BDD (afterCommit) — ainsi un rollback
  * ne supprime jamais une image encore référencée, et une panne du stockage ne fait jamais
- * échouer l'opération métier (l'erreur est simplement logguée).
+ * échouer l'opération métier (l'erreur est simplement logguée). Le retrait libère
+ * aussi la ligne de suivi du quota ({@code uploaded_file}).
  */
 @Component
 public class ImageCleanup {
@@ -19,9 +21,11 @@ public class ImageCleanup {
     private static final Logger log = LoggerFactory.getLogger(ImageCleanup.class);
 
     private final StorageService storage;
+    private final UploadedFileRepository uploadedFileRepository;
 
-    public ImageCleanup(StorageService storage) {
+    public ImageCleanup(StorageService storage, UploadedFileRepository uploadedFileRepository) {
         this.storage = storage;
+        this.uploadedFileRepository = uploadedFileRepository;
     }
 
     public void delete(String reference) {
@@ -45,6 +49,14 @@ public class ImageCleanup {
             storage.delete(reference);
         } catch (RuntimeException exception) {
             log.warn("Image non supprimée du stockage (orpheline): {}", reference, exception);
+            return;
+        }
+        try {
+            // La clé est le dernier segment : /api/images/<bucket>/<key> — les
+            // clés sont sanitizées à l'upload et ne contiennent pas de "/".
+            uploadedFileRepository.deleteByKey(reference.substring(reference.lastIndexOf('/') + 1));
+        } catch (RuntimeException exception) {
+            log.warn("Suivi de quota non retiré pour {}: {}", reference, exception.getMessage());
         }
     }
 }

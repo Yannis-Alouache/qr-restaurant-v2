@@ -65,6 +65,9 @@ export class ConfirmationPageComponent implements OnInit {
     if (status === 'paiement_echoue') {
       return 'Paiement non finalisé';
     }
+    if (status === 'rembourse') {
+      return 'Commande remboursée';
+    }
     return 'Commande confirmée !';
   }
 
@@ -75,6 +78,9 @@ export class ConfirmationPageComponent implements OnInit {
     }
     if (status === 'paiement_echoue') {
       return 'Le paiement a échoué ou a expiré. Retournez au menu pour relancer le paiement.';
+    }
+    if (status === 'rembourse') {
+      return 'Le restaurant a annulé votre commande : le remboursement a été envoyé.';
     }
     return 'Votre commande a été enregistrée avec succès';
   }

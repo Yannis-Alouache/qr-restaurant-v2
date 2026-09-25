@@ -36,6 +36,8 @@ Copiez `.env.example` vers `.env` et adaptez si besoin.
 | `SEAWEEDFS_ACCESS_KEY` | selon usage images | clé S3 SeaweedFS | `any` |
 | `SEAWEEDFS_SECRET_KEY` | selon usage images | secret S3 SeaweedFS | `any` |
 | `JWT_SECRET` | oui | signature JWT | voir `.env.example` |
+| `JWT_COOKIE_SECURE` | non | cookie `Secure` (HTTPS uniquement) — `true` par défaut en profil `prod`, refus de démarrer sans `JWT_SECRET` fort | `false` en local |
+| `SEED_DEMO_DATA` | non | active le jeu de données de démo (V2) à la migration | `true` en local, voir ci-dessous |
 | `CLIENT_BASE_URL` | oui | URL publique client | `http://localhost:4300` |
 | `ADMIN_BASE_URL` | oui | URL publique admin | `http://localhost:4200` |
 
@@ -65,7 +67,9 @@ En local, les proxies Angular redirigent `/api` et `/ws` vers `http://localhost:
 
 ### Démo locale seedée
 
-Après migration complète, le compte seed local est :
+Le seed de démonstration (migration V2) est **désactivé par défaut** : une base vierge migrée en production ne contient aucun compte de démo. Il ne s'applique que si `SEED_DEMO_DATA=true` (placeholder Flyway `seed_demo_data`) — c'est le cas du `.env` local et de la CI e2e.
+
+Avec le seed actif, le compte de démo est :
 
 - email : `owner@test.com`
 - mot de passe : `Secret123!`
@@ -85,6 +89,12 @@ Après migration complète, le compte seed local est :
 - la commande n'est autorisee que si `APP_ENV=local` dans votre `.env`
 - la commande refuse de s’exécuter en CI
 - au lancement, une confirmation interactive `oui / non` est demandée avant de vider la base
+
+### Santé, logs et image Docker
+
+- santé : `GET /actuator/health` (public, status only) — utilisé par le `HEALTHCHECK` de l'image ;
+- logs : console horodatée (`logback-spring.xml`), une ligne INFO par requête `/api/**` (`RequestLoggingFilter`, images servies en DEBUG) ;
+- image : `docker build -t qr-restaurant-api ./api` (multi-stage Maven → JRE 21, utilisateur non-root, healthcheck intégré).
 
 ## Ce qui est prouvé automatiquement
 

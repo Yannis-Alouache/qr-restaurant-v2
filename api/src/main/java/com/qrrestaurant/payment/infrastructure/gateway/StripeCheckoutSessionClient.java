@@ -5,5 +5,5 @@ import com.stripe.param.checkout.SessionCreateParams;
 
 public interface StripeCheckoutSessionClient {
 
-    String createCheckoutSessionUrl(SessionCreateParams params) throws StripeException;
+    String createCheckoutSessionUrl(SessionCreateParams params, String idempotencyKey) throws StripeException;
 }

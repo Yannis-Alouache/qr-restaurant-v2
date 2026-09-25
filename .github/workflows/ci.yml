@@ -66,3 +66,7 @@ jobs:
         run: docker compose -f docker/docker-compose.yml up -d postgres
       - name: Run browser e2e
         run: npm run test:e2e
+        env:
+          # Le seed de démo est désactivé par défaut (V2 gated) : les scénarios
+          # e2e naviguent sur naia-burger, il doit donc être actif ici.
+          SEED_DEMO_DATA: "true"
