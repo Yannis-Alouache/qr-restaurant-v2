@@ -19,10 +19,10 @@ class UpdateRestaurantUseCaseTest {
 
     @Test
     void shouldDeletePreviousLogoWhenLogoIsReplaced() {
-        var ctx = setup("/api/images/logos/old.png");
+        var ctx = setup("/api/images/logos/old.png", null);
         String newLogo = "/api/images/logos/new.png";
 
-        ctx.useCase.execute(ctx.ownerId, "Bistro", null, newLogo, null, null);
+        ctx.useCase.execute(ctx.ownerId, "Bistro", null, newLogo, null, null, null);
 
         verify(ctx.storage).delete("/api/images/logos/old.png");
         verify(ctx.storage, never()).delete(newLogo);
@@ -30,10 +30,10 @@ class UpdateRestaurantUseCaseTest {
 
     @Test
     void shouldDeleteLogoWhenRemovedViaBlankValue() {
-        var ctx = setup("/api/images/logos/old.png");
+        var ctx = setup("/api/images/logos/old.png", null);
 
         // Le front admin envoie logoPath="" pour supprimer le logo.
-        ctx.useCase.execute(ctx.ownerId, "Bistro", null, "", null, null);
+        ctx.useCase.execute(ctx.ownerId, "Bistro", null, "", null, null, null);
 
         verify(ctx.storage).delete("/api/images/logos/old.png");
     }
@@ -41,14 +41,35 @@ class UpdateRestaurantUseCaseTest {
     @Test
     void shouldNotTouchStorageWhenLogoIsUnchanged() {
         String logo = "/api/images/logos/keep.png";
-        var ctx = setup(logo);
+        var ctx = setup(logo, null);
 
-        ctx.useCase.execute(ctx.ownerId, "Bistro Renommé", null, null, null, null);
+        ctx.useCase.execute(ctx.ownerId, "Bistro Renommé", null, null, null, null, null);
 
         verify(ctx.storage, never()).delete(logo);
     }
 
-    private Context setup(String logoPath) {
+    @Test
+    void shouldDeletePreviousCoverWhenCoverIsReplaced() {
+        var ctx = setup(null, "/api/images/covers/old.png");
+        String newCover = "/api/images/covers/new.png";
+
+        ctx.useCase.execute(ctx.ownerId, "Bistro", null, null, newCover, null, null);
+
+        verify(ctx.storage).delete("/api/images/covers/old.png");
+        verify(ctx.storage, never()).delete(newCover);
+    }
+
+    @Test
+    void shouldDeleteCoverWhenRemovedViaBlankValue() {
+        var ctx = setup(null, "/api/images/covers/old.png");
+
+        // Le front admin envoie coverPath="" pour supprimer la bannière.
+        ctx.useCase.execute(ctx.ownerId, "Bistro", null, null, "", null, null);
+
+        verify(ctx.storage).delete("/api/images/covers/old.png");
+    }
+
+    private Context setup(String logoPath, String coverPath) {
         InMemoryRestaurantRepository restaurantRepository = new InMemoryRestaurantRepository();
         StorageService storage = mock(StorageService.class);
         UpdateRestaurantUseCase useCase = new UpdateRestaurantUseCase(
@@ -56,7 +77,7 @@ class UpdateRestaurantUseCaseTest {
 
         UUID ownerId = UUID.randomUUID();
         restaurantRepository.save(Restaurant.from(
-                UUID.randomUUID(), ownerId, "Bistro", "bistro", null, logoPath, "chaud", null, null));
+                UUID.randomUUID(), ownerId, "Bistro", "bistro", null, logoPath, coverPath, "chaud", null, null));
 
         Context ctx = new Context();
         ctx.ownerId = ownerId;

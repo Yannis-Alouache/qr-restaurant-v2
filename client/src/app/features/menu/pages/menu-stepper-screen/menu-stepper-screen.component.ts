@@ -12,11 +12,11 @@ import { CategoryCarouselComponent } from '../../../../shared/components/categor
 import { ConfirmToastComponent } from '../../../../shared/components/confirm-toast/confirm-toast.component';
 import { PricePipe } from '../../../../shared/pipes/price.pipe';
 import {
-  categoryCover,
   categoryFallbackColor,
   compositionsOf,
   menuEligibleItems,
   menuVariantOf,
+  restaurantCover,
 } from '../../utils/menu-utils';
 
 interface StepEntry {
@@ -72,12 +72,8 @@ export class MenuStepperScreenComponent implements OnInit {
   private readonly initialCategoryId = this.route.snapshot.paramMap.get('categoryId') ?? '';
 
   readonly coverPath = computed(() => {
-    const categories = this.menu()?.categories ?? [];
-    for (const category of categories) {
-      const cover = categoryCover(category);
-      if (cover) return cover;
-    }
-    return null;
+    const menu = this.menu();
+    return menu ? restaurantCover(menu) : null;
   });
 
   /** Items proposés à l'étape courante. */

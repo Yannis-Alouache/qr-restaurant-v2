@@ -84,7 +84,7 @@ public class GetMenuUseCase {
     private MenuView.RestaurantInfo toRestaurantInfo(Restaurant r) {
         return new MenuView.RestaurantInfo(
                 r.getId(), r.getName(), r.getSlug(),
-                r.getAddress(), r.getLogoPath(), r.getThemeId()
+                r.getAddress(), r.getLogoPath(), r.getCoverPath(), r.getThemeId()
         );
     }
 

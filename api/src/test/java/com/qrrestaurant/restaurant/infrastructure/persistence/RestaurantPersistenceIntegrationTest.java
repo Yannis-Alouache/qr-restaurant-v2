@@ -39,7 +39,7 @@ class RestaurantPersistenceIntegrationTest extends AbstractPostgresIntegrationTe
                 "encoded-password");
 
         Restaurant restaurant = Restaurant.from(null, ownerId, "Bistro Verde", "bistro-verde",
-                "10 rue des Jardins", null, "classique", "acct_bistro_verde", null);
+                "10 rue des Jardins", null, null, "classique", "acct_bistro_verde", null);
         Restaurant savedRestaurant = restaurantRepository.save(restaurant);
 
         restaurantTableRepository.save(RestaurantTable.create(savedRestaurant.getId(), 8));

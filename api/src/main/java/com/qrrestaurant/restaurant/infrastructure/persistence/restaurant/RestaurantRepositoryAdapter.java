@@ -46,7 +46,7 @@ public class RestaurantRepositoryAdapter implements RestaurantRepository {
     private Restaurant toDomain(RestaurantJpaEntity e) {
         return Restaurant.from(
                 e.getId(), e.getUserId(), e.getName(), e.getSlug(),
-                e.getAddress(), e.getLogoPath(), e.getThemeId(),
+                e.getAddress(), e.getLogoPath(), e.getCoverPath(), e.getThemeId(),
                 e.getPaymentProviderAccountId(), e.getCreatedAt()
         );
     }
@@ -59,6 +59,7 @@ public class RestaurantRepositoryAdapter implements RestaurantRepository {
         e.setSlug(d.getSlug());
         e.setAddress(d.getAddress());
         e.setLogoPath(d.getLogoPath());
+        e.setCoverPath(d.getCoverPath());
         e.setThemeId(d.getThemeId());
         e.setPaymentProviderAccountId(d.getPaymentProviderAccountId());
         return e;

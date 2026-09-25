@@ -21,7 +21,7 @@ import java.util.UUID;
 @RestController
 public class ImageController {
 
-    private static final Set<String> SUPPORTED_BUCKETS = Set.of("logos", "category-images", "menu-images");
+    private static final Set<String> SUPPORTED_BUCKETS = Set.of("logos", "covers", "category-images", "menu-images");
     private static final CacheControl IMAGE_CACHE_CONTROL = CacheControl.maxAge(Duration.ofDays(30)).cachePublic();
 
     private final StorageService storageService;
