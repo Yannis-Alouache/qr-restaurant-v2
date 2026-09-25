@@ -24,6 +24,13 @@ spring:
     baseline-on-migrate: false
     baseline-version: 4
     baseline-description: legacy-safe-baseline
+    clean-disabled: true
+    # Le seed de démo (V2) n'insère ses données que si ce placeholder vaut
+    # "true" — activé explicitement en local via SEED_DEMO_DATA=true dans .env
+    # (et forcé dans les tests). Défaut false : une base de prod vierge reste
+    # vierge de tout compte de démo.
+    placeholders:
+      seed_demo_data: ${SEED_DEMO_DATA:false}
 
   servlet:
     multipart:

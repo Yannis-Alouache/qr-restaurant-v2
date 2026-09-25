@@ -36,6 +36,7 @@ Copiez `.env.example` vers `.env` et adaptez si besoin.
 | `SEAWEEDFS_ACCESS_KEY` | selon usage images | clé S3 SeaweedFS | `any` |
 | `SEAWEEDFS_SECRET_KEY` | selon usage images | secret S3 SeaweedFS | `any` |
 | `JWT_SECRET` | oui | signature JWT | voir `.env.example` |
+| `SEED_DEMO_DATA` | non | active le jeu de données de démo (V2) à la migration | `true` en local, voir ci-dessous |
 | `CLIENT_BASE_URL` | oui | URL publique client | `http://localhost:4300` |
 | `ADMIN_BASE_URL` | oui | URL publique admin | `http://localhost:4200` |
 
@@ -65,7 +66,9 @@ En local, les proxies Angular redirigent `/api` et `/ws` vers `http://localhost:
 
 ### Démo locale seedée
 
-Après migration complète, le compte seed local est :
+Le seed de démonstration (migration V2) est **désactivé par défaut** : une base vierge migrée en production ne contient aucun compte de démo. Il ne s'applique que si `SEED_DEMO_DATA=true` (placeholder Flyway `seed_demo_data`) — c'est le cas du `.env` local et de la CI e2e.
+
+Avec le seed actif, le compte de démo est :
 
 - email : `owner@test.com`
 - mot de passe : `Secret123!`

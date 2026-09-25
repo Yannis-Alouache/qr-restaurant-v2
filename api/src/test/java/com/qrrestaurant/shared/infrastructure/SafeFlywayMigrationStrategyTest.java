@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
-import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.testcontainers.containers.PostgreSQLContainer;
 
 import javax.sql.DataSource;
@@ -66,7 +65,29 @@ class SafeFlywayMigrationStrategyTest {
     }
 
     @Test
-    void shouldBaselineACompleteLegacySchemaAndThenApplyTheMissingRepairMigrations() {
+    void shouldInsertNoSeedDataWhenTheDemoSeedPlaceholderIsDisabled() {
+        Flyway flyway = Flyway.configure()
+                .dataSource(dataSource)
+                .locations("classpath:db/migration")
+                .baselineVersion("4")
+                .baselineDescription("legacy-safe-baseline")
+                .placeholders(java.util.Map.of("seed_demo_data", "false"))
+                .load();
+
+        new SafeFlywayMigrationStrategy(dataSource).migrate(flyway);
+
+        // Configuration par défaut (SEED_DEMO_DATA absent) : aucune donnée de
+        // démo, en particulier aucun compte owner@test.com, même sur une base vierge.
+        assertEquals(0, jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM app_user", Integer.class));
+        assertEquals(0, jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM restaurant", Integer.class));
+        assertEquals(0, jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM menu_item", Integer.class));
+    }
+
+    @Test
+    void shouldBaselineACompleteLegacySchemaAndThenApplyTheMissingRepairMigrations() throws Exception {
         executeMigrationScript("db/migration/V1__create_initial_schema.sql");
         executeMigrationScript("db/migration/V2__seed_test_data.sql");
 
@@ -107,6 +128,7 @@ class SafeFlywayMigrationStrategyTest {
                 .locations("filesystem:" + upToDateMigrations)
                 .baselineVersion("4")
                 .baselineDescription("legacy-safe-baseline")
+                .placeholders(java.util.Map.of("seed_demo_data", "true"))
                 .load()
                 .migrate();
 
@@ -154,6 +176,7 @@ class SafeFlywayMigrationStrategyTest {
                 .locations("filesystem:" + legacyMigrations)
                 .baselineVersion("4")
                 .baselineDescription("legacy-safe-baseline")
+                .placeholders(java.util.Map.of("seed_demo_data", "true"))
                 .load();
         legacyFlyway.migrate();
 
@@ -182,11 +205,20 @@ class SafeFlywayMigrationStrategyTest {
                 .locations("classpath:db/migration")
                 .baselineVersion("4")
                 .baselineDescription("legacy-safe-baseline")
+                .placeholders(java.util.Map.of("seed_demo_data", "true"))
                 .load();
     }
 
-    private void executeMigrationScript(String path) {
-        new ResourceDatabasePopulator(new ClassPathResource(path)).execute(dataSource);
+    private void executeMigrationScript(String path) throws SQLException, IOException {
+        // La migration V2 est gatee par le placeholder Flyway seed_demo_data ;
+        // hors Flyway, on le substitue manuellement pour simuler un seed actif.
+        String sql = new ClassPathResource(path).getContentAsString(java.nio.charset.StandardCharsets.UTF_8)
+                .replace("${seed_demo_data}", "true");
+        try (Connection connection = dataSource.getConnection()) {
+            org.springframework.jdbc.datasource.init.ScriptUtils.executeSqlScript(
+                    connection, new org.springframework.core.io.ByteArrayResource(
+                            sql.getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+        }
     }
 
     private void copyMigration(Path targetDirectory, String fileName) throws IOException {
