@@ -36,6 +36,7 @@ Copiez `.env.example` vers `.env` et adaptez si besoin.
 | `SEAWEEDFS_ACCESS_KEY` | selon usage images | clé S3 SeaweedFS | `any` |
 | `SEAWEEDFS_SECRET_KEY` | selon usage images | secret S3 SeaweedFS | `any` |
 | `JWT_SECRET` | oui | signature JWT | voir `.env.example` |
+| `JWT_COOKIE_SECURE` | non | cookie `Secure` (HTTPS uniquement) — `true` par défaut en profil `prod`, refus de démarrer sans `JWT_SECRET` fort | `false` en local |
 | `SEED_DEMO_DATA` | non | active le jeu de données de démo (V2) à la migration | `true` en local, voir ci-dessous |
 | `CLIENT_BASE_URL` | oui | URL publique client | `http://localhost:4300` |
 | `ADMIN_BASE_URL` | oui | URL publique admin | `http://localhost:4200` |

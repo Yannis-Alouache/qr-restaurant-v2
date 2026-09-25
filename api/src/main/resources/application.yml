@@ -73,4 +73,9 @@ app:
   cors:
     extra-origin-patterns: ${CORS_EXTRA_ORIGIN_PATTERNS:}
 jwt:
+  # Pas de valeur par défaut en prod : sans JWT_SECRET, le démarrage échoue
+  # (fail-fast) au lieu de signer les tokens avec le secret de dev committed.
+  secret: ${JWT_SECRET}
   expiration: 604800000 # 7 jours en production
+  cookie:
+    secure: ${JWT_COOKIE_SECURE:true} # HTTPS uniquement par défaut en prod
