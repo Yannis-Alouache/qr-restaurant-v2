@@ -44,7 +44,9 @@ export class OrderStatusRealtimeService {
   }
 
   protected createSocket() {
-    return new SockJS('/ws');
+    // withCredentials : sans effet en dev (proxy same-origin), mais requis en
+    // prod cross-origin si l'utilisateur a un cookie JWT valide.
+    return new SockJS('/ws', undefined, { withCredentials: true });
   }
 
   protected createClient(config: StompConfig): Client {
