@@ -49,7 +49,9 @@ export class WebSocketService {
   protected createSocket() {
     // withCredentials : le cookie JWT doit accompagner le handshake pour que
     // le serveur autorise la souscription au topic du restaurant (prod cross-origin).
-    return new SockJS('/ws', undefined, { withCredentials: true });
+    // @types/sockjs-client omet withCredentials bien qu'il soit supporté au runtime.
+    const options: SockJS.Options & { withCredentials?: boolean } = { withCredentials: true };
+    return new SockJS('/ws', undefined, options);
   }
 
   protected createClient(config: StompConfig): Client {
