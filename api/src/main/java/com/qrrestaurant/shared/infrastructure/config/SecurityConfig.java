@@ -49,6 +49,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/webhooks/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/images/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/actuator/health", "/actuator/health/**").permitAll()
                 // permitAll nécessaire : le handshake doit rester accessible aux
                 // invités (suivi de commande sans compte). L'autorisation réelle
                 // se fait au niveau STOMP, par souscription — cf. WebSocketConfig

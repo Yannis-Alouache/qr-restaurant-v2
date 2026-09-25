@@ -90,6 +90,12 @@ Avec le seed actif, le compte de démo est :
 - la commande refuse de s’exécuter en CI
 - au lancement, une confirmation interactive `oui / non` est demandée avant de vider la base
 
+### Santé, logs et image Docker
+
+- santé : `GET /actuator/health` (public, status only) — utilisé par le `HEALTHCHECK` de l'image ;
+- logs : console horodatée (`logback-spring.xml`), une ligne INFO par requête `/api/**` (`RequestLoggingFilter`, images servies en DEBUG) ;
+- image : `docker build -t qr-restaurant-api ./api` (multi-stage Maven → JRE 21, utilisateur non-root, healthcheck intégré).
+
 ## Ce qui est prouvé automatiquement
 
 ### Flyway
