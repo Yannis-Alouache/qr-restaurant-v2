@@ -47,6 +47,11 @@ stripe:
 storage:
   seaweedfs:
     s3-endpoint: ${SEAWEEDFS_S3_ENDPOINT:http://localhost:8333}
+  upload:
+    # Limite par fichier (au-delà de la limite multipart servlet globale de 10 Mo)
+    max-file-size-bytes: 5242880 # 5 Mo
+    # Quota cumulé par compte restaurateur
+    quota-bytes-by-owner: 104857600 # 100 Mo
 
 jwt:
   secret: ${JWT_SECRET:dGhpcy1pcy1hLWRldmVsb3BtZW50LWp3dC1zZWNyZXQta2V5LWZvci1xci1yZXN0YXVyYW50LXYy}

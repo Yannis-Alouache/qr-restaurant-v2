@@ -89,10 +89,19 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({
             CreateCheckoutSessionUseCase.InvalidOrderException.class,
-            OrderPricingPolicy.ItemRestaurantMismatchException.class
+            OrderPricingPolicy.ItemRestaurantMismatchException.class,
+            com.qrrestaurant.shared.domain.ImageFileValidator.NoOwnedRestaurantException.class
     })
     public ResponseEntity<ApiErrorResponse> handleForbidden(RuntimeException ex) {
         return respond(HttpStatus.FORBIDDEN, ex.getMessage());
+    }
+
+    @ExceptionHandler({
+            com.qrrestaurant.shared.domain.ImageFileValidator.FileSizeExceededException.class,
+            com.qrrestaurant.shared.domain.ImageFileValidator.ImageQuotaExceededException.class
+    })
+    public ResponseEntity<ApiErrorResponse> handlePayloadTooLarge(RuntimeException ex) {
+        return respond(HttpStatus.PAYLOAD_TOO_LARGE, ex.getMessage());
     }
 
     @ExceptionHandler({

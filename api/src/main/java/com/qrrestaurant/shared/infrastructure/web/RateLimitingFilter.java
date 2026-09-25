@@ -30,7 +30,8 @@ public class RateLimitingFilter extends OncePerRequestFilter {
             new Rule("POST", "/api/auth/", 20),
             new Rule("POST", "/api/public/orders", 30),
             new Rule("POST", "/api/public/payments/checkout", 20),
-            new Rule("POST", "/api/webhooks/stripe", 60)
+            new Rule("POST", "/api/webhooks/stripe", 60),
+            new Rule("POST", "/api/admin/images/", 30)
     );
 
     private final Map<String, CounterWindow> counters = new ConcurrentHashMap<>();
