@@ -25,7 +25,7 @@ class SafeFlywayMigrationStrategyTest {
 
     private static final String DEMO_OWNER_PASSWORD_HASH = "$2b$10$x5Gp0EfduzLpOIOxh2QfKewhZuj7bAEGjcQSuQCMk9DqtQQKqVPCa";
 
-    private static final String LATEST_MIGRATION_VERSION = "10";
+    private static final String LATEST_MIGRATION_VERSION = "11";
 
     private static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>("postgres:16-alpine");
 

@@ -38,4 +38,7 @@ public class UserJpaEntity {
     public void setPassword(String password) { this.password = password; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
+
+    /** Alimenté par l'adaptateur au merge d'une entité existante ; @PrePersist couvre la création. */
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }

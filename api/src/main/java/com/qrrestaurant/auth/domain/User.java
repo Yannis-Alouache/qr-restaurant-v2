@@ -28,6 +28,11 @@ public class User {
         return new User(id, email, password, createdAt);
     }
 
+    public User withPassword(String newPassword) {
+        Objects.requireNonNull(newPassword, "newPassword");
+        return new User(id, email, newPassword, createdAt);
+    }
+
     public UUID getId() { return id; }
     public String getEmail() { return email; }
     public String getPassword() { return password; }

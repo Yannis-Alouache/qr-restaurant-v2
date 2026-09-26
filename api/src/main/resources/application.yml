@@ -36,6 +36,30 @@ spring:
       max-file-size: 10MB
       max-request-size: 10MB
 
+  mail:
+    # Défaut local = Mailpit du docker-compose (docker/mailpit: UI sur :8025).
+    # En prod, MAIL_HOST est obligatoire (voir profil prod ci-dessous).
+    host: ${MAIL_HOST:localhost}
+    port: ${MAIL_PORT:1025}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        # Identités EHLO et domaine du Message-ID fixées : sans elles, Jakarta
+        # Mail résout le hostname de la machine par DNS à CHAQUE envoi, ce qui
+        # coûte 10-20 s sur les postes dont la résolution traîne (Windows).
+        host: ${MAIL_SMTP_EHLO_NAME:qr-restaurant-api}
+        smtp:
+          localhost: ${MAIL_SMTP_EHLO_NAME:qr-restaurant-api}
+          # Échouer vite plutôt que laisser le thread requête bloqué des minutes
+          # sur un SMTP injoignable.
+          connectiontimeout: 5000
+          timeout: 15000
+          writetimeout: 5000
+          auth: ${MAIL_SMTP_AUTH:false}
+          starttls:
+            enable: ${MAIL_SMTP_STARTTLS:false}
+
 management:
   endpoints:
     web:
@@ -80,6 +104,15 @@ jwt:
 app:
   client-base-url: ${CLIENT_BASE_URL:http://localhost:4300}
   admin-base-url: ${ADMIN_BASE_URL:http://localhost:4200}
+  mail:
+    from: ${MAIL_FROM:QR Restaurant <no-reply@qr-restaurant.local>}
+    # Développement sans SMTP joignable : journalise le lien de reset en cas
+    # d'échec d'envoi, pour pouvoir finir le parcours. Toujours false en prod
+    # (un lien dans des logs = détournement de compte possible).
+    log-reset-links-on-failure: ${MAIL_LOG_RESET_LINKS:true}
+  password-reset:
+    # Durée de validité du lien reçu par email.
+    token-ttl-minutes: ${PASSWORD_RESET_TOKEN_TTL_MINUTES:60}
   cors:
     # Patterns d'origines additionnels (séparés par des virgules). Par défaut en dev :
     # les tunnels trycloudflare (sous-domaine aléatoire à chaque lancement) pour tester
@@ -91,7 +124,13 @@ spring:
   config:
     activate:
       on-profile: prod
+  mail:
+    # Pas de valeur par défaut en prod : sans SMTP configuré, le démarrage
+    # échoue (fail-fast) plutôt que de livrer un « mot de passe oublié » muet.
+    host: ${MAIL_HOST}
 app:
+  mail:
+    log-reset-links-on-failure: ${MAIL_LOG_RESET_LINKS:false}
   cors:
     extra-origin-patterns: ${CORS_EXTRA_ORIGIN_PATTERNS:}
 jwt:

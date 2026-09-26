@@ -28,6 +28,11 @@ public class UserRepositoryAdapter implements UserRepository {
     }
 
     @Override
+    public Optional<User> findById(java.util.UUID userId) {
+        return jpaRepo.findById(userId).map(this::toDomain);
+    }
+
+    @Override
     public boolean existsByEmail(String email) {
         return jpaRepo.existsByEmail(email);
     }
@@ -41,6 +46,9 @@ public class UserRepositoryAdapter implements UserRepository {
         e.setId(d.getId());
         e.setEmail(d.getEmail());
         e.setPassword(d.getPassword());
+        // Préservé lors du merge d'une entité existante (changement de mot de
+        // passe) : sans copie, created_at serait écrasé à null par l'UPDATE.
+        e.setCreatedAt(d.getCreatedAt());
         return e;
     }
 }

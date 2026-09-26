@@ -40,6 +40,10 @@ Copiez `.env.example` vers `.env` et adaptez si besoin.
 | `SEED_DEMO_DATA` | non | active le jeu de données de démo (V2) à la migration | `true` en local, voir ci-dessous |
 | `CLIENT_BASE_URL` | oui | URL publique client | `http://localhost:4300` |
 | `ADMIN_BASE_URL` | oui | URL publique admin | `http://localhost:4200` |
+| `MAIL_HOST` / `MAIL_PORT` | oui en prod | SMTP pour l'envoi des emails (réinitialisation de mot de passe) — refus de démarrer en prod sans `MAIL_HOST` | `localhost:1025` (Mailpit local) |
+| `MAIL_FROM` | non | expéditeur des emails | `QR Restaurant <no-reply@qr-restaurant.local>` |
+| `MAIL_LOG_RESET_LINKS` | non | en cas d'échec d'envoi, journalise le lien de reset (développement uniquement, `false` par défaut en prod) | `true` en local |
+| `PASSWORD_RESET_TOKEN_TTL_MINUTES` | non | validité du lien de réinitialisation | `60` |
 
 ## Démarrage local
 
@@ -47,8 +51,8 @@ Copiez `.env.example` vers `.env` et adaptez si besoin.
    - `cd admin && npm ci`
    - `cd client && npm ci`
    - `npm ci`
-2. Démarrer PostgreSQL et pgAdmin :
-   - `docker compose -f docker/docker-compose.yml up -d postgres pgadmin`
+2. Démarrer PostgreSQL, pgAdmin et Mailpit :
+   - `docker compose -f docker/docker-compose.yml up -d postgres pgadmin mailpit`
 3. Démarrer l’API :
    - `cd api && mvn spring-boot:run`
 4. Démarrer les frontends :
@@ -56,6 +60,10 @@ Copiez `.env.example` vers `.env` et adaptez si besoin.
    - `cd client && npm start`
 
 En local, les proxies Angular redirigent `/api` et `/ws` vers `http://localhost:8080`.
+
+### Emails en local (Mailpit)
+
+Les emails de réinitialisation de mot de passe sont capturés par Mailpit : la boîte est visible sur `http://localhost:8025` (SMTP d'écoute sur le port 1025, valeurs par défaut de `MAIL_HOST`/`MAIL_PORT`). Le bouton « Mot de passe oublié ? » de l'admin déclenche l'envoi ; le lien du mail pointe vers `ADMIN_BASE_URL/reset-password?token=…`, valable une heure, utilisable une seule fois.
 
 ### Explorer la base avec pgAdmin
 

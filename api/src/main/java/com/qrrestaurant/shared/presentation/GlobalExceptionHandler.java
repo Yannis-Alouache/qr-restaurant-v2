@@ -70,6 +70,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({
             PasswordPolicy.PasswordTooShortException.class,
+            com.qrrestaurant.auth.domain.InvalidResetTokenException.class,
             RestaurantTheme.InvalidThemeException.class,
             OrderPricingPolicy.InvalidQuantityException.class,
             OrderPricingPolicy.MenuItemsNotFoundException.class,

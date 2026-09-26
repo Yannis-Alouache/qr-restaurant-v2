@@ -20,6 +20,11 @@ export interface LoginRequest {
   password: string;
 }
 
+export interface ResetPasswordRequest {
+  token: string;
+  newPassword: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private http = inject(HttpClient);
@@ -46,6 +51,16 @@ export class AuthService {
     return this.http.post<AuthResponse>('/api/auth/login', data).pipe(
       tap(res => this.setAuthed(res.userId, data.email)),
     );
+  }
+
+  /** Demande l'envoi d'un lien de réinitialisation. La réponse ne révèle pas si le compte existe. */
+  requestPasswordReset(email: string): Observable<void> {
+    return this.http.post<void>('/api/auth/forgot-password', { email });
+  }
+
+  /** Consomme le jeton reçu par email pour poser un nouveau mot de passe. */
+  resetPassword(data: ResetPasswordRequest): Observable<void> {
+    return this.http.post<void>('/api/auth/reset-password', data);
   }
 
   /** Expires the server cookie, then clears local state regardless of the response. */
