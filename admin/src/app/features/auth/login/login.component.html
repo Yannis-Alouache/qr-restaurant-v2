@@ -61,7 +61,7 @@
   <form class="form-grid" [formGroup]="form" (ngSubmit)="submit()" novalidate>
     <div class="field">
       <label for="email">Adresse email</label>
-      <input id="email" class="input" type="email" formControlName="email"
+      <input id="email" class="input" type="email" formControlName="email" data-testid="login-email"
              placeholder="jean@restaurant.fr" autocomplete="email"
              [class.invalid]="form.controls.email.touched && form.controls.email.invalid" />
       @if (form.controls.email.touched && form.controls.email.invalid) {
@@ -72,7 +72,7 @@
     <div class="field">
       <label for="password">Mot de passe</label>
       <div class="password-control">
-        <input id="password" class="input"
+        <input id="password" class="input" data-testid="login-password"
                [type]="showPassword() ? 'text' : 'password'"
                formControlName="password" placeholder="Votre mot de passe" autocomplete="current-password"
                [class.invalid]="form.controls.password.touched && form.controls.password.invalid" />
@@ -92,10 +92,10 @@
     </div>
 
     <div class="form-options">
-      <a routerLink="/login">Mot de passe oublié ?</a>
+      <a routerLink="/forgot-password" data-testid="login-forgot-password">Mot de passe oublié ?</a>
     </div>
 
-    <button type="submit" class="btn-submit" [disabled]="loading()">
+    <button type="submit" class="btn-submit" [disabled]="loading()" data-testid="login-submit">
       @if (loading()) {
         <svg lucideLoaderCircle class="spin"></svg> Connexion…
       } @else {
