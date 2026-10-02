@@ -7,9 +7,9 @@ import { RestaurantHeaderComponent } from '../../../../shared/components/restaur
 import { CartBarComponent } from '../../../../shared/components/cart-bar/cart-bar.component';
 import { CartDrawerComponent } from '../../../../shared/components/cart-drawer/cart-drawer.component';
 import {
-  categoryCover,
   categoryFallbackColor,
   categoryHasMenus,
+  restaurantCover,
 } from '../../utils/menu-utils';
 
 type Filter = 'menu' | 'populaire';
@@ -34,14 +34,10 @@ export class CategoriesScreenComponent implements OnInit {
   activeFilter = signal<Filter>('menu');
   showCartDrawer = signal(false);
 
-  /** Photo de couverture du restaurant : première image de catégorie disponible. */
+  /** Bannière de couverture : image dédiée du restaurant, sinon première image de catégorie. */
   readonly coverPath = computed(() => {
-    const categories = this.menu()?.categories ?? [];
-    for (const category of categories) {
-      const cover = categoryCover(category);
-      if (cover) return cover;
-    }
-    return null;
+    const menu = this.menu();
+    return menu ? restaurantCover(menu) : null;
   });
 
   protected readonly slug = this.route.snapshot.paramMap.get('slug') ?? '';

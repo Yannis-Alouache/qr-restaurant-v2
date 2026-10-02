@@ -31,7 +31,7 @@ class WsSubscriptionSecurityInterceptorTest {
         restaurantId = UUID.randomUUID();
         ownerId = UUID.randomUUID();
         restaurantRepository.save(Restaurant.from(
-                restaurantId, ownerId, "Naia Burger", "naia-burger", null, null, "classique", null, null));
+                restaurantId, ownerId, "Naia Burger", "naia-burger", null, null, null, "classique", null, null));
     }
 
     @Test
@@ -50,7 +50,7 @@ class WsSubscriptionSecurityInterceptorTest {
     void authenticatedUserOwningAnotherRestaurantCannotSubscribe() {
         UUID otherUserId = UUID.randomUUID();
         restaurantRepository.save(Restaurant.from(
-                UUID.randomUUID(), otherUserId, "Autre", "autre", null, null, "classique", null, null));
+                UUID.randomUUID(), otherUserId, "Autre", "autre", null, null, null, "classique", null, null));
         Message<byte[]> message = subscribe("/topic/restaurants/" + restaurantId + WS_PATH, otherUserId);
         assertThrows(MessagingException.class, () -> interceptor.preSend(message, null));
     }

@@ -197,7 +197,7 @@ class CreateCheckoutSessionUseCaseIntegrationTest {
     }
 
     private com.qrrestaurant.restaurant.domain.Restaurant newRestaurant(UUID restaurantId, String slug, String accountId) {
-        return com.qrrestaurant.restaurant.domain.Restaurant.from(restaurantId, null, null, slug, null, null,
+        return com.qrrestaurant.restaurant.domain.Restaurant.from(restaurantId, null, null, slug, null, null, null,
                 "classique", accountId, null);
     }
 }

@@ -107,6 +107,6 @@ class ManageCompositionUseCaseTest {
     }
 
     private Restaurant restaurant(UUID ownerId, UUID restaurantId) {
-        return Restaurant.from(restaurantId, ownerId, null, "naia-burger", null, null, "classique", null, null);
+        return Restaurant.from(restaurantId, ownerId, null, "naia-burger", null, null, null, "classique", null, null);
     }
 }

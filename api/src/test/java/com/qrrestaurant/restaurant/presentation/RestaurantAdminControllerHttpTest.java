@@ -195,6 +195,44 @@ class RestaurantAdminControllerHttpTest extends AbstractPostgresIntegrationTest 
         assertThat(persistedLogoPath).isNull();
     }
 
+    @Test
+    void shouldPersistAndClearCoverPathFromRestaurantSettings() throws Exception {
+        String coverPath = "/api/images/covers/naia-banniere.png";
+
+        mockMvc.perform(put("/api/admin/restaurant")
+                        .cookie(bearerToken(OWNER_ID, "owner@test.com"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "coverPath": "%s"
+                                }
+                                """.formatted(coverPath)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.coverPath").value(coverPath));
+
+        mockMvc.perform(get("/api/admin/restaurant")
+                        .cookie(bearerToken(OWNER_ID, "owner@test.com")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.coverPath").value(coverPath));
+
+        mockMvc.perform(put("/api/admin/restaurant")
+                        .cookie(bearerToken(OWNER_ID, "owner@test.com"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "coverPath": "   "
+                                }
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.coverPath").isEmpty());
+
+        String persistedCoverPath = jdbcTemplate.queryForObject(
+                "SELECT cover_path FROM restaurant WHERE id = ?",
+                String.class,
+                RESTAURANT_ID);
+        assertThat(persistedCoverPath).isNull();
+    }
+
     private Cookie bearerToken(UUID userId, String email) {
         return TestAuthCookies.jwt(jwtService, userId, email);
     }

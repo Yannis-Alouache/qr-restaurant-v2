@@ -10,6 +10,7 @@ export interface RestaurantInfo {
   slug: string;
   address: string | null;
   logoPath: string | null;
+  coverPath: string | null;
   themeId: string;
 }
 

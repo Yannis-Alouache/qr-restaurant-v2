@@ -9,6 +9,7 @@ export interface Restaurant {
   slug: string;
   address: string | null;
   logoPath: string | null;
+  coverPath: string | null;
   themeId: string;
   paymentProviderAccountId: string | null;
   clientBaseUrl: string;
@@ -49,7 +50,7 @@ export class RestaurantService {
   }
 
   updateRestaurant(
-    data: Partial<Pick<Restaurant, 'name' | 'address' | 'logoPath' | 'themeId' | 'paymentProviderAccountId'>>,
+    data: Partial<Pick<Restaurant, 'name' | 'address' | 'logoPath' | 'coverPath' | 'themeId' | 'paymentProviderAccountId'>>,
   ): Observable<Restaurant> {
     return this.http.put<Restaurant>('/api/admin/restaurant', data).pipe(
       tap(r => this.restaurant.set(r))

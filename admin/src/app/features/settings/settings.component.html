@@ -44,6 +44,31 @@
         </div>
       </div>
 
+      <label class="logo-label">Bannière</label>
+      <div class="logo-row">
+        <div class="cover-current" [class.has-logo]="!!restaurant.restaurant()?.coverPath">
+          @if (restaurant.restaurant()?.coverPath; as cover) {
+            <img [src]="cover" alt="Bannière" />
+          } @else {
+            <svg lucideImage></svg>
+          }
+          @if (uploadingCover()) {
+            <span class="logo-loading"><svg lucideLoaderCircle class="spin"></svg></span>
+          }
+        </div>
+        <div class="logo-actions">
+          <label class="btn-upload">
+            <svg lucideUpload></svg>
+            <span>{{ restaurant.restaurant()?.coverPath ? 'Changer la bannière' : 'Importer une bannière' }}</span>
+            <input type="file" accept="image/png,image/jpeg,image/webp" (change)="onCoverUpload($event)" [disabled]="uploadingCover()" />
+          </label>
+          @if (restaurant.restaurant()?.coverPath) {
+            <button type="button" class="btn-remove-logo" (click)="removeCover()">Supprimer la bannière</button>
+          }
+        </div>
+      </div>
+      <p class="cover-hint">Photo affichée en grand format en haut du menu client (format paysage recommandé).</p>
+
       <button type="submit" class="btn-save" [class.saved]="saved()" [disabled]="loading()">
         @if (saved()) {
           <svg lucideCheck></svg> Enregistré

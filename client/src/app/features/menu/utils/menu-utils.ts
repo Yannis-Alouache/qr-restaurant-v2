@@ -1,4 +1,4 @@
-import { CategoryView, CompositionEntry, ItemView } from '../models/menu.model';
+import { CategoryView, CompositionEntry, ItemView, MenuView } from '../models/menu.model';
 
 /** Palette de couleurs de repli pour les catégories sans image (tokens maquette). */
 const CATEGORY_PALETTE = [
@@ -20,6 +20,16 @@ export function categoryCover(category: CategoryView): string | null {
   if (category.imagePath) return category.imagePath;
   const illustrated = category.items.find(item => item.imagePath);
   return illustrated?.imagePath ?? null;
+}
+
+/** Bannière du restaurant : celle configurée, sinon la première image de catégorie. */
+export function restaurantCover(menu: MenuView): string | null {
+  if (menu.restaurant.coverPath) return menu.restaurant.coverPath;
+  for (const category of menu.categories) {
+    const cover = categoryCover(category);
+    if (cover) return cover;
+  }
+  return null;
 }
 
 /** Items commandables seuls (ni variante menu, ni indisponible). */
