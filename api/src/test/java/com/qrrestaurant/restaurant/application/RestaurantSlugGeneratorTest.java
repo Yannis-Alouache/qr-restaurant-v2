@@ -39,6 +39,6 @@ class RestaurantSlugGeneratorTest {
     }
 
     private Restaurant restaurantWithSlug(String slug) {
-        return Restaurant.from(null, null, null, slug, null, null, "classique", null, null);
+        return Restaurant.from(null, null, null, slug, null, null, null, "classique", null, null);
     }
 }

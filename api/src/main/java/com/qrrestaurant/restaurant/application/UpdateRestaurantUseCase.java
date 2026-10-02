@@ -26,27 +26,29 @@ public class UpdateRestaurantUseCase {
     }
 
     public RestaurantView execute(UUID userId, String name, String address, String logoPath,
-                                  String themeId, String paymentProviderAccountId) {
+                                  String coverPath, String themeId, String paymentProviderAccountId) {
         Restaurant restaurant = restaurantRepository.findByUserId(userId)
                 .orElseThrow(GetRestaurantUseCase.NoRestaurantException::new);
 
         String previousLogo = restaurant.getLogoPath();
-        restaurant.update(name, address, logoPath, themeId, paymentProviderAccountId);
+        String previousCover = restaurant.getCoverPath();
+        restaurant.update(name, address, logoPath, coverPath, themeId, paymentProviderAccountId);
 
         Restaurant saved = restaurantRepository.save(restaurant);
-        cleanupLogoIfChanged(previousLogo, saved.getLogoPath());
+        cleanupImageIfChanged(previousLogo, saved.getLogoPath());
+        cleanupImageIfChanged(previousCover, saved.getCoverPath());
         return new RestaurantView(saved.getId().toString(), saved.getName(), saved.getSlug(),
-                saved.getAddress(), saved.getLogoPath(), saved.getThemeId(),
+                saved.getAddress(), saved.getLogoPath(), saved.getCoverPath(), saved.getThemeId(),
                 saved.getPaymentProviderAccountId(), clientBaseUrl);
     }
 
-    private void cleanupLogoIfChanged(String previousLogo, String currentLogo) {
-        if (previousLogo != null && !previousLogo.isBlank() && !previousLogo.equals(currentLogo)) {
-            imageCleanup.delete(previousLogo);
+    private void cleanupImageIfChanged(String previousPath, String currentPath) {
+        if (previousPath != null && !previousPath.isBlank() && !previousPath.equals(currentPath)) {
+            imageCleanup.delete(previousPath);
         }
     }
 
     public record RestaurantView(String id, String name, String slug, String address,
-                                   String logoPath, String themeId, String paymentProviderAccountId,
+                                   String logoPath, String coverPath, String themeId, String paymentProviderAccountId,
                                    String clientBaseUrl) {}
 }

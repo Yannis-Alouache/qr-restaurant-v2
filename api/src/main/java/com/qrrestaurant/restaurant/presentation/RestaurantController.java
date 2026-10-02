@@ -50,7 +50,7 @@ public class RestaurantController {
             Authentication auth, @Valid @RequestBody UpdateRestaurantRequest request) {
         return ResponseEntity.ok(updateRestaurantUseCase.execute(
                 extractUserId(auth), request.name(), request.address(),
-                request.logoPath(), request.themeId(), request.paymentProviderAccountId()));
+                request.logoPath(), request.coverPath(), request.themeId(), request.paymentProviderAccountId()));
     }
 
     @GetMapping("/restaurant/tables")
@@ -66,6 +66,7 @@ public class RestaurantController {
             String name,
             String address,
             String logoPath,
+            String coverPath,
             @Pattern(regexp = RestaurantTheme.VALIDATION_PATTERN, message = "Thème invalide") String themeId,
             // Sanity check de format : un vrai identifiant de compte Stripe
             // connecté est toujours acct_... (ex. acct_seed_test en local) ;

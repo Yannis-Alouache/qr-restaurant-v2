@@ -52,6 +52,13 @@ export class OrdersComponent implements OnInit, OnDestroy {
         this.ws.connect(this.handleRealtimeOrderUpdate);
       }
     });
+    // Rattrapage : un événement diffusé pendant l'établissement de la
+    // souscription (navigation → STOMP ready) est perdu sans ce refetch.
+    effect(() => {
+      if (this.ws.connected()) {
+        this.orderService.loadOrders().subscribe();
+      }
+    });
   }
 
   orders = this.orderService.orders;

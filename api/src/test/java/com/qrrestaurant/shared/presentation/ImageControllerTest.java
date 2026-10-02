@@ -58,7 +58,7 @@ class ImageControllerTest {
                 .build();
 
         when(restaurantRepository.findByUserId(ownerId)).thenReturn(Optional.of(Restaurant.from(
-                UUID.randomUUID(), ownerId, "Naia Burger", "naia-burger", null, null, "classique", null, null)));
+                UUID.randomUUID(), ownerId, "Naia Burger", "naia-burger", null, null, null, "classique", null, null)));
     }
 
     @Test

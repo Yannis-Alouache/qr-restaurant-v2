@@ -11,7 +11,7 @@ import { CartDrawerComponent } from '../../../../shared/components/cart-drawer/c
 import { ProductSheetComponent, ProductSheetData } from '../../../../shared/components/product-sheet/product-sheet.component';
 import { CategoryCarouselComponent } from '../../../../shared/components/category-carousel/category-carousel.component';
 import { ConfirmToastComponent } from '../../../../shared/components/confirm-toast/confirm-toast.component';
-import { categoryCover, categoryFallbackColor, standaloneItems } from '../../utils/menu-utils';
+import { categoryFallbackColor, restaurantCover, standaloneItems } from '../../utils/menu-utils';
 
 /** Écran 4 de la maquette : grille d'articles solo d'une catégorie. */
 @Component({
@@ -52,12 +52,8 @@ export class ProductsScreenComponent implements OnInit {
   private readonly initialCategoryId = this.route.snapshot.paramMap.get('categoryId') ?? '';
 
   readonly coverPath = computed(() => {
-    const categories = this.menu()?.categories ?? [];
-    for (const category of categories) {
-      const cover = categoryCover(category);
-      if (cover) return cover;
-    }
-    return null;
+    const menu = this.menu();
+    return menu ? restaurantCover(menu) : null;
   });
 
   readonly items = computed(() => {

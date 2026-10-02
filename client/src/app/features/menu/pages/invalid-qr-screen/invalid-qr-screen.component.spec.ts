@@ -59,6 +59,7 @@ function makeMenu(themeId: string) {
       slug: 'naia-burger',
       address: null,
       logoPath: null,
+      coverPath: null,
       themeId,
     },
     categories: [],

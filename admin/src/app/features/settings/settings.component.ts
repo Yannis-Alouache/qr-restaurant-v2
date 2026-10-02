@@ -35,6 +35,7 @@ export class SettingsComponent implements OnInit {
   loading = signal(false);
   saved = signal(false);
   uploadingLogo = signal(false);
+  uploadingCover = signal(false);
   qrEntries = signal<QrEntry[]>([]);
 
   /** All fields preserved on save; only name/theme/logo are surfaced in the UI. */
@@ -131,6 +132,45 @@ export class SettingsComponent implements OnInit {
   removeLogo(): void {
     this.restaurant.updateRestaurant({ logoPath: '' }).subscribe({
       next: () => this.toast.show('Logo supprimé'),
+      error: () => this.toast.show('Erreur lors de la suppression'),
+    });
+  }
+
+  // ── Bannière ───────────────────────────────────────────────────────
+  onCoverUpload(event: Event): void {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) {
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      this.toast.show('La bannière ne doit pas dépasser 5 Mo');
+      return;
+    }
+    this.uploadingCover.set(true);
+    (event.target as HTMLInputElement).value = '';
+    this.image.upload('covers', file).subscribe({
+      next: (res) => {
+        this.restaurant.updateRestaurant({ coverPath: res.url }).subscribe({
+          next: () => {
+            this.uploadingCover.set(false);
+            this.toast.show('Bannière mise à jour');
+          },
+          error: () => {
+            this.uploadingCover.set(false);
+            this.toast.show('Erreur lors de la mise à jour de la bannière');
+          },
+        });
+      },
+      error: () => {
+        this.uploadingCover.set(false);
+        this.toast.show("Erreur lors de l'import de la bannière");
+      },
+    });
+  }
+
+  removeCover(): void {
+    this.restaurant.updateRestaurant({ coverPath: '' }).subscribe({
+      next: () => this.toast.show('Bannière supprimée'),
       error: () => this.toast.show('Erreur lors de la suppression'),
     });
   }

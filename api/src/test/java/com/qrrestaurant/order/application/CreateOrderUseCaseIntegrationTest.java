@@ -51,7 +51,7 @@ class CreateOrderUseCaseIntegrationTest {
                 new OrderPricingService(menuItemRepository, compositionRepository, categoryRepository));
 
         restaurantRepository.save(Restaurant.from(restaurantId, null, null, "naia-burger",
-                null, null, "classique", null, null));
+                null, null, null, "classique", null, null));
 
         tableRepository.save(RestaurantTable.from(tableId, restaurantId, 1));
         categoryRepository.save(Category.from(categoryId, restaurantId, "Menus", null, 0, true));
@@ -110,7 +110,7 @@ class CreateOrderUseCaseIntegrationTest {
                 new OrderPricingService(menuItemRepository, compositionRepository, categoryRepository));
 
         restaurantRepository.save(Restaurant.from(UUID.randomUUID(), null, null, "naia-burger",
-                null, null, "classique", null, null));
+                null, null, null, "classique", null, null));
 
         assertThrows(IllegalArgumentException.class, () -> createOrderUseCase.execute(
                 "naia-burger",

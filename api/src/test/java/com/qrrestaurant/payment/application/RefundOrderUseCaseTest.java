@@ -45,7 +45,7 @@ class RefundOrderUseCaseTest {
                 new OrderEventPublisher(new SimpMessagingTemplate(messageChannel)));
 
         restaurantRepository.save(Restaurant.from(
-                restaurantId, ownerId, "Naia Burger", "naia-burger", null, null, "classique", "acct_seed_test", null));
+                restaurantId, ownerId, "Naia Burger", "naia-burger", null, null, null, "classique", "acct_seed_test", null));
     }
 
     @Test
