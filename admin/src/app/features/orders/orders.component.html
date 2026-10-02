@@ -46,11 +46,15 @@
     <div class="orders-grid">
       @for (order of filteredOrders(); track order.id) {
         @let cfg = statusConfig(order.status);
-        <article class="order-card">
+        <article class="order-card" [attr.data-testid]="'order-card-' + order.id">
           <div class="order-stripe" [style.background-color]="cfg.stripe"></div>
 
           <div class="order-header">
-            <span class="order-table-num">Table {{ order.tableNumber }}</span>
+            <div class="order-header-left">
+              <span class="order-table-num">Table {{ order.tableNumber }}</span>
+              <span class="order-status-pill" [attr.data-testid]="'order-status-' + order.id"
+                    [style.background-color]="cfg.stripe">{{ statusLabels[order.status] }}</span>
+            </div>
             <span class="order-time">{{ formatTime(order.createdAt) }}</span>
           </div>
 
@@ -70,7 +74,8 @@
             <div class="order-total">{{ formatPrice(order.total) }}</div>
             <div class="order-actions">
               @if (cfg.action; as action) {
-                <button class="btn-action {{ action.cls }}" (click)="advanceStatus(order)">
+                <button class="btn-action {{ action.cls }}" (click)="advanceStatus(order)"
+                        [attr.data-testid]="'order-advance-' + order.id">
                   <svg lucideCheck></svg>
                   {{ action.label }}
                 </button>
