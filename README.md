@@ -150,13 +150,16 @@ L'API accepte les événements quelle que soit leur version d'API : le SDK Java 
 Les scénarios Playwright couvrent :
 
 1. le back-office admin qui reçoit une commande payée en temps réel et peut l’avancer ;
-2. la page client de confirmation qui se met à jour sans reload après webhook Stripe puis après changement d’état en cuisine.
+2. la réinitialisation du mot de passe restaurateur (email lu via l'API Mailpit) ;
+3. la page client de confirmation qui se met à jour sans reload après webhook Stripe puis après changement d’état en cuisine.
 
 Pré-requis :
 
 - PostgreSQL local démarré ;
 - dépendances `admin`, `client` et racine installées ;
 - navigateur Chromium Playwright installé (`npx playwright install chromium`).
+
+Les specs écrivent dans une **base dédiée `qr_restaurant_e2e`** (créée automatiquement au besoin) et le script démarre l'API avec `SEED_DEMO_DATA=true` : vos données de dev ne sont jamais touchées. Le script refuse de tourner si un serveur répond déjà sur le 8080 — arrêtez votre API de dev avant de lancer les specs, sinon il ne peut pas garantir la base utilisée.
 
 ## CI
 
