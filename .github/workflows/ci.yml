@@ -62,8 +62,8 @@ jobs:
         run: cd client && npm ci
       - name: Install Playwright browser
         run: npx playwright install --with-deps chromium
-      - name: Start PostgreSQL
-        run: docker compose -f docker/docker-compose.yml up -d postgres
+      - name: Start PostgreSQL and Mailpit
+        run: docker compose -f docker/docker-compose.yml up -d postgres mailpit
       - name: Run browser e2e
         run: npm run test:e2e
         env:

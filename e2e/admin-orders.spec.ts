@@ -7,8 +7,7 @@ test('admin receives a paid order in real time and can advance it', async ({ pag
   await page.getByTestId('login-password').fill('Secret123!');
   await page.getByTestId('login-submit').click();
 
-  await page.waitForURL('**/menu');
-  await page.getByRole('link', { name: /Commandes/ }).click();
+  // Le login aboutit directement sur la liste des commandes (restaurant déjà créé).
   await page.waitForURL('**/orders');
 
   const order = await createStandaloneOrder(request);

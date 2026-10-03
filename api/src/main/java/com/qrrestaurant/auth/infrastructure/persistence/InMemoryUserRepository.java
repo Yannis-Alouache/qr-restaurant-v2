@@ -28,6 +28,14 @@ public class InMemoryUserRepository implements UserRepository {
     }
 
     @Override
+    public Optional<User> findById(UUID userId) {
+        return usersByEmail.values().stream()
+                .filter(user -> userId.equals(user.getId()))
+                .findFirst()
+                .map(this::copy);
+    }
+
+    @Override
     public boolean existsByEmail(String email) {
         return usersByEmail.containsKey(email);
     }

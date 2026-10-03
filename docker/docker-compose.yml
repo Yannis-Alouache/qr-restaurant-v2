@@ -69,6 +69,13 @@ services:
         echo 'Buckets created successfully'
       "
 
+  mailpit:
+    image: axllent/mailpit:v1.22
+    container_name: qr-restaurant-mailpit
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
 volumes:
   postgres_data:
   pgadmin_data:
