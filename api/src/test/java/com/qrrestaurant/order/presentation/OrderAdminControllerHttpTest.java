@@ -1,5 +1,7 @@
 package com.qrrestaurant.order.presentation;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.qrrestaurant.payment.domain.PaymentGateway;
 import com.qrrestaurant.auth.infrastructure.security.JwtService;
 import com.qrrestaurant.support.AbstractPostgresIntegrationTest;
@@ -12,11 +14,14 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import java.math.BigDecimal;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -42,18 +47,7 @@ class OrderAdminControllerHttpTest extends AbstractPostgresIntegrationTest {
 
     @Test
     void shouldExposeTableNumberInAdminOrders() throws Exception {
-        UUID orderId = UUID.randomUUID();
-        jdbcTemplate.update(
-                """
-                INSERT INTO order_table (id, restaurant_id, table_id, status, total, payment_transaction_id, created_at)
-                VALUES (?, ?, ?, ?, ?, ?, NOW())
-                """,
-                orderId,
-                RESTAURANT_ID,
-                TABLE_1_ID,
-                "nouvelle",
-                new BigDecimal("12.00"),
-                "pi_test_123");
+        UUID orderId = insertOrder("nouvelle", "pi_test_123");
         jdbcTemplate.update(
                 """
                 INSERT INTO order_item (id, order_id, menu_item_id, name, quantity, unit_price)
@@ -66,11 +60,15 @@ class OrderAdminControllerHttpTest extends AbstractPostgresIntegrationTest {
                 1,
                 new BigDecimal("12.00"));
 
-        mockMvc.perform(get("/api/admin/orders")
+        MvcResult result = mockMvc.perform(get("/api/admin/orders")
                         .cookie(ownerBearerToken()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].tableNumber").value(1))
-                .andExpect(jsonPath("$[0].tableId").doesNotExist());
+                .andReturn();
+
+        JsonNode order = findOrderById(new ObjectMapper()
+                .readTree(result.getResponse().getContentAsString()), orderId);
+        assertEquals(1, order.path("tableNumber").asInt());
+        assertTrue(order.path("tableId").isMissingNode());
     }
 
     @Test
@@ -143,6 +141,65 @@ class OrderAdminControllerHttpTest extends AbstractPostgresIntegrationTest {
                         .cookie(ownerBearerToken()))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.message").value("Remboursement impossible pour une commande en statut en_attente_paiement"));
+    }
+
+    @Test
+    void shouldListServedAndRefundedOrdersButNotUnpaidCarts() throws Exception {
+        UUID unpaidOrderId = insertOrder("en_attente_paiement", null);
+        UUID activeOrderId = insertOrder("nouvelle", "pi_active_history");
+        UUID servedOrderId = insertOrder("servie", "pi_served_history");
+        UUID refundedOrderId = insertOrder("rembourse", "pi_refunded_history");
+
+        MvcResult result = mockMvc.perform(get("/api/admin/orders")
+                        .cookie(ownerBearerToken()))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        JsonNode orders = new ObjectMapper()
+                .readTree(result.getResponse().getContentAsString());
+
+        assertEquals("nouvelle", statusOf(orders, activeOrderId));
+        assertEquals("servie", statusOf(orders, servedOrderId));
+        assertEquals("rembourse", statusOf(orders, refundedOrderId));
+        assertFalse(containsOrder(orders, unpaidOrderId),
+                "Un panier non payé ne doit pas apparaître dans le flux admin");
+    }
+
+    private UUID insertOrder(String status, String paymentTransactionId) {
+        UUID orderId = UUID.randomUUID();
+        jdbcTemplate.update(
+                """
+                INSERT INTO order_table (id, restaurant_id, table_id, status, total, payment_transaction_id, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, NOW())
+                """,
+                orderId,
+                RESTAURANT_ID,
+                TABLE_1_ID,
+                status,
+                new BigDecimal("12.00"),
+                paymentTransactionId);
+        return orderId;
+    }
+
+    private static JsonNode findOrderById(JsonNode orders, UUID orderId) {
+        for (JsonNode order : orders) {
+            if (orderId.toString().equals(order.path("id").asText())) {
+                return order;
+            }
+        }
+        return null;
+    }
+
+    private static boolean containsOrder(JsonNode orders, UUID orderId) {
+        return findOrderById(orders, orderId) != null;
+    }
+
+    private static String statusOf(JsonNode orders, UUID orderId) {
+        JsonNode order = findOrderById(orders, orderId);
+        if (order == null) {
+            throw new AssertionError("Commande " + orderId + " absente du flux admin");
+        }
+        return order.path("status").asText();
     }
 
     private Cookie ownerBearerToken() {

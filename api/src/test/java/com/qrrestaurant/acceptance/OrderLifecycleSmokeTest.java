@@ -11,7 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class OrderLifecycleSmokeTest extends AcceptanceTestBase {
 
     @Test
-    void shouldKeepThePaidOrderTrackablePubliclyUntilServedWhileRemovingItFromAdminActiveBoard() throws Exception {
+    void shouldKeepThePaidOrderTrackablePubliclyUntilServedWhileKeepingItInTheAdminHistory() throws Exception {
         restoreSeedDemoState();
         Cookie ownerToken = seedOwnerJwtCookie();
 
@@ -37,7 +37,10 @@ class OrderLifecycleSmokeTest extends AcceptanceTestBase {
         JsonNode servedOrder = getJson("/api/public/orders/" + createdOrder.path("id").asText());
         assertEquals("servie", servedOrder.path("status").asText());
 
+        // Une commande servie quitte le board actif mais reste dans le flux admin
+        // (onglet « Terminées ») : l'historique n'efface pas la commande.
         JsonNode adminOrders = getAuthorizedJson("/api/admin/orders", ownerToken);
-        assertTrue(!containsOrder(adminOrders, createdOrder.path("id").asText()));
+        assertTrue(containsOrder(adminOrders, createdOrder.path("id").asText()));
+        assertEquals("servie", statusOf(adminOrders, createdOrder.path("id").asText()));
     }
 }

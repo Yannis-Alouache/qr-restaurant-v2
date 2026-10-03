@@ -30,13 +30,13 @@
 
   <!-- Tabs -->
   <div class="tabs">
-    <button class="tab" [class.active]="filter() === 'active'" (click)="setFilter('active')">
+    <button class="tab" data-testid="tab-active" [class.active]="filter() === 'active'" (click)="setFilter('active')">
       En cours <span class="tab-count">{{ counts().active }}</span>
     </button>
-    <button class="tab" [class.active]="filter() === 'served'" (click)="setFilter('served')">
+    <button class="tab" data-testid="tab-served" [class.active]="filter() === 'served'" (click)="setFilter('served')">
       Terminées <span class="tab-count">{{ counts().served }}</span>
     </button>
-    <button class="tab" [class.active]="filter() === 'all'" (click)="setFilter('all')">
+    <button class="tab" data-testid="tab-all" [class.active]="filter() === 'all'" (click)="setFilter('all')">
       Toutes <span class="tab-count">{{ counts().all }}</span>
     </button>
   </div>
@@ -79,6 +79,12 @@
                 <button class="btn-action {{ action.cls }}" (click)="advanceStatus(order)" [attr.data-testid]="'order-advance-' + order.id">
                   <svg lucideCheck></svg>
                   {{ action.label }}
+                </button>
+              }
+              @if (canRefund(order)) {
+                <button class="btn-action btn-action-danger" (click)="refundOrder(order)" [attr.data-testid]="'order-refund-' + order.id">
+                  <svg lucideRotateCcw></svg>
+                  Rembourser
                 </button>
               }
             </div>

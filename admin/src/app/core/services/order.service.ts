@@ -54,4 +54,8 @@ export class OrderService {
   updateStatus(orderId: string, status: string): Observable<void> {
     return this.http.patch<void>(`/api/admin/orders/${orderId}/status`, { status });
   }
+
+  refund(orderId: string): Observable<void> {
+    return this.http.post<void>(`/api/admin/orders/${orderId}/refund`, {});
+  }
 }

@@ -310,6 +310,8 @@ h1, h2, h3 { text-wrap: balance; font-family: var(--font-display); }
 .btn-action-primary:hover { background: var(--accent-hover); }
 .btn-action-success { background: var(--success); color: #fff; }
 .btn-action-success:hover { background: color-mix(in oklab, var(--success), black 8%); }
+.btn-action-danger { background: var(--danger); color: #fff; }
+.btn-action-danger:hover { background: color-mix(in oklab, var(--danger), black 8%); }
 
 .btn-google {
   display: flex;
