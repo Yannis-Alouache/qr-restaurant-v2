@@ -10,6 +10,7 @@ import {
 import { RestaurantService } from '../../core/services/restaurant.service';
 import { WebSocketService } from '../../core/services/websocket.service';
 import { ToastService } from '../../core/services/toast.service';
+import { ConfirmService } from '../../core/services/confirm.service';
 import { ADMIN_ICONS } from '../../core/icons';
 
 type Filter = 'active' | 'served' | 'all';
@@ -19,13 +20,17 @@ interface StatusConfig {
   action: { label: string; cls: string } | null;
 }
 
-/** Visual treatment per order status — extends the mockup's 3-status model to the API's 4. */
+/** Visual treatment per order status — extends the mockup's 3-status model to the API's 5. */
 const STATUS_CONFIG: Record<string, StatusConfig> = {
   nouvelle: { stripe: 'var(--accent)', action: { label: 'Accepter', cls: 'btn-action-primary' } },
   en_preparation: { stripe: 'var(--warn)', action: { label: 'Prête', cls: 'btn-action-success' } },
   prete: { stripe: 'var(--success)', action: { label: 'Servie', cls: 'btn-action-success' } },
   servie: { stripe: 'var(--muted)', action: null },
+  rembourse: { stripe: 'var(--danger)', action: null },
 };
+
+/** Miroir de Order.assertRefundable côté domaine : payée non servie ou servie. */
+const REFUNDABLE_STATUSES = ['nouvelle', 'servie'];
 
 @Component({
   selector: 'app-orders',
@@ -38,6 +43,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
   private restaurant = inject(RestaurantService);
   private ws = inject(WebSocketService);
   private toast = inject(ToastService);
+  private confirm = inject(ConfirmService);
 
   private readonly handleRealtimeOrderUpdate = ({ orderId }: { orderId: string }) => {
     if (orderId) {
@@ -114,6 +120,29 @@ export class OrdersComponent implements OnInit, OnDestroy {
       next: () => {
         this.orderService.loadOrders().subscribe();
         this.toast.show(`Table ${order.tableNumber} → ${STATUS_LABELS[next]}`);
+      },
+      error: (err) => this.toast.show(err.error?.message ?? err.error?.error ?? 'Erreur'),
+    });
+  }
+
+  canRefund(order: OrderView): boolean {
+    return REFUNDABLE_STATUSES.includes(order.status);
+  }
+
+  async refundOrder(order: OrderView): Promise<void> {
+    const confirmed = await this.confirm.ask({
+      title: 'Rembourser la commande ?',
+      message: `Table ${order.tableNumber} — ${this.formatPrice(order.total)}. `
+        + 'Le client sera intégralement remboursé, cette action est définitive.',
+      confirmLabel: 'Rembourser',
+      tone: 'danger',
+    });
+    if (!confirmed) return;
+
+    this.orderService.refund(order.id).subscribe({
+      next: () => {
+        this.orderService.loadOrders().subscribe();
+        this.toast.show(`Table ${order.tableNumber} remboursée`);
       },
       error: (err) => this.toast.show(err.error?.message ?? err.error?.error ?? 'Erreur'),
     });

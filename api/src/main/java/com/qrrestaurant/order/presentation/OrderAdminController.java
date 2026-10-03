@@ -30,8 +30,8 @@ public class OrderAdminController {
     }
 
     @GetMapping
-    public ResponseEntity<List<GetRestaurantOrdersUseCase.OrderView>> getActiveOrders(Authentication auth) {
-        return ResponseEntity.ok(getOrdersUseCase.getActiveOrders(userId(auth)));
+    public ResponseEntity<List<GetRestaurantOrdersUseCase.OrderView>> getOrders(Authentication auth) {
+        return ResponseEntity.ok(getOrdersUseCase.getOrders(userId(auth)));
     }
 
     @PatchMapping("/{id}/status")

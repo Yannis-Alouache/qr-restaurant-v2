@@ -212,6 +212,10 @@ abstract class AcceptanceTestBase extends AbstractPostgresIntegrationTest {
         return findOrder(orders, orderId) != null;
     }
 
+    String statusOf(JsonNode orders, String orderId) {
+        return findOrder(orders, orderId).path("status").asText();
+    }
+
     JsonNode findOrder(JsonNode orders, String orderId) {
         for (JsonNode order : orders) {
             if (orderId.equals(order.path("id").asText())) {

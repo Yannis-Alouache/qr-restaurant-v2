@@ -21,6 +21,17 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class GetRestaurantOrdersUseCase {
 
+    /**
+     * Tout ce que le restaurateur peut voir, onglets « En cours », « Terminées »
+     * et « Toutes » compris : dès que le paiement est confirmé la commande fait
+     * partie de l'historique, même servie ou remboursée. Les paniers non payés
+     * (en_attente_paiement, paiement_echoue) restent invisibles — aucun statut
+     * administrateur ne leur est applicable.
+     */
+    private static final List<OrderStatus> VISIBLE_STATUSES = List.of(
+            OrderStatus.nouvelle, OrderStatus.en_preparation, OrderStatus.prete,
+            OrderStatus.servie, OrderStatus.rembourse);
+
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
     private final RestaurantRepository restaurantRepository;
@@ -36,13 +47,12 @@ public class GetRestaurantOrdersUseCase {
         this.tableRepository = tableRepository;
     }
 
-    public List<OrderView> getActiveOrders(UUID userId) {
+    public List<OrderView> getOrders(UUID userId) {
         Restaurant restaurant = restaurantRepository.findByUserId(userId)
                 .orElseThrow(NoRestaurantException::new);
 
         List<Order> orders = orderRepository.findByRestaurantIdAndStatusIn(
-                restaurant.getId(),
-                List.of(OrderStatus.nouvelle, OrderStatus.en_preparation, OrderStatus.prete));
+                restaurant.getId(), VISIBLE_STATUSES);
         Map<UUID, Integer> tableNumbers = tableRepository.findByRestaurantIdOrderByNumber(restaurant.getId()).stream()
                 .collect(Collectors.toMap(RestaurantTable::getId, RestaurantTable::getNumber, (first, second) -> first));
 
