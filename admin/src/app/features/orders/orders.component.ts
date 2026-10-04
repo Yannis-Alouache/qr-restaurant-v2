@@ -8,7 +8,8 @@ import {
   TERMINAL_STATUSES,
 } from '../../core/services/order.service';
 import { RestaurantService } from '../../core/services/restaurant.service';
-import { WebSocketService } from '../../core/services/websocket.service';
+import { WebSocketService, WebSocketMessage } from '../../core/services/websocket.service';
+import { KitchenAlertService } from '../../core/services/kitchen-alert.service';
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmService } from '../../core/services/confirm.service';
 import { ADMIN_ICONS } from '../../core/icons';
@@ -45,10 +46,26 @@ export class OrdersComponent implements OnInit, OnDestroy {
   private toast = inject(ToastService);
   private confirm = inject(ConfirmService);
 
-  private readonly handleRealtimeOrderUpdate = ({ orderId }: { orderId: string }) => {
-    if (orderId) {
-      this.orderService.loadOrders().subscribe();
+  /** Exposé au template pour l'état du bouton « Son ». */
+  readonly alerts = inject(KitchenAlertService);
+
+  private readonly baseTitle = document.title;
+
+  private readonly handleRealtimeOrderUpdate = ({ orderId, status }: WebSocketMessage) => {
+    if (!orderId) {
+      return;
     }
+    // Les détails (table, montant) ne voyagent pas dans le message STOMP :
+    // on les récupère sur la liste fraîchement chargée pour la notification.
+    const afterLoad = status === 'nouvelle'
+      ? (orders: OrderView[]) => {
+          const order = orders.find(o => o.id === orderId);
+          this.alerts.onNewOrder(order
+            ? { tableNumber: order.tableNumber, total: order.total }
+            : undefined);
+        }
+      : undefined;
+    this.orderService.loadOrders().subscribe(afterLoad);
   };
 
   constructor() {
@@ -64,6 +81,13 @@ export class OrdersComponent implements OnInit, OnDestroy {
       if (this.ws.connected()) {
         this.orderService.loadOrders().subscribe();
       }
+    });
+    // Le rappel sonore cesse dès que plus aucune commande « nouvelle » n'attend,
+    // et le titre de l'onglet garde le compteur visible en arrière-plan.
+    effect(() => {
+      const pending = this.counts().nouvelle;
+      this.alerts.setPendingNewOrders(pending);
+      document.title = pending > 0 ? `(${pending}) ${this.baseTitle}` : this.baseTitle;
     });
   }
 
@@ -102,6 +126,19 @@ export class OrdersComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.ws.disconnect();
+    document.title = this.baseTitle;
+  }
+
+  async toggleAlerts(): Promise<void> {
+    if (this.alerts.enabled()) {
+      this.alerts.disable();
+      this.toast.show('Alertes cuisine désactivées');
+      return;
+    }
+    const notificationsGranted = await this.alerts.enable();
+    this.toast.show(notificationsGranted
+      ? 'Alertes cuisine activées — son et notifications'
+      : 'Alertes sonores activées (notifications refusées par le navigateur)');
   }
 
   setFilter(f: Filter): void {

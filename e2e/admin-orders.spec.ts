@@ -1,6 +1,36 @@
 import { expect, test } from '@playwright/test';
 import { adminBaseUrl, completeCheckout, createStandaloneOrder } from './support/api';
 
+test('kitchen alerts ring and badge the tab title until the order is taken', async ({ page, request }) => {
+  await page.goto(`${adminBaseUrl}/login`);
+  await page.getByTestId('login-email').fill('owner@test.com');
+  await page.getByTestId('login-password').fill('Secret123!');
+  await page.getByTestId('login-submit').click();
+
+  await page.waitForURL('**/orders');
+
+  // Alertes coupées par défaut : c'est le clic (geste utilisateur) qui
+  // déverrouille le son et demande la permission de notification.
+  const toggle = page.getByTestId('alert-toggle');
+  await expect(toggle).toContainText('Son coupé');
+
+  await toggle.click();
+  await expect(toggle).toContainText('Son activé');
+  await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+
+  const order = await createStandaloneOrder(request);
+  await completeCheckout(request, order.id, 'pi_alert_admin_123');
+
+  await expect(page.getByTestId(`order-card-${order.id}`)).toBeVisible();
+
+  // Commande en attente : le compteur s'affiche dans le titre de l'onglet…
+  await expect(page).toHaveTitle(/^\(\d+\) Menzo — Admin$/);
+
+  // …et disparaît dès la prise en charge.
+  await page.getByTestId(`order-advance-${order.id}`).click();
+  await expect(page).toHaveTitle('Menzo — Admin');
+});
+
 test('admin receives a paid order in real time and can advance it', async ({ page, request }) => {
   await page.goto(`${adminBaseUrl}/login`);
   await page.getByTestId('login-email').fill('owner@test.com');
