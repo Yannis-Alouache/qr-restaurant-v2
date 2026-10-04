@@ -118,8 +118,10 @@ ensure_e2e_database
 ensure_port_free
 
 # Maven wrapper committé dans api/ : pas de prérequis d'installation Maven.
-MVN_CMD="./mvnw.cmd"
-if [[ ! -f "$ROOT_DIR/api/mvnw.cmd" ]]; then
+# mvnw.cmd est un batch Windows — réservé à Git Bash, sinon on prend mvnw.
+if [[ "$(uname -s)" =~ ^(MINGW|MSYS|CYGWIN) && -f "$ROOT_DIR/api/mvnw.cmd" ]]; then
+  MVN_CMD="./mvnw.cmd"
+else
   MVN_CMD="./mvnw"
 fi
 
