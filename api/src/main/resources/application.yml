@@ -128,6 +128,13 @@ spring:
     # Pas de valeur par défaut en prod : sans SMTP configuré, le démarrage
     # échoue (fail-fast) plutôt que de livrer un « mot de passe oublié » muet.
     host: ${MAIL_HOST}
+management:
+  health:
+    mail:
+      # Le statut global de l'API ne doit pas dépendre du relais SMTP : une
+      # panne e-mail dégrade « mot de passe oublié », pas les commandes. Les
+      # échecs d'envoi restent journalisés par le service de mail.
+      enabled: false
 app:
   mail:
     log-reset-links-on-failure: ${MAIL_LOG_RESET_LINKS:false}
