@@ -105,7 +105,7 @@ app:
   client-base-url: ${CLIENT_BASE_URL:http://localhost:4300}
   admin-base-url: ${ADMIN_BASE_URL:http://localhost:4200}
   mail:
-    from: ${MAIL_FROM:QR Restaurant <no-reply@qr-restaurant.local>}
+    from: ${MAIL_FROM:Menzo <no-reply@qr-restaurant.local>}
     # Développement sans SMTP joignable : journalise le lien de reset en cas
     # d'échec d'envoi, pour pouvoir finir le parcours. Toujours false en prod
     # (un lien dans des logs = détournement de compte possible).

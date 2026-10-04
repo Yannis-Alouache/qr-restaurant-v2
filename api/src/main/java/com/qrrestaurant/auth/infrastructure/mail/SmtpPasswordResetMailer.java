@@ -66,7 +66,7 @@ public class SmtpPasswordResetMailer implements PasswordResetMailer {
                 <p>Ce lien est valable une heure et ne peut être utilisé qu'une seule fois.
                 Si vous n'êtes pas à l'origine de cette demande, ignorez simplement cet email :
                 votre mot de passe actuel reste valable.</p>
-                <p>L'équipe QR Restaurant</p>
+                <p>L'équipe Menzo</p>
                 """.formatted(resetUrl);
     }
 }
