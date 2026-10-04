@@ -185,7 +185,12 @@ class FreshOnboardingSmokeTest extends AcceptanceTestBase {
 
         JsonNode servedOrder = getJson("/api/public/orders/" + createdOrder.path("id").asText());
         assertEquals("servie", servedOrder.path("status").asText());
-        assertTrue(!containsOrder(getAuthorizedJson("/api/admin/orders", ownerToken), createdOrder.path("id").asText()));
+
+        // Une commande servie quitte le board actif mais reste dans le flux admin
+        // (onglet « Terminées ») : l'historique n'efface pas la commande.
+        JsonNode adminOrdersAfterServed = getAuthorizedJson("/api/admin/orders", ownerToken);
+        assertTrue(containsOrder(adminOrdersAfterServed, createdOrder.path("id").asText()));
+        assertEquals("servie", statusOf(adminOrdersAfterServed, createdOrder.path("id").asText()));
     }
 
     // ── Setup helpers ─────────────────────────────────────────────────
