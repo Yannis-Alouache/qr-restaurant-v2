@@ -9,8 +9,8 @@
   <span class="hero-eyebrow"><svg lucideShieldCheck></svg> Document légal</span>
   <h1>Politique de confidentialité</h1>
   <div class="hero-meta">
-    <span class="hero-meta-item"><svg lucideCalendar></svg> Dernière mise à jour : <strong>03 juillet 2026</strong></span>
-    <span class="hero-meta-item"><svg lucideGitBranch></svg> Version <strong>1.0</strong></span>
+    <span class="hero-meta-item"><svg lucideCalendar></svg> Dernière mise à jour : <strong>4 octobre 2026</strong></span>
+    <span class="hero-meta-item"><svg lucideGitBranch></svg> Version <strong>1.1</strong></span>
     <span class="hero-meta-item"><svg lucideScale></svg> Conforme au <strong>RGPD</strong></span>
   </div>
 </section>
@@ -31,7 +31,7 @@
         <li><a href="#sec-9"><span class="toc-num">09</span> Vos droits</a></li>
         <li><a href="#sec-10"><span class="toc-num">10</span> Exercer vos droits</a></li>
         <li><a href="#sec-11"><span class="toc-num">11</span> Réclamation (CNIL)</a></li>
-        <li><a href="#sec-12"><span class="toc-num">12</span> Contact DPO</a></li>
+        <li><a href="#sec-12"><span class="toc-num">12</span> Contact protection des données</a></li>
       </ul>
     </nav>
   </aside>
@@ -40,13 +40,14 @@
     <section class="legal-section" id="sec-1">
       <h2><span class="section-num">01</span> Responsable du traitement</h2>
       <p>
-        La présente Politique de confidentialité décrit la façon dont <strong>Menzo SAS</strong>
-        (ci-après « <strong>Menzo</strong> » ou « nous ») collecte, utilise et protège les données à caractère
+        La présente Politique de confidentialité décrit la façon dont <strong>{{ legal.brand }}</strong>
+        (ci-après « {{ legal.brand }} » ou « nous ») collecte, utilise et protège les données à caractère
         personnel des restaurateurs utilisant la plateforme.
       </p>
       <p>
-        Le responsable du traitement des données est : <strong>Menzo SAS</strong>, RCS Paris B 000 000 000,
-        dont le siège social est situé 12 rue des Halles, 75001 Paris.
+        Le responsable du traitement des données est : <strong>{{ legal.editorName }}</strong>,
+        dont l'identité et les coordonnées complètes figurent dans nos
+        <a routerLink="/mentions-legales">Mentions légales</a>.
       </p>
       <div class="callout">
         <svg lucideUserCheck></svg>
@@ -138,7 +139,7 @@
     <section class="legal-section" id="sec-10">
       <h2><span class="section-num">10</span> Exercer vos droits</h2>
       <p>
-        Pour exercer vos droits, contactez-nous à <strong>dpo@menzo.app</strong> en joignant un justificatif
+        Pour exercer vos droits, contactez-nous à <strong>{{ legal.dpoEmail }}</strong> en joignant un justificatif
         d'identité. Nous répondons dans un délai d'un mois.
       </p>
     </section>
@@ -152,9 +153,9 @@
     </section>
 
     <section class="legal-section" id="sec-12">
-      <h2><span class="section-num">12</span> Contact DPO</h2>
+      <h2><span class="section-num">12</span> Contact protection des données</h2>
       <p>
-        Notre Délégué à la Protection des Données est joignable à <strong>dpo@menzo.app</strong> ou par courrier
+        Notre référent protection des données est joignable à <strong>{{ legal.dpoEmail }}</strong> ou par courrier
         à l'adresse du siège social.
       </p>
     </section>

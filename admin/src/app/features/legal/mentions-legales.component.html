@@ -1,0 +1,120 @@
+<header class="legal-topbar">
+  <div class="topbar-inner">
+    <a routerLink="/signup" class="topbar-brand">Menzo</a>
+    <a routerLink="/signup" class="topbar-back"><svg lucideArrowLeft></svg> Retour</a>
+  </div>
+</header>
+
+<section class="legal-hero">
+  <span class="hero-eyebrow"><svg lucideFileText></svg> Document légal</span>
+  <h1>Mentions légales</h1>
+  <div class="hero-meta">
+    <span class="hero-meta-item"><svg lucideScale></svg> Éditeur &amp; hébergeur</span>
+    <span class="hero-meta-item"><svg lucideShieldCheck></svg> Conforme à la <strong>LCEN</strong></span>
+  </div>
+</section>
+
+<div class="legal-layout">
+  <aside class="legal-toc">
+    <p class="toc-label">Sommaire</p>
+    <nav>
+      <ul class="toc-list">
+        <li><a href="#sec-1"><span class="toc-num">01</span> Éditeur du site</a></li>
+        <li><a href="#sec-2"><span class="toc-num">02</span> Directeur de la publication</a></li>
+        <li><a href="#sec-3"><span class="toc-num">03</span> Hébergement</a></li>
+        <li><a href="#sec-4"><span class="toc-num">04</span> Propriété intellectuelle</a></li>
+        <li><a href="#sec-5"><span class="toc-num">05</span> Données personnelles</a></li>
+        <li><a href="#sec-6"><span class="toc-num">06</span> Conditions d'utilisation</a></li>
+        <li><a href="#sec-7"><span class="toc-num">07</span> Contact</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <main class="legal-content">
+    @if (pending) {
+      <div class="callout">
+        <svg lucideCircleAlert></svg>
+        <p>
+          <strong>Document en cours de finalisation :</strong> les champs marqués
+          « [À COMPLÉTER] » attendent les informations réelles de l'éditeur et de
+          l'hébergeur (source unique : <code>legal-info.ts</code>).
+        </p>
+      </div>
+    }
+
+    <section class="legal-section" id="sec-1">
+      <h2><span class="section-num">01</span> Éditeur du site</h2>
+      <table class="data-table">
+        <tbody>
+          <tr><td>Éditeur</td><td>{{ legal.brand }} — {{ legal.editorName }}</td></tr>
+          <tr><td>Forme juridique</td><td>{{ legal.legalForm }}</td></tr>
+          <tr><td>Immatriculation</td><td>{{ legal.rcs }}</td></tr>
+          <tr><td>SIRET</td><td>{{ legal.siret }}</td></tr>
+          <tr><td>N° TVA intracom.</td><td>{{ legal.vat }}</td></tr>
+          <tr><td>Siège social</td><td>{{ legal.headOffice }}</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="legal-section" id="sec-2">
+      <h2><span class="section-num">02</span> Directeur de la publication</h2>
+      <p>{{ legal.publicationDirector }}.</p>
+    </section>
+
+    <section class="legal-section" id="sec-3">
+      <h2><span class="section-num">03</span> Hébergement</h2>
+      <p>Le site est hébergé par :</p>
+      <table class="data-table">
+        <tbody>
+          <tr><td>Hébergeur</td><td>{{ legal.hostName }}</td></tr>
+          <tr><td>Forme juridique</td><td>{{ legal.hostLegalForm }}</td></tr>
+          <tr><td>Adresse</td><td>{{ legal.hostAddress }}</td></tr>
+          <tr><td>Téléphone</td><td>{{ legal.hostPhone }}</td></tr>
+        </tbody>
+      </table>
+      <div class="callout">
+        <svg lucideShieldCheck></svg>
+        <p>
+          L'infrastructure est administrée par l'éditeur via la plateforme
+          d'hébergement applicatif Coolify, sur un serveur situé au sein de
+          l'Union européenne.
+        </p>
+      </div>
+    </section>
+
+    <section class="legal-section" id="sec-4">
+      <h2><span class="section-num">04</span> Propriété intellectuelle</h2>
+      <p>
+        L'ensemble des éléments du site et de la plateforme {{ legal.brand }}
+        (logiciel, interface, textes, graphismes, logo) est protégé par le droit
+        de la propriété intellectuelle. Toute reproduction ou réutilisation, totale
+        ou partielle, sans autorisation écrite préalable de l'éditeur est interdite.
+      </p>
+    </section>
+
+    <section class="legal-section" id="sec-5">
+      <h2><span class="section-num">05</span> Données personnelles</h2>
+      <p>
+        Le traitement des données à caractère personnel est décrit dans notre
+        <a routerLink="/privacy">Politique de confidentialité</a>.
+      </p>
+    </section>
+
+    <section class="legal-section" id="sec-6">
+      <h2><span class="section-num">06</span> Conditions d'utilisation</h2>
+      <p>
+        L'utilisation de la plateforme est encadrée par nos
+        <a routerLink="/terms">Conditions d'utilisation</a>.
+      </p>
+    </section>
+
+    <section class="legal-section" id="sec-7">
+      <h2><span class="section-num">07</span> Contact</h2>
+      <p>
+        {{ legal.contactEmail }}<br>
+        {{ legal.contactPhone }}<br>
+        {{ legal.headOffice }}
+      </p>
+    </section>
+  </main>
+</div>

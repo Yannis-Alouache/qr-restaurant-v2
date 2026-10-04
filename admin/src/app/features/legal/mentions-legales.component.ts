@@ -1,13 +1,14 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ADMIN_ICONS } from '../../core/icons';
-import { LEGAL_INFO } from './legal-info';
+import { LEGAL_INFO, LEGAL_PENDING } from './legal-info';
 
 @Component({
-  selector: 'app-terms',
+  selector: 'app-mentions-legales',
   imports: [RouterLink, ...ADMIN_ICONS],
-  templateUrl: './terms.component.html',
+  templateUrl: './mentions-legales.component.html',
 })
-export class TermsComponent {
+export class MentionsLegalesComponent {
   protected readonly legal = LEGAL_INFO;
+  protected readonly pending = LEGAL_PENDING;
 }

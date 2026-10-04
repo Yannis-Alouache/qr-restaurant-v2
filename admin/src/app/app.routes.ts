@@ -28,6 +28,10 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
+    path: 'mentions-legales',
+    loadComponent: () => import('./features/legal/mentions-legales.component').then(m => m.MentionsLegalesComponent)
+  },
+  {
     path: 'privacy',
     loadComponent: () => import('./features/legal/privacy.component').then(m => m.PrivacyComponent)
   },

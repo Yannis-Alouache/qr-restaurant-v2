@@ -42,6 +42,17 @@ point se trouve dans [README.md](README.md).
 - [ ] Uptime Kuma (ou équivalent) surveille les 3 domaines + `/actuator/health`
 - [ ] Coolify à jour (Settings → Update)
 
+## Légal & conformité
+
+- [ ] Identité réelle de l'éditeur renseignée dans `admin/src/app/features/legal/legal-info.ts`
+      (raison sociale, RCS/SIRET, TVA, siège, contacts, directeur de publication, hébergeur) —
+      aucun champ « [À COMPLÉTER] » restant, l'avertissement a disparu de /mentions-legales
+- [ ] Les trois pages publiques répondent sans authentification : `/mentions-legales`, `/terms`, `/privacy`
+- [ ] Liens légaux visibles en bas des écrans connexion / inscription
+- [ ] Police Inter servie depuis le domaine (aucune requête vers fonts.googleapis.com — vérifier
+      l'onglet réseau sur /login), cohérent avec la section « Cookies et traceurs » de la /privacy
+- [ ] `MAIL_FROM` cohérent avec la marque (signature « L'équipe Menzo ») et le domaine validé
+
 ## Après ouverture
 
 - [ ] Surveiller les logs `api` les premiers jours (échecs webhook Stripe, erreurs SMTP)
