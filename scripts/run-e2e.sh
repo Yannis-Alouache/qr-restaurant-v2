@@ -43,6 +43,15 @@ ensure_e2e_database() {
     exit 1
   fi
 
+  # « up -d » rend la main avant le healthcheck : le conteneur peut exister
+  # sans que postgres accepte déjà des connexions (race vue en CI).
+  for _ in $(seq 1 30); do
+    if docker exec "$DB_CONTAINER" pg_isready -U "$DB_USER" -q; then
+      break
+    fi
+    sleep 1
+  done
+
   if ! docker exec "$DB_CONTAINER" psql -U "$DB_USER" -d postgres -tAc \
       "SELECT 1 FROM pg_database WHERE datname = '${E2E_DB_NAME}'" | grep -q 1; then
     echo "Création de la base e2e dédiée : ${E2E_DB_NAME}" >&2
