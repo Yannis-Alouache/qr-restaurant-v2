@@ -3,9 +3,28 @@
   <div class="page-header">
     <div class="page-header-row">
       <h1>Commandes</h1>
-      @if (connected()) {
-        <span class="live-dot"><span class="live-pulse"></span>En direct</span>
-      }
+      <div class="header-status">
+        @if (connected()) {
+          <span class="live-dot"><span class="live-pulse"></span>En direct</span>
+        }
+        <button
+          type="button"
+          class="alert-toggle"
+          [class.on]="alerts.enabled()"
+          [attr.aria-pressed]="alerts.enabled()"
+          title="Sonner à chaque nouvelle commande, jusqu'à sa prise en charge"
+          data-testid="alert-toggle"
+          (click)="toggleAlerts()"
+        >
+          @if (alerts.enabled()) {
+            <svg lucideBell></svg>
+            <span>Son activé</span>
+          } @else {
+            <svg lucideBellOff></svg>
+            <span>Son coupé</span>
+          }
+        </button>
+      </div>
     </div>
     <div class="page-header-row">
       <p class="page-header-sub">Vue en temps réel des commandes passées par vos clients</p>
