@@ -167,4 +167,15 @@ Une base de CI est fournie dans `.github/workflows/ci.yml` pour :
 
 - les tests API ;
 - les tests et builds admin/client ;
-- les e2e navigateur Playwright avec PostgreSQL Docker.
+- les e2e navigateur Playwright avec PostgreSQL Docker ;
+- le déclenchement du déploiement après une CI verte sur `main` (job `deploy`, inactif tant que le secret `COOLIFY_DEPLOY_WEBHOOK` n'est pas configuré).
+
+## Déploiement en production
+
+Le chemin de déploiement cible **Coolify** (PaaS auto-hébergé) sur un VPS :
+TLS et reverse-proxy gérés, déploiement au `git push` après CI verte.
+
+- stack complète : `docker/production/docker-compose.prod.yml` (API, deux frontends nginx, PostgreSQL, SeaweedFS) ;
+- modèle de variables : `.env.production.example` ;
+- guide pas-à-pas : [`docs/deploiement/README.md`](docs/deploiement/README.md) ;
+- checklist d'ouverture : [`docs/deploiement/checklist-go-live.md`](docs/deploiement/checklist-go-live.md).

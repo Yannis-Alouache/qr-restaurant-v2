@@ -1,0 +1,8 @@
+# Contexte Docker : seuls les manifests et sources servent au build.
+node_modules/
+dist/
+.angular/
+coverage/
+*.md
+Dockerfile
+.dockerignore
