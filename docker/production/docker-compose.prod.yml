@@ -1,0 +1,185 @@
+# Stack de production QR Restaurant — conçue pour Coolify.
+#
+# Coolify détecte les variables SERVICE_FQDN_* : elles deviennent des champs
+# « Domaine » dans l'UI (onglet Variables d'environnement) où vous saisissez
+# les URLs publiques. Coolify génère les labels Traefik (TLS Let's Encrypt
+# inclus) et route vers les ports indiqués en suffixe (_80, _8080).
+#
+# Exposition publique : uniquement les 3 FQDN ci-dessous. PostgreSQL et
+# SeaweedFS n'ont aucun port publié — ils ne sont joignables que par les
+# conteneurs de ce stack.
+#
+# Variables requises à définir dans l'UI Coolify (voir .env.production.example
+# à la racine pour les valeurs et comment les générer) :
+#   POSTGRES_PASSWORD, JWT_SECRET, STRIPE_SECRET_KEY, STRIPE_PUBLIC_KEY,
+#   CLIENT_BASE_URL, ADMIN_BASE_URL, SEAWEEDFS_ACCESS_KEY, SEAWEEDFS_SECRET_KEY,
+#   MAIL_HOST, MAIL_FROM, SERVICE_FQDN_CLIENT_80, SERVICE_FQDN_ADMIN_80,
+#   SERVICE_FQDN_API_8080 (domaines)
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-qr_restaurant}
+      POSTGRES_USER: ${POSTGRES_USER:-qr_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Définissez POSTGRES_PASSWORD dans Coolify}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-qr_user} -d ${POSTGRES_DB:-qr_restaurant}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: ../../api
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      # Profil prod : fail-fast sans JWT_SECRET ni MAIL_HOST, cookie JWT
+      # Secure par défaut, expiration 7 jours, CORS restreint (application.yml).
+      SPRING_PROFILES_ACTIVE: prod
+      DATABASE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-qr_restaurant}
+      POSTGRES_USER: ${POSTGRES_USER:-qr_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Définissez POSTGRES_PASSWORD dans Coolify}
+      # Le seed de démo ne doit JAMAIS tourner en production : forcé à false,
+      # même si quelqu'un ajoute la variable dans l'UI Coolify.
+      SEED_DEMO_DATA: "false"
+      JWT_SECRET: ${JWT_SECRET:?Définissez JWT_SECRET (openssl rand -base64 48)}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:?Définissez STRIPE_SECRET_KEY}
+      STRIPE_PUBLIC_KEY: ${STRIPE_PUBLIC_KEY:?Définissez STRIPE_PUBLIC_KEY}
+      # Sans webhook secret, les commandes payées restent en_attente_paiement :
+      # à renseigner dès la création de l'endpoint Stripe (cf. checklist go-live).
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
+      STRIPE_WEBHOOK_ENDPOINT_ID: ${STRIPE_WEBHOOK_ENDPOINT_ID:-}
+      CLIENT_BASE_URL: ${CLIENT_BASE_URL:?Définissez l'URL publique du client}
+      ADMIN_BASE_URL: ${ADMIN_BASE_URL:?Définissez l'URL publique de l'admin}
+      SEAWEEDFS_S3_ENDPOINT: http://seaweedfs:8333
+      SEAWEEDFS_ACCESS_KEY: ${SEAWEEDFS_ACCESS_KEY:?Définissez SEAWEEDFS_ACCESS_KEY}
+      SEAWEEDFS_SECRET_KEY: ${SEAWEEDFS_SECRET_KEY:?Définissez SEAWEEDFS_SECRET_KEY}
+      MAIL_HOST: ${MAIL_HOST:?Définissez MAIL_HOST (relais SMTP, ex. smtp-relay.brevo.com)}
+      MAIL_PORT: ${MAIL_PORT:-587}
+      MAIL_USERNAME: ${MAIL_USERNAME:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+      MAIL_SMTP_AUTH: ${MAIL_SMTP_AUTH:-true}
+      MAIL_SMTP_STARTTLS: ${MAIL_SMTP_STARTTLS:-true}
+      # Idéalement le domaine API sans https:// (ex. api.votredomaine.fr) ;
+      # le défaut reste acceptable pour un relais SMTP avec authentification.
+      MAIL_SMTP_EHLO_NAME: ${MAIL_SMTP_EHLO_NAME:-qr-restaurant-api}
+      MAIL_FROM: ${MAIL_FROM:?Définissez MAIL_FROM (ex. QR Restaurant <no-reply@votredomaine.fr>)}
+      MAIL_LOG_RESET_LINKS: "false"
+      PASSWORD_RESET_TOKEN_TTL_MINUTES: ${PASSWORD_RESET_TOKEN_TTL_MINUTES:-60}
+      CORS_EXTRA_ORIGIN_PATTERNS: ${CORS_EXTRA_ORIGIN_PATTERNS:-}
+      # Le heap JVM plafonné évite qu'un pic (ou un build concurrent) affame
+      # le VPS ; la limite mémoire du conteneur protège l'inverse.
+      JAVA_TOOL_OPTIONS: "-XX:MaxRAMPercentage=75.0"
+    expose:
+      - "8080"
+    deploy:
+      resources:
+        limits:
+          memory: 1536M
+
+  client:
+    build:
+      context: ../../client
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    # nginx résout l'upstream « api » au démarrage : attendre sa création.
+    depends_on:
+      api:
+        condition: service_started
+    environment:
+      # Domaine public du parcours client (ex. https://commander.votredomaine.fr)
+      - SERVICE_FQDN_CLIENT_80
+    expose:
+      - "80"
+
+  admin:
+    build:
+      context: ../../admin
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_started
+    environment:
+      # Domaine public du back-office (ex. https://admin.votredomaine.fr)
+      - SERVICE_FQDN_ADMIN_80
+    expose:
+      - "80"
+
+  # Génère la configuration S3 de SeaweedFS à partir des secrets du stack :
+  # pas de credentials « any/any » de dev ni de fichier committé.
+  s3-config-init:
+    image: alpine:3.21
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - |
+        mkdir -p /config
+        cat > /config/s3.json <<EOF
+        {
+          "identities": [
+            {
+              "name": "qr-restaurant",
+              "credentials": [
+                { "accessKey": "$$SEAWEEDFS_ACCESS_KEY", "secretKey": "$$SEAWEEDFS_SECRET_KEY" }
+              ],
+              "actions": ["Admin"]
+            }
+          ]
+        }
+        EOF
+        echo "s3.json généré"
+    environment:
+      SEAWEEDFS_ACCESS_KEY: ${SEAWEEDFS_ACCESS_KEY:?Définissez SEAWEEDFS_ACCESS_KEY}
+      SEAWEEDFS_SECRET_KEY: ${SEAWEEDFS_SECRET_KEY:?Définissez SEAWEEDFS_SECRET_KEY}
+    volumes:
+      - s3_config:/config
+
+  seaweedfs:
+    image: chrislusf/seaweedfs:4.28
+    restart: unless-stopped
+    depends_on:
+      s3-config-init:
+        condition: service_completed_successfully
+    command: server -s3 -s3.config=/etc/seaweedfs-qr/s3.json
+    volumes:
+      - seaweedfs_data:/data
+      - s3_config:/etc/seaweedfs-qr:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9333/cluster/status"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # One-shot : crée les buckets d'images au premier déploiement. « Exited (0) »
+  # dans Coolify est son état normal après exécution.
+  init-buckets:
+    image: amazon/aws-cli:2.34.53
+    depends_on:
+      seaweedfs:
+        condition: service_healthy
+    environment:
+      AWS_ACCESS_KEY_ID: ${SEAWEEDFS_ACCESS_KEY:?Définissez SEAWEEDFS_ACCESS_KEY}
+      AWS_SECRET_ACCESS_KEY: ${SEAWEEDFS_SECRET_KEY:?Définissez SEAWEEDFS_SECRET_KEY}
+      AWS_DEFAULT_REGION: us-east-1
+    entrypoint: >
+      /bin/bash -c "
+        aws --endpoint-url http://seaweedfs:8333 s3 mb s3://logos 2>/dev/null || true
+        aws --endpoint-url http://seaweedfs:8333 s3 mb s3://covers 2>/dev/null || true
+        aws --endpoint-url http://seaweedfs:8333 s3 mb s3://category-images 2>/dev/null || true
+        aws --endpoint-url http://seaweedfs:8333 s3 mb s3://menu-images 2>/dev/null || true
+        echo 'Buckets prêts'
+      "
+
+volumes:
+  postgres_data:
+  seaweedfs_data:
+  s3_config:

@@ -1,0 +1,6 @@
+# Contexte Docker : le build Maven n'a besoin que de pom.xml et src/.
+target/
+bruno/
+*.log
+Dockerfile
+.dockerignore
