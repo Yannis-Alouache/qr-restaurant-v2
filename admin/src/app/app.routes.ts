@@ -50,6 +50,10 @@ export const routes: Routes = [
         loadComponent: () => import('./features/menu-management/menu-management.component').then(m => m.MenuManagementComponent)
       },
       {
+        path: 'stats',
+        loadComponent: () => import('./features/stats/stats.component').then(m => m.StatsComponent)
+      },
+      {
         path: 'settings',
         loadComponent: () => import('./features/settings/settings.component').then(m => m.SettingsComponent)
       }
