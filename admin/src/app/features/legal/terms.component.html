@@ -9,8 +9,8 @@
   <span class="hero-eyebrow"><svg lucideFileText></svg> Document légal</span>
   <h1>Conditions d'utilisation</h1>
   <div class="hero-meta">
-    <span class="hero-meta-item"><svg lucideCalendar></svg> Dernière mise à jour : <strong>03 juillet 2026</strong></span>
-    <span class="hero-meta-item"><svg lucideGitBranch></svg> Version <strong>1.0</strong></span>
+    <span class="hero-meta-item"><svg lucideCalendar></svg> Dernière mise à jour : <strong>4 octobre 2026</strong></span>
+    <span class="hero-meta-item"><svg lucideGitBranch></svg> Version <strong>1.1</strong></span>
     <span class="hero-meta-item"><svg lucideScale></svg> Contrat de service</span>
   </div>
 </section>
@@ -41,7 +41,8 @@
       <h2><span class="section-num">01</span> Objet</h2>
       <p>
         Les présentes Conditions d'utilisation (les « <strong>CGU</strong> ») encadrent l'utilisation de la
-        plateforme <strong>Menzo</strong> (le « <strong>Service</strong> »), éditée par Menzo SAS, permettant aux
+        plateforme <strong>{{ legal.brand }}</strong> (le « <strong>Service</strong> »), éditée par
+        {{ legal.editorName }}, permettant aux
         restaurateurs de créer un menu digital, de recevoir des commandes par QR code et d'encaisser des paiements.
       </p>
     </section>
@@ -139,8 +140,8 @@
     <section class="legal-section" id="sec-12">
       <h2><span class="section-num">12</span> Contact</h2>
       <p>
-        Pour toute question relative aux présentes CGU : <strong>contact@menzo.app</strong> ou par courrier à
-        Menzo SAS, 12 rue des Halles, 75001 Paris.
+        Pour toute question relative aux présentes CGU : <strong>{{ legal.contactEmail }}</strong> ou par courrier à
+        {{ legal.editorName }}, {{ legal.headOffice }}.
       </p>
     </section>
   </main>

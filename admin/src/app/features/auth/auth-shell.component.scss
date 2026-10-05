@@ -135,25 +135,23 @@ app-auth-shell { display: block; }
   gap: var(--space-4);
 }
 
-/* Divider (Google / email split) */
-.form-divider {
+/* Legal links shown on every auth surface */
+.auth-legal-footer {
   display: flex;
   align-items: center;
-  gap: var(--space-4);
-  margin: var(--space-6) 0;
-}
-.form-divider::before,
-.form-divider::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--border);
-}
-.form-divider span {
+  justify-content: center;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border);
   font-size: var(--text-xs);
-  color: var(--muted);
-  white-space: nowrap;
 }
+.auth-legal-footer a {
+  color: var(--muted);
+  transition: color var(--motion-fast) var(--ease-standard);
+}
+.auth-legal-footer a:hover { color: var(--accent); }
+.auth-legal-footer span { color: var(--border); }
 
 .form-options {
   display: flex;

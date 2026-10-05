@@ -1,4 +1,5 @@
 import { Component, ViewEncapsulation } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 /**
  * Shared split layout for the three auth surfaces (login, signup, onboarding):
@@ -14,6 +15,7 @@ import { Component, ViewEncapsulation } from '@angular/core';
  */
 @Component({
   selector: 'app-auth-shell',
+  imports: [RouterLink],
   templateUrl: './auth-shell.component.html',
   styleUrl: './auth-shell.component.scss',
   encapsulation: ViewEncapsulation.None,
