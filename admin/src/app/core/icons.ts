@@ -47,6 +47,11 @@ import {
   LucideScale,
   LucideUserCheck,
   LucideFileText,
+  LucideChartColumn,
+  LucideTrendingUp,
+  LucideBanknote,
+  LucideArrowUpRight,
+  LucideArrowDownRight,
 } from '@lucide/angular';
 
 export {
@@ -91,6 +96,11 @@ export {
   LucideScale,
   LucideUserCheck,
   LucideFileText,
+  LucideChartColumn,
+  LucideTrendingUp,
+  LucideBanknote,
+  LucideArrowUpRight,
+  LucideArrowDownRight,
 };
 
 /** Every icon the admin app uses — spread into a component's `imports`. */
@@ -136,4 +146,9 @@ export const ADMIN_ICONS = [
   LucideScale,
   LucideUserCheck,
   LucideFileText,
+  LucideChartColumn,
+  LucideTrendingUp,
+  LucideBanknote,
+  LucideArrowUpRight,
+  LucideArrowDownRight,
 ];

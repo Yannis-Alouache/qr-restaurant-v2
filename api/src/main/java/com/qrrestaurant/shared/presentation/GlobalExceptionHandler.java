@@ -52,7 +52,8 @@ public class GlobalExceptionHandler {
             com.qrrestaurant.order.application.GetRestaurantOrdersUseCase.NoRestaurantException.class,
             com.qrrestaurant.order.application.UpdateOrderStatusUseCase.NoRestaurantException.class,
             com.qrrestaurant.restaurant.application.GetRestaurantUseCase.NoRestaurantException.class,
-            com.qrrestaurant.payment.application.RefundOrderUseCase.NoRestaurantException.class
+            com.qrrestaurant.payment.application.RefundOrderUseCase.NoRestaurantException.class,
+            com.qrrestaurant.analytics.application.GetRestaurantStatsUseCase.NoRestaurantException.class
     })
     public ResponseEntity<ApiErrorResponse> handleNoRestaurant(RuntimeException ex) {
         return respond(HttpStatus.NOT_FOUND, ex.getMessage());
@@ -80,6 +81,7 @@ public class GlobalExceptionHandler {
             StripeWebhookPayloadParser.InvalidWebhookSignatureException.class,
             StripeWebhookPayloadParser.MissingOrderMetadataException.class,
             StripeWebhookPayloadParser.InvalidWebhookPayloadException.class,
+            com.qrrestaurant.analytics.application.GetRestaurantStatsUseCase.InvalidStatsPeriodException.class,
             IllegalArgumentException.class
     })
     public ResponseEntity<ApiErrorResponse> handleBadRequest(RuntimeException ex) {

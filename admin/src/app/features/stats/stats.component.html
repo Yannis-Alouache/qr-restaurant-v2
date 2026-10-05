@@ -1,0 +1,275 @@
+<div class="stats-page" [class.is-loading]="loading()">
+
+  <!-- ═══ En-tête de page ═══ -->
+  <div class="page-header">
+    <div class="page-header-row">
+      <h1>Statistiques</h1>
+      <div class="period-control">
+        <label class="period-label" for="stats-period">Période</label>
+        <div class="select-wrap">
+          <svg lucideCalendar class="lead-icon"></svg>
+          <select id="stats-period" data-testid="period-select" (change)="onMonthsChange($event)">
+            @for (m of monthOptions; track m) {
+              <option [value]="m" [selected]="m === months()">{{ m === 1 ? 'Dernier mois' : m + ' derniers mois' }}</option>
+            }
+          </select>
+          <svg lucideChevronDown class="chev"></svg>
+        </div>
+      </div>
+    </div>
+    <div class="page-header-row">
+      <p class="page-header-sub">
+        @if (restaurant(); as resto) {
+          Commandes, chiffre d'affaires et best-sellers de {{ resto.name }}.
+        } @else {
+          Commandes, chiffre d'affaires et best-sellers.
+        }
+      </p>
+      @if (!loading() && !loadError()) {
+        <div class="summary-pills">
+          <span class="summary-pill" data-testid="range-pill">{{ rangePill() }}</span>
+          <span class="summary-pill">{{ lastCompletePill() }}</span>
+        </div>
+      }
+    </div>
+  </div>
+
+  @if (loadError()) {
+    <!-- ═══ Échec de chargement ═══ -->
+    <section class="empty-card" data-testid="stats-error" aria-label="Erreur de chargement">
+      <div class="empty-icon">
+        <svg lucideCircleAlert></svg>
+      </div>
+      <h2>Impossible de charger vos statistiques</h2>
+      <p class="lead">Une erreur est survenue en récupérant vos données. Vérifiez votre connexion puis réessayez.</p>
+      <div class="empty-actions">
+        <button type="button" class="btn-primary" (click)="reload()">
+          <svg lucideRotateCw></svg>
+          Réessayer
+        </button>
+      </div>
+    </section>
+  } @else if (hasNoOrders()) {
+    <!-- ═══ État vide : aucune commande payée sur la fenêtre ═══ -->
+    <section class="empty-card" data-testid="stats-empty" aria-label="Aucune statistique pour le moment">
+      <div class="empty-icon">
+        <svg lucideChartColumn></svg>
+      </div>
+      <h2>Vos statistiques prendront vie dès la première commande</h2>
+      <p class="lead">Dès qu'un client règle sa première commande via le QR code de sa table, votre chiffre d'affaires, vos commandes et vos best-sellers s'affichent ici automatiquement.</p>
+      <p class="note">Rien à activer ni à configurer : chaque commande payée alimente vos stats en temps réel.</p>
+      <div class="empty-actions">
+        <a routerLink="/menu" class="btn-primary">
+          <svg lucideBookOpen></svg>
+          Compléter mon menu
+        </a>
+        <a routerLink="/settings" class="btn-secondary">
+          <svg lucidePrinter></svg>
+          Imprimer mes QR codes
+        </a>
+      </div>
+    </section>
+
+    <div class="preview-grid" aria-label="Ce que vous verrez ici">
+      <div class="preview-card">
+        <div class="preview-mark">
+          <svg lucideBanknote></svg>
+        </div>
+        <h3>Chiffre d'affaires</h3>
+        <p>Total encaissé, panier moyen et évolution mois par mois, sur 1 à 24 mois.</p>
+      </div>
+      <div class="preview-card">
+        <div class="preview-mark">
+          <svg lucideClipboardList></svg>
+        </div>
+        <h3>Commandes</h3>
+        <p>Volume mensuel et remboursements, avec les mois sans activité comptés à zéro.</p>
+      </div>
+      <div class="preview-card">
+        <div class="preview-mark">
+          <svg lucideChartColumn></svg>
+        </div>
+        <h3>Top articles</h3>
+        <p>Vos 10 plats et boissons les plus vendus, classés par chiffre d'affaires généré.</p>
+      </div>
+    </div>
+  } @else {
+    <!-- ═══ KPIs ═══ -->
+    <section class="kpi-grid" aria-label="Indicateurs de la période">
+      @if (kpis(); as k) {
+        <div class="card kpi" data-testid="kpi-revenue">
+          <div class="kpi-head">
+            <span class="kpi-icon">
+              <svg lucideBanknote></svg>
+            </span>
+            <span class="kpi-label">CA total</span>
+          </div>
+          <div class="kpi-value" data-testid="kpi-revenue-value">{{ k.revenue.value }}</div>
+          <div class="kpi-foot">
+            <span class="delta" [class.up]="k.revenue.foot.delta.dir === 'up'" [class.down]="k.revenue.foot.delta.dir === 'down'" [class.flat]="k.revenue.foot.delta.dir === 'flat'">
+              @switch (k.revenue.foot.delta.dir) {
+                @case ('up') { <svg lucideArrowUpRight></svg> }
+                @case ('down') { <svg lucideArrowDownRight></svg> }
+                @default { <svg lucideMinus></svg> }
+              }
+              {{ k.revenue.foot.delta.label }}
+            </span>
+            <span class="kpi-cmp">{{ k.revenue.foot.cmp }}</span>
+          </div>
+        </div>
+
+        <div class="card kpi" data-testid="kpi-orders">
+          <div class="kpi-head">
+            <span class="kpi-icon">
+              <svg lucideClipboardList></svg>
+            </span>
+            <span class="kpi-label">Commandes</span>
+          </div>
+          <div class="kpi-value" data-testid="kpi-orders-value">{{ k.orders.value }}</div>
+          <div class="kpi-foot">
+            <span class="delta" [class.up]="k.orders.foot.delta.dir === 'up'" [class.down]="k.orders.foot.delta.dir === 'down'" [class.flat]="k.orders.foot.delta.dir === 'flat'">
+              @switch (k.orders.foot.delta.dir) {
+                @case ('up') { <svg lucideArrowUpRight></svg> }
+                @case ('down') { <svg lucideArrowDownRight></svg> }
+                @default { <svg lucideMinus></svg> }
+              }
+              {{ k.orders.foot.delta.label }}
+            </span>
+            <span class="kpi-cmp">{{ k.orders.foot.cmp }}</span>
+          </div>
+        </div>
+
+        <div class="card kpi" data-testid="kpi-average">
+          <div class="kpi-head">
+            <span class="kpi-icon">
+              <svg lucideTrendingUp></svg>
+            </span>
+            <span class="kpi-label">Panier moyen</span>
+          </div>
+          <div class="kpi-value" data-testid="kpi-average-value">{{ k.average.value }}</div>
+          <div class="kpi-foot">
+            <span class="delta" [class.up]="k.average.foot.delta.dir === 'up'" [class.down]="k.average.foot.delta.dir === 'down'" [class.flat]="k.average.foot.delta.dir === 'flat'">
+              @switch (k.average.foot.delta.dir) {
+                @case ('up') { <svg lucideArrowUpRight></svg> }
+                @case ('down') { <svg lucideArrowDownRight></svg> }
+                @default { <svg lucideMinus></svg> }
+              }
+              {{ k.average.foot.delta.label }}
+            </span>
+            <span class="kpi-cmp">{{ k.average.foot.cmp }}</span>
+          </div>
+        </div>
+
+        <div class="card kpi" data-testid="kpi-refunds">
+          <div class="kpi-head">
+            <span class="kpi-icon">
+              <svg lucideRotateCw></svg>
+            </span>
+            <span class="kpi-label">Remboursements</span>
+          </div>
+          <div class="kpi-value" data-testid="kpi-refunds-value">{{ k.refunds.value }}</div>
+          <p class="kpi-sub">{{ k.refunds.sub }}</p>
+          <div class="kpi-foot">
+            <span class="delta" [class.up]="k.refunds.foot.delta.dir === 'up'" [class.down]="k.refunds.foot.delta.dir === 'down'" [class.flat]="k.refunds.foot.delta.dir === 'flat'">
+              @switch (k.refunds.foot.delta.dir) {
+                @case ('up') { <svg lucideArrowUpRight></svg> }
+                @case ('down') { <svg lucideArrowDownRight></svg> }
+                @default { <svg lucideMinus></svg> }
+              }
+              {{ k.refunds.foot.delta.label }}
+            </span>
+            <span class="kpi-cmp">{{ k.refunds.foot.cmp }}</span>
+          </div>
+        </div>
+      }
+    </section>
+
+    <!-- ═══ Graphique mensuel ═══ -->
+    <section class="card chart-card" [class.is-empty]="chart() !== null && !chart()!.hasData" aria-label="Évolution mensuelle">
+      <div class="chart-head">
+        <div>
+          <h2 class="chart-title">Évolution mensuelle</h2>
+          <p class="chart-sub">Survolez un mois pour le détail</p>
+        </div>
+        @if (chartInfo(); as info) {
+          <p class="chart-info" data-testid="chart-info">
+            <strong>{{ info.month }}</strong>
+            <span class="ci-sep" aria-hidden="true"></span>{{ info.orders }}
+            <span class="ci-sep" aria-hidden="true"></span><strong>{{ info.revenue }}</strong>
+            @if (info.average) {
+              <span class="ci-sep" aria-hidden="true"></span>{{ info.average }}
+            }
+          </p>
+        }
+      </div>
+      <div class="chart-legend">
+        <span class="legend-item"><span class="swatch-bar"></span>Commandes</span>
+        <span class="legend-item"><span class="swatch-line"></span>Chiffre d'affaires</span>
+      </div>
+      <div class="chart-scroll">
+        @if (chart(); as chart) {
+          <svg class="chart-svg" viewBox="0 0 960 320" role="img" aria-label="Graphique des commandes et du chiffre d'affaires par mois" (mouseleave)="onChartLeave()">
+            @for (g of chart.grid; track $index) {
+              <line class="grid" x1="46" [attr.y1]="g.y" x2="898" [attr.y2]="g.y" />
+              <text class="ax ax-num" x="38" [attr.y]="g.y" text-anchor="end" dominant-baseline="middle">{{ g.leftLabel }}</text>
+              <text class="ax ax-num" x="906" [attr.y]="g.y" text-anchor="start" dominant-baseline="middle">{{ g.rightLabel }}</text>
+            }
+            @for (col of chart.columns; track $index) {
+              <g class="col">
+                <rect class="cursor" [attr.x]="col.cursorX" y="20" [attr.width]="col.cursorW" height="260" rx="6" />
+                @if (col.bar; as bar) {
+                  <rect class="bar" [attr.x]="bar.x" [attr.y]="bar.y" [attr.width]="bar.w" [attr.height]="bar.h" [attr.rx]="bar.rx" />
+                }
+                <rect
+                  class="hit"
+                  [attr.x]="col.hitX"
+                  y="20"
+                  [attr.width]="col.hitW"
+                  height="260"
+                  tabindex="0"
+                  role="img"
+                  [attr.aria-label]="col.hitAria"
+                  (mouseenter)="onColumnHover($index)"
+                  (focus)="onColumnHover($index)"
+                />
+              </g>
+              @if (col.label; as label) {
+                <text class="ax" [attr.x]="label.x" y="306" text-anchor="middle">{{ label.text }}</text>
+              }
+            }
+            <polyline class="line" [attr.points]="chart.linePoints" />
+            @for (dot of chart.dots; track $index) {
+              <circle class="dot" [class.dot-last]="dot.last" [attr.cx]="dot.cx" [attr.cy]="dot.cy" [attr.r]="dot.r" />
+            }
+          </svg>
+        }
+      </div>
+      <p class="chart-empty">Aucune commande sur cette période. Les mois sans activité sont comptés à zéro.</p>
+    </section>
+
+    <!-- ═══ Top articles ═══ -->
+    <section class="card top-card" aria-label="Classement des articles">
+      <div class="top-head">
+        <h2 class="top-title">Top 10 des articles vendus</h2>
+        <p class="top-sub">Classés par chiffre d'affaires</p>
+      </div>
+      <div class="top-list" data-testid="top-list">
+        @if (topItems().length === 0) {
+          <p class="top-empty">Aucune vente sur cette période. Le classement apparaîtra dès la première commande encaissée.</p>
+        } @else {
+          @for (item of topItems(); track item.rank) {
+            <div class="top-row">
+              <span class="top-rank">{{ item.rank }}</span>
+              <span>
+                <span class="top-name">{{ item.name }}</span>
+                <span class="top-bar"><span class="top-bar-fill" [style.width]="item.barWidth"></span></span>
+              </span>
+              <span class="top-qty">{{ item.qtyLabel }}</span>
+              <span class="top-ca">{{ item.ca }}</span>
+            </div>
+          }
+        }
+      </div>
+    </section>
+  }
+</div>

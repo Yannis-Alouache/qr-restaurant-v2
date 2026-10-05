@@ -1,0 +1,13 @@
+meta {
+  name: Get restaurant stats
+  type: http
+  seq: 1
+  tags: [
+    admin
+  ]
+}
+
+get {
+  url: {{baseUrl}}/api/admin/stats?months=12
+  auth: none
+}
