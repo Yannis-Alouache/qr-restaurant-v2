@@ -28,6 +28,9 @@ public class OrderJpaEntity {
     @Column(name = "payment_transaction_id")
     private String paymentTransactionId;
 
+    @Column(name = "customer_email")
+    private String customerEmail;
+
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
@@ -53,6 +56,9 @@ public class OrderJpaEntity {
 
     public String getPaymentTransactionId() { return paymentTransactionId; }
     public void setPaymentTransactionId(String paymentTransactionId) { this.paymentTransactionId = paymentTransactionId; }
+
+    public String getCustomerEmail() { return customerEmail; }
+    public void setCustomerEmail(String customerEmail) { this.customerEmail = customerEmail; }
 
     public Instant getCreatedAt() { return createdAt; }
     public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }

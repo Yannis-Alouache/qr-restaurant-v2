@@ -94,6 +94,6 @@ class GetRestaurantOrdersUseCaseTest {
 
     private Order saveOrder(OrderStatus status) {
         return orderRepository.save(Order.from(null, restaurantId, tableId, status,
-                new BigDecimal("24.00"), "pi_" + status.name(), Instant.now()));
+                new BigDecimal("24.00"), "pi_" + status.name(), null, Instant.now()));
     }
 }

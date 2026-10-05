@@ -40,7 +40,7 @@ public class OrderRepositoryAdapter implements OrderRepository {
     private Order toDomain(OrderJpaEntity e) {
         return Order.from(e.getId(), e.getRestaurantId(), e.getTableId(),
                 OrderStatus.valueOf(e.getStatus()), e.getTotal(),
-                e.getPaymentTransactionId(), e.getCreatedAt());
+                e.getPaymentTransactionId(), e.getCustomerEmail(), e.getCreatedAt());
     }
 
     private OrderJpaEntity toEntity(Order d) {
@@ -51,6 +51,7 @@ public class OrderRepositoryAdapter implements OrderRepository {
         e.setStatus(d.getStatus().name());
         e.setTotal(d.getTotal());
         e.setPaymentTransactionId(d.getPaymentTransactionId());
+        e.setCustomerEmail(d.getCustomerEmail());
         e.setCreatedAt(d.getCreatedAt());
         return e;
     }

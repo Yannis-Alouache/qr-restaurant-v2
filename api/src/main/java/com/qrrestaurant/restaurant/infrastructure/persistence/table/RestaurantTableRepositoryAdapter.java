@@ -5,6 +5,7 @@ import com.qrrestaurant.restaurant.domain.RestaurantTableRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -21,6 +22,11 @@ public class RestaurantTableRepositoryAdapter implements RestaurantTableReposito
         RestaurantTableJpaEntity entity = toEntity(table);
         RestaurantTableJpaEntity saved = jpaRepo.save(entity);
         return toDomain(saved);
+    }
+
+    @Override
+    public Optional<RestaurantTable> findById(UUID id) {
+        return jpaRepo.findById(id).map(this::toDomain);
     }
 
     @Override

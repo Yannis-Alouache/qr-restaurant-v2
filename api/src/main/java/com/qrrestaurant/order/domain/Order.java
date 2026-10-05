@@ -13,16 +13,18 @@ public class Order {
     private OrderStatus status;
     private BigDecimal total;
     private String paymentTransactionId;
+    private String customerEmail;
     private final Instant createdAt;
 
     private Order(UUID id, UUID restaurantId, UUID tableId, OrderStatus status,
-                  BigDecimal total, String paymentTransactionId, Instant createdAt) {
+                  BigDecimal total, String paymentTransactionId, String customerEmail, Instant createdAt) {
         this.id = id;
         this.restaurantId = restaurantId;
         this.tableId = tableId;
         this.status = status;
         this.total = total;
         this.paymentTransactionId = paymentTransactionId;
+        this.customerEmail = customerEmail;
         this.createdAt = createdAt;
     }
 
@@ -31,12 +33,14 @@ public class Order {
         Objects.requireNonNull(tableId, "tableId");
         Objects.requireNonNull(total, "total");
         return new Order(null, restaurantId, tableId, OrderStatus.en_attente_paiement,
-                total, null, null);
+                total, null, null, null);
     }
 
     public static Order from(UUID id, UUID restaurantId, UUID tableId, OrderStatus status,
-                             BigDecimal total, String paymentTransactionId, Instant createdAt) {
-        return new Order(id, restaurantId, tableId, status, total, paymentTransactionId, createdAt);
+                             BigDecimal total, String paymentTransactionId, String customerEmail,
+                             Instant createdAt) {
+        return new Order(id, restaurantId, tableId, status, total, paymentTransactionId,
+                customerEmail, createdAt);
     }
 
     public void updateTotal(BigDecimal total) {
@@ -92,14 +96,17 @@ public class Order {
      * Confirme le paiement de la commande. Idempotent : Stripe peut livrer
      * plusieurs fois le même événement, une rediffusion ne change rien.
      *
+     * @param customerEmail email collecté par le formulaire Stripe, peut être
+     *                      null (webhook sans email client) — sert au reçu.
      * @return true si la commande est passée en nouvelle, false si elle était
      *         déjà confirmée (livraison en double).
      */
-    public boolean markCheckoutCompleted(String paymentTransactionId) {
+    public boolean markCheckoutCompleted(String paymentTransactionId, String customerEmail) {
         if (status != OrderStatus.en_attente_paiement) {
             return false;
         }
         this.paymentTransactionId = paymentTransactionId;
+        this.customerEmail = customerEmail;
         transitionTo(OrderStatus.nouvelle);
         return true;
     }
@@ -122,6 +129,7 @@ public class Order {
     public OrderStatus getStatus() { return status; }
     public BigDecimal getTotal() { return total; }
     public String getPaymentTransactionId() { return paymentTransactionId; }
+    public String getCustomerEmail() { return customerEmail; }
     public Instant getCreatedAt() { return createdAt; }
 
     public static class InvalidStatusTransitionException extends RuntimeException {
