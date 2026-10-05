@@ -41,7 +41,8 @@ public class StripeWebhookController {
 
         StripeWebhookPayloadParser.ParsedWebhook webhook = payloadParser.extractCheckoutSession(event);
         if (StripeWebhookPayloadParser.CHECKOUT_COMPLETED_EVENT.equals(event.getType())) {
-            handleWebhookUseCase.handleCheckoutCompleted(webhook.orderId(), webhook.paymentIntentId());
+            handleWebhookUseCase.handleCheckoutCompleted(
+                    webhook.orderId(), webhook.paymentIntentId(), webhook.customerEmail());
         } else {
             handleWebhookUseCase.handleCheckoutExpired(webhook.orderId());
         }

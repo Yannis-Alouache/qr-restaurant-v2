@@ -7,6 +7,7 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 public class InMemoryRestaurantTableRepository implements RestaurantTableRepository {
@@ -18,6 +19,11 @@ public class InMemoryRestaurantTableRepository implements RestaurantTableReposit
         RestaurantTable saved = RestaurantTable.from(id, table.getRestaurantId(), table.getNumber());
         tables.put(id, saved);
         return copy(saved);
+    }
+
+    @Override
+    public Optional<RestaurantTable> findById(UUID id) {
+        return Optional.ofNullable(tables.get(id)).map(this::copy);
     }
 
     @Override

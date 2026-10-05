@@ -40,7 +40,7 @@ Copiez `.env.example` vers `.env` et adaptez si besoin.
 | `SEED_DEMO_DATA` | non | active le jeu de données de démo (V2) à la migration | `true` en local, voir ci-dessous |
 | `CLIENT_BASE_URL` | oui | URL publique client | `http://localhost:4300` |
 | `ADMIN_BASE_URL` | oui | URL publique admin | `http://localhost:4200` |
-| `MAIL_HOST` / `MAIL_PORT` | oui en prod | SMTP pour l'envoi des emails (réinitialisation de mot de passe) — refus de démarrer en prod sans `MAIL_HOST` | `localhost:1025` (Mailpit local) |
+| `MAIL_HOST` / `MAIL_PORT` | oui en prod | SMTP pour l'envoi des emails (réinitialisation de mot de passe, reçus de commande) — refus de démarrer en prod sans `MAIL_HOST` | `localhost:1025` (Mailpit local) |
 | `MAIL_FROM` | non | expéditeur des emails | `QR Restaurant <no-reply@qr-restaurant.local>` |
 | `MAIL_LOG_RESET_LINKS` | non | en cas d'échec d'envoi, journalise le lien de reset (développement uniquement, `false` par défaut en prod) | `true` en local |
 | `PASSWORD_RESET_TOKEN_TTL_MINUTES` | non | validité du lien de réinitialisation | `60` |
@@ -64,6 +64,8 @@ En local, les proxies Angular redirigent `/api` et `/ws` vers `http://localhost:
 ### Emails en local (Mailpit)
 
 Les emails de réinitialisation de mot de passe sont capturés par Mailpit : la boîte est visible sur `http://localhost:8025` (SMTP d'écoute sur le port 1025, valeurs par défaut de `MAIL_HOST`/`MAIL_PORT`). Le bouton « Mot de passe oublié ? » de l'admin déclenche l'envoi ; le lien du mail pointe vers `ADMIN_BASE_URL/reset-password?token=…`, valable une heure, utilisable une seule fois.
+
+Le **reçu de commande client** passe par le même Mailpit : dès qu'un webhook `checkout.session.completed` confirme un paiement, l'email client collecté par Stripe Checkout déclenche l'envoi du reçu HTML « ticket », coloré avec le thème du restaurant. L'envoi est *best effort* : une panne SMTP n'empêche jamais la commande d'être confirmée.
 
 ### Explorer la base avec pgAdmin
 

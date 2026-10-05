@@ -51,7 +51,7 @@ class RefundOrderUseCaseTest {
     @Test
     void shouldRefundAPaidOrderAndPublishTheTransition() {
         Order order = orderRepository.save(Order.from(null, restaurantId, UUID.randomUUID(),
-                OrderStatus.nouvelle, new BigDecimal("14.90"), "pi_123", null));
+                OrderStatus.nouvelle, new BigDecimal("14.90"), "pi_123", null, null));
 
         useCase.execute(ownerId, order.getId());
 
@@ -64,7 +64,7 @@ class RefundOrderUseCaseTest {
     @Test
     void shouldRefundAnAlreadyServedOrderForCommercialGoodwill() {
         Order order = orderRepository.save(Order.from(null, restaurantId, UUID.randomUUID(),
-                OrderStatus.servie, new BigDecimal("9.80"), "pi_456", null));
+                OrderStatus.servie, new BigDecimal("9.80"), "pi_456", null, null));
 
         useCase.execute(ownerId, order.getId());
 
@@ -75,7 +75,7 @@ class RefundOrderUseCaseTest {
     void shouldRejectARefundOnAnOrderOfAnotherRestaurant() {
         UUID otherRestaurantId = UUID.randomUUID();
         Order foreignOrder = orderRepository.save(Order.from(null, otherRestaurantId, UUID.randomUUID(),
-                OrderStatus.nouvelle, new BigDecimal("14.90"), "pi_789", null));
+                OrderStatus.nouvelle, new BigDecimal("14.90"), "pi_789", null, null));
 
         assertThrows(RefundOrderUseCase.OrderNotFoundException.class, () -> useCase.execute(ownerId, foreignOrder.getId()));
         assertEquals(0, paymentGateway.calls);
@@ -84,7 +84,7 @@ class RefundOrderUseCaseTest {
     @Test
     void shouldRejectARefundOnAnUnpaidOrder() {
         Order unpaid = orderRepository.save(Order.from(null, restaurantId, UUID.randomUUID(),
-                OrderStatus.en_attente_paiement, new BigDecimal("14.90"), null, null));
+                OrderStatus.en_attente_paiement, new BigDecimal("14.90"), null, null, null));
 
         assertThrows(Order.RefundUnavailableException.class, () -> useCase.execute(ownerId, unpaid.getId()));
         assertEquals(0, paymentGateway.calls);

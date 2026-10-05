@@ -38,7 +38,7 @@ class UpdateOrderStatusUseCaseTest {
         restaurantRepository.save(restaurant);
 
         Order order = Order.from(null, restaurantId, UUID.randomUUID(), OrderStatus.nouvelle,
-                new BigDecimal("14.90"), null, null);
+                new BigDecimal("14.90"), null, null, null);
         Order savedOrder = orderRepository.save(order);
 
         useCase.execute(userId, savedOrder.getId(), OrderStatus.en_preparation.name());

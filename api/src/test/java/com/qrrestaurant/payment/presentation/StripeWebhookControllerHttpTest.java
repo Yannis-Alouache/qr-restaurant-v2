@@ -157,6 +157,9 @@ class StripeWebhookControllerHttpTest extends AbstractPostgresIntegrationTest {
         org.junit.jupiter.api.Assertions.assertEquals(
                 "pi_test_123",
                 orderRepository.findById(java.util.UUID.fromString(orderId)).orElseThrow().getPaymentTransactionId());
+        org.junit.jupiter.api.Assertions.assertEquals(
+                "client@example.com",
+                orderRepository.findById(java.util.UUID.fromString(orderId)).orElseThrow().getCustomerEmail());
     }
 
     /**
@@ -194,6 +197,9 @@ class StripeWebhookControllerHttpTest extends AbstractPostgresIntegrationTest {
                       "id": "cs_completed_%s",
                       "object": "checkout.session",
                       "payment_intent": "%s",
+                      "customer_details": {
+                        "email": "client@example.com"
+                      },
                       "metadata": {
                         "order_id": "%s"
                       }

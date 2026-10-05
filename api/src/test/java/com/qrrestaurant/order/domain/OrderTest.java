@@ -36,13 +36,25 @@ class OrderTest {
     }
 
     @Test
-    void shouldStorePaymentTransactionAndMoveOrderToNouvelleWhenCheckoutCompletes() {
+    void shouldStorePaymentTransactionAndCustomerEmailWhenCheckoutCompletes() {
         Order order = orderWithStatus(OrderStatus.en_attente_paiement);
 
-        order.markCheckoutCompleted("pi_123456");
+        order.markCheckoutCompleted("pi_123456", "client@example.com");
 
         assertEquals(OrderStatus.nouvelle, order.getStatus());
         assertEquals("pi_123456", order.getPaymentTransactionId());
+        assertEquals("client@example.com", order.getCustomerEmail());
+    }
+
+    @Test
+    void shouldAcceptCheckoutCompletionWithoutCustomerEmail() {
+        // Webhook atypique sans customer_details : le paiement reste confirmé.
+        Order order = orderWithStatus(OrderStatus.en_attente_paiement);
+
+        order.markCheckoutCompleted("pi_123456", null);
+
+        assertEquals(OrderStatus.nouvelle, order.getStatus());
+        assertNull(order.getCustomerEmail());
     }
 
     @Test
@@ -58,27 +70,29 @@ class OrderTest {
     void shouldIgnoreDuplicateCheckoutCompletionWhenOrderIsAlreadyBeingPrepared() {
         Order order = orderWithStatus(OrderStatus.en_preparation);
 
-        boolean changed = order.markCheckoutCompleted("pi_123456");
+        boolean changed = order.markCheckoutCompleted("pi_123456", "client@example.com");
 
         assertFalse(changed);
         assertEquals(OrderStatus.en_preparation, order.getStatus());
         assertNull(order.getPaymentTransactionId());
+        assertNull(order.getCustomerEmail());
     }
 
     @Test
     void shouldBeIdempotentWhenCheckoutCompletionIsDeliveredTwice() {
         Order order = orderWithStatus(OrderStatus.en_attente_paiement);
-        order.markCheckoutCompleted("pi_first");
+        order.markCheckoutCompleted("pi_first", "first@example.com");
 
-        boolean replayChanged = order.markCheckoutCompleted("pi_second");
+        boolean replayChanged = order.markCheckoutCompleted("pi_second", "second@example.com");
 
         assertFalse(replayChanged);
         assertEquals(OrderStatus.nouvelle, order.getStatus());
         assertEquals("pi_first", order.getPaymentTransactionId());
+        assertEquals("first@example.com", order.getCustomerEmail());
     }
 
     private Order orderWithStatus(OrderStatus status) {
         return Order.from(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), status,
-                BigDecimal.ZERO, null, Instant.now());
+                BigDecimal.ZERO, null, null, Instant.now());
     }
 }

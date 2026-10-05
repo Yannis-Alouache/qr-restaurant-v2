@@ -32,7 +32,7 @@ public class StripeWebhookPayloadParser {
         this.webhookSecret = webhookSecret;
     }
 
-    public record ParsedWebhook(String orderId, String paymentIntentId) {}
+    public record ParsedWebhook(String orderId, String paymentIntentId, String customerEmail) {}
 
     public boolean isHandled(String eventType) {
         return CHECKOUT_COMPLETED_EVENT.equals(eventType) || CHECKOUT_EXPIRED_EVENT.equals(eventType);
@@ -52,7 +52,12 @@ public class StripeWebhookPayloadParser {
         if (orderId == null || orderId.isBlank()) {
             throw new MissingOrderMetadataException();
         }
-        return new ParsedWebhook(orderId, session.getPaymentIntent());
+        // Email collecté par le formulaire Stripe Checkout (obligatoire en mode
+        // PAYMENT) : présent dans customer_details de l'événement, sauf webhook
+        // atypique — null accepté, il sert seulement au reçu client.
+        String customerEmail = session.getCustomerDetails() == null
+                ? null : session.getCustomerDetails().getEmail();
+        return new ParsedWebhook(orderId, session.getPaymentIntent(), customerEmail);
     }
 
     // getObject() refuse les événements rendus dans une autre version d'API que
