@@ -23,9 +23,11 @@ point se trouve dans [README.md](README.md).
 ## Stripe
 
 - [ ] Clés **live** dans Coolify (`STRIPE_PUBLIC_KEY`, `STRIPE_SECRET_KEY`), service `api` redémarré
-- [ ] Endpoint webhook créé : `https://api.votredomaine.fr/api/webhooks/stripe`, événement `checkout.session.completed`
+- [ ] Endpoint webhook créé : `https://api.votredomaine.fr/api/webhooks/stripe`, événements `checkout.session.completed` **et** `account.updated`
 - [ ] `STRIPE_WEBHOOK_SECRET` (whsec_…) et `STRIPE_WEBHOOK_ENDPOINT_ID` (we_…) renseignés, `api` redémarré
+- [ ] Connect activé sur le compte plateforme (Dashboard > Connect > Get started) — sans lui, la création des comptes Express des restaurateurs échoue
 - [ ] Commande réelle payée → passe de « en attente de paiement » à « payée » automatiquement, puis remboursée
+- [ ] Un restaurateur test a connecté son compte Stripe depuis Paramètres > Paiements en ligne (statut « Compte Stripe connecté »)
 
 ## E-mail
 

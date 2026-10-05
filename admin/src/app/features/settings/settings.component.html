@@ -80,6 +80,92 @@
       </button>
     </section>
 
+    <!-- ═══ Paiements en ligne (Stripe Connect) ═══ -->
+    <section class="section-card">
+      <h2 class="section-title">Paiements en ligne</h2>
+      <p class="section-desc">
+        Connectez votre compte Stripe pour encaisser les commandes réglées en ligne.
+        Les paiements sont versés directement sur votre compte.
+      </p>
+
+      @switch (stripeState()) {
+
+        @case ('loading') {
+          <div class="stripe-status">
+            <svg lucideLoaderCircle class="spin"></svg>
+            <span>Vérification de la connexion Stripe…</span>
+          </div>
+        }
+
+        @case ('active') {
+          <div class="stripe-status ok">
+            <svg lucideShieldCheck></svg>
+            <div>
+              <strong>Compte Stripe connecté</strong>
+              <span>Vos clients peuvent payer en ligne, les versements arrivent sur votre compte Stripe.</span>
+            </div>
+          </div>
+          <div class="field" style="margin-top: var(--space-5);">
+            <label for="stripe-account">Compte Stripe</label>
+            <input id="stripe-account" class="input" type="text" readonly
+                   [value]="restaurant.restaurant()?.paymentProviderAccountId" />
+            <p class="cover-hint">Rempli automatiquement lors de la connexion — ne modifiez pas ce champ.</p>
+          </div>
+        }
+
+        @case ('pending') {
+          <div class="stripe-status warn">
+            <svg lucideCircleAlert></svg>
+            <div>
+              <strong>Inscription Stripe incomplète</strong>
+              <span>Reprenez le formulaire chez Stripe pour activer les paiements en ligne.</span>
+            </div>
+          </div>
+          <button type="button" class="btn-stripe" (click)="connectStripe()" [disabled]="connectingStripe()">
+            @if (connectingStripe()) {
+              <svg lucideLoaderCircle class="spin"></svg> Ouverture de Stripe…
+            } @else {
+              <svg lucideBanknote></svg> Reprendre mon inscription Stripe
+            }
+          </button>
+        }
+
+        @case ('restricted') {
+          <div class="stripe-status warn">
+            <svg lucideCircleAlert></svg>
+            <div>
+              <strong>Stripe demande des informations supplémentaires</strong>
+              <span>Vos versements sont suspendus jusqu'à la vérification de votre compte.</span>
+            </div>
+          </div>
+          <button type="button" class="btn-stripe" (click)="connectStripe()" [disabled]="connectingStripe()">
+            @if (connectingStripe()) {
+              <svg lucideLoaderCircle class="spin"></svg> Ouverture de Stripe…
+            } @else {
+              <svg lucideBanknote></svg> Compléter mes informations Stripe
+            }
+          </button>
+        }
+
+        @default {
+          <div class="stripe-status info">
+            <svg lucideBanknote></svg>
+            <div>
+              <strong>Aucun compte de paiement connecté</strong>
+              <span>Sans compte Stripe, vos clients ne peuvent pas payer en ligne. La connexion prend quelques minutes.</span>
+            </div>
+          </div>
+          <button type="button" class="btn-stripe" (click)="connectStripe()" [disabled]="connectingStripe()">
+            @if (connectingStripe()) {
+              <svg lucideLoaderCircle class="spin"></svg> Ouverture de Stripe…
+            } @else {
+              <svg lucideBanknote></svg> Connecter mon compte Stripe
+            }
+          </button>
+        }
+      }
+    </section>
+
     <!-- ═══ Theme ═══ -->
     <section class="section-card">
       <h2 class="section-title">Thème du menu client</h2>

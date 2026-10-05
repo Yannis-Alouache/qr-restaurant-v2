@@ -150,7 +150,46 @@
 .btn-save svg { width: 16px; height: 16px; }
 .btn-save.saved { background: var(--success); }
 
-/* ─── QR codes ──────────────────────────────────────────────────────── */
+/* ─── Paiements en ligne (Stripe Connect) ───────────────────────────── */
+.stripe-status {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+
+  svg { width: 20px; height: 20px; flex-shrink: 0; margin-top: 1px; }
+  strong { display: block; font-weight: 600; color: var(--fg); }
+  span { color: var(--muted); font-size: var(--text-xs); line-height: 1.5; }
+
+  &.ok { background: var(--success-bg); border-color: var(--success); svg { color: var(--success); } }
+  &.warn { background: var(--danger-bg); border-color: var(--danger); svg { color: var(--danger); } }
+  &.info { background: var(--bg); svg { color: var(--muted); } }
+}
+.btn-stripe {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-5);
+  padding: 10px 20px;
+  background: #635bff; /* violet Stripe */
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter var(--motion-fast) var(--ease-standard);
+}
+.btn-stripe:hover { filter: brightness(1.08); }
+.btn-stripe:disabled { opacity: 0.6; cursor: not-allowed; }
+.btn-stripe svg { width: 16px; height: 16px; }
+.spin { animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ─── Theme grid ────────────────────────────────────────────────────── */
 .qr-toolbar {
   display: flex;
   align-items: center;
