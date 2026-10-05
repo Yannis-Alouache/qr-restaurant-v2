@@ -150,7 +150,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({
             PaymentGateway.CheckoutSessionCreationException.class,
-            PaymentGateway.RefundException.class
+            PaymentGateway.RefundException.class,
+            com.qrrestaurant.payment.connect.domain.StripeConnectAccountGateway.StripeConnectUnavailableException.class
     })
     public ResponseEntity<ApiErrorResponse> handlePaymentUnavailable(RuntimeException ex) {
         return respond(HttpStatus.SERVICE_UNAVAILABLE, ex.getMessage());

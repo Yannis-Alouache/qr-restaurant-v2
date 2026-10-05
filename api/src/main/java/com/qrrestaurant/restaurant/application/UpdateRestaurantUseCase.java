@@ -39,7 +39,7 @@ public class UpdateRestaurantUseCase {
         cleanupImageIfChanged(previousCover, saved.getCoverPath());
         return new RestaurantView(saved.getId().toString(), saved.getName(), saved.getSlug(),
                 saved.getAddress(), saved.getLogoPath(), saved.getCoverPath(), saved.getThemeId(),
-                saved.getPaymentProviderAccountId(), clientBaseUrl);
+                saved.getPaymentProviderAccountId(), saved.getStripeConnectStatus(), clientBaseUrl);
     }
 
     private void cleanupImageIfChanged(String previousPath, String currentPath) {
@@ -50,5 +50,5 @@ public class UpdateRestaurantUseCase {
 
     public record RestaurantView(String id, String name, String slug, String address,
                                    String logoPath, String coverPath, String themeId, String paymentProviderAccountId,
-                                   String clientBaseUrl) {}
+                                   String stripeConnectStatus, String clientBaseUrl) {}
 }

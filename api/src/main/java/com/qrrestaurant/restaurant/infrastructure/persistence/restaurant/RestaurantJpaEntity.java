@@ -38,6 +38,9 @@ public class RestaurantJpaEntity {
     @Column(name = "payment_provider_account_id")
     private String paymentProviderAccountId;
 
+    @Column(name = "stripe_connect_status")
+    private String stripeConnectStatus;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -74,6 +77,9 @@ public class RestaurantJpaEntity {
 
     public String getPaymentProviderAccountId() { return paymentProviderAccountId; }
     public void setPaymentProviderAccountId(String paymentProviderAccountId) { this.paymentProviderAccountId = paymentProviderAccountId; }
+
+    public String getStripeConnectStatus() { return stripeConnectStatus; }
+    public void setStripeConnectStatus(String stripeConnectStatus) { this.stripeConnectStatus = stripeConnectStatus; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
 }

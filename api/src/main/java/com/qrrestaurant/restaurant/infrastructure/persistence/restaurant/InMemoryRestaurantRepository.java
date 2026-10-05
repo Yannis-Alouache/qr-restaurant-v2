@@ -19,7 +19,7 @@ public class InMemoryRestaurantRepository implements RestaurantRepository {
 
         Restaurant saved = Restaurant.from(id, restaurant.getUserId(), restaurant.getName(), restaurant.getSlug(),
                 restaurant.getAddress(), restaurant.getLogoPath(), restaurant.getCoverPath(), restaurant.getThemeId(),
-                restaurant.getPaymentProviderAccountId(), createdAt);
+                restaurant.getPaymentProviderAccountId(), createdAt, restaurant.getStripeConnectStatus());
         restaurants.put(id, saved);
         return copy(saved);
     }
@@ -46,6 +46,15 @@ public class InMemoryRestaurantRepository implements RestaurantRepository {
     }
 
     @Override
+    public Optional<Restaurant> findByPaymentProviderAccountId(String paymentProviderAccountId) {
+        return restaurants.values().stream()
+                .filter(restaurant -> restaurant.getPaymentProviderAccountId() != null
+                        && restaurant.getPaymentProviderAccountId().equals(paymentProviderAccountId))
+                .findFirst()
+                .map(this::copy);
+    }
+
+    @Override
     public boolean existsBySlug(String slug) {
         return restaurants.values().stream().anyMatch(restaurant -> slug.equals(restaurant.getSlug()));
     }
@@ -53,6 +62,6 @@ public class InMemoryRestaurantRepository implements RestaurantRepository {
     private Restaurant copy(Restaurant restaurant) {
         return Restaurant.from(restaurant.getId(), restaurant.getUserId(), restaurant.getName(), restaurant.getSlug(),
                 restaurant.getAddress(), restaurant.getLogoPath(), restaurant.getCoverPath(), restaurant.getThemeId(),
-                restaurant.getPaymentProviderAccountId(), restaurant.getCreatedAt());
+                restaurant.getPaymentProviderAccountId(), restaurant.getCreatedAt(), restaurant.getStripeConnectStatus());
     }
 }

@@ -2,6 +2,7 @@ package com.qrrestaurant.payment.presentation;
 
 import com.stripe.StripeClient;
 import com.stripe.exception.StripeException;
+import com.stripe.model.Account;
 import com.stripe.model.Event;
 import com.stripe.model.EventDataObjectDeserializer;
 import com.stripe.model.StripeObject;
@@ -22,6 +23,7 @@ public class StripeWebhookPayloadParser {
 
     public static final String CHECKOUT_COMPLETED_EVENT = "checkout.session.completed";
     public static final String CHECKOUT_EXPIRED_EVENT = "checkout.session.expired";
+    public static final String ACCOUNT_UPDATED_EVENT = "account.updated";
 
     private final StripeClient stripeClient;
     private final String webhookSecret;
@@ -35,7 +37,9 @@ public class StripeWebhookPayloadParser {
     public record ParsedWebhook(String orderId, String paymentIntentId, String customerEmail) {}
 
     public boolean isHandled(String eventType) {
-        return CHECKOUT_COMPLETED_EVENT.equals(eventType) || CHECKOUT_EXPIRED_EVENT.equals(eventType);
+        return CHECKOUT_COMPLETED_EVENT.equals(eventType)
+                || CHECKOUT_EXPIRED_EVENT.equals(eventType)
+                || ACCOUNT_UPDATED_EVENT.equals(eventType);
     }
 
     public Event verify(String payload, String signatureHeader) {
@@ -58,6 +62,26 @@ public class StripeWebhookPayloadParser {
         String customerEmail = session.getCustomerDetails() == null
                 ? null : session.getCustomerDetails().getEmail();
         return new ParsedWebhook(orderId, session.getPaymentIntent(), customerEmail);
+    }
+
+    public record ParsedAccountUpdate(String accountId, Boolean detailsSubmitted, Boolean payoutsEnabled, boolean deleted) {}
+
+    public ParsedAccountUpdate extractAccountUpdate(Event event) {
+        Object rawObject;
+        try {
+            Optional<StripeObject> safeObject = event.getDataObjectDeserializer().getObject();
+            rawObject = safeObject.isPresent() ? safeObject.get() : event.getDataObjectDeserializer().deserializeUnsafe();
+        } catch (StripeException | RuntimeException e) {
+            throw new InvalidWebhookPayloadException();
+        }
+        if (!(rawObject instanceof Account account) || account.getId() == null) {
+            throw new InvalidWebhookPayloadException();
+        }
+        return new ParsedAccountUpdate(
+                account.getId(),
+                account.getDetailsSubmitted(),
+                account.getPayoutsEnabled(),
+                Boolean.TRUE.equals(account.getDeleted()));
     }
 
     // getObject() refuse les événements rendus dans une autre version d'API que

@@ -84,6 +84,10 @@ stripe:
   webhook-secret: ${STRIPE_WEBHOOK_SECRET:}
   # Identifiant we_... de l'endpoint dashboard : active le contrôle de version au démarrage.
   webhook-endpoint-id: ${STRIPE_WEBHOOK_ENDPOINT_ID:}
+  connect:
+    # Pays des comptes Connect Express créés pour les restaurateurs (les comptes
+    # sont créés par la plateforme, le KYC se fait via le lien d'onboarding).
+    country: ${STRIPE_CONNECT_COUNTRY:FR}
 
 storage:
   seaweedfs:
