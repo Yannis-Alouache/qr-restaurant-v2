@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.qrrestaurant.payment.domain.PaymentGateway;
 import com.qrrestaurant.payment.infrastructure.gateway.DeterministicPaymentGateway;
+import com.qrrestaurant.payment.connect.infrastructure.DeterministicConnectAccountGateway;
 import com.qrrestaurant.support.AbstractPostgresIntegrationTest;
 import com.qrrestaurant.support.TestAuthCookies;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,6 +75,16 @@ abstract class AcceptanceTestBase extends AbstractPostgresIntegrationTest {
         return objectMapper.readTree(result.getResponse().getContentAsString());
     }
 
+    /** Variante pour les POST qui répondent 200 (actions sans création de ressource REST). */
+    JsonNode postAuthorizedOkJson(String path, Cookie jwt) throws Exception {
+        MvcResult result = mockMvc.perform(post(path)
+                        .cookie(jwt)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn();
+        return objectMapper.readTree(result.getResponse().getContentAsString());
+    }
+
     JsonNode getAuthorizedJson(String path, Cookie jwt) throws Exception {
         MvcResult result = mockMvc.perform(get(path)
                         .cookie(jwt))
@@ -110,13 +121,14 @@ abstract class AcceptanceTestBase extends AbstractPostgresIntegrationTest {
         jdbcTemplate.update(
                 """
                 UPDATE restaurant
-                SET name = ?, address = ?, theme_id = ?, payment_provider_account_id = ?
+                SET name = ?, address = ?, theme_id = ?, payment_provider_account_id = ?, stripe_connect_status = ?
                 WHERE id = ?
                 """,
                 "Naia Burger",
                 "12 Rue de la Paix, Paris",
                 "chaud",
                 "acct_seed_test",
+                "active",
                 RESTAURANT_ID);
 
         jdbcTemplate.update(
@@ -283,6 +295,29 @@ abstract class AcceptanceTestBase extends AbstractPostgresIntegrationTest {
                 """.formatted(STRIPE_ACCOUNT_API_VERSION, orderId, orderId);
     }
 
+    String accountUpdatedPayload(String accountId, boolean detailsSubmitted, boolean payoutsEnabled, boolean deleted) {
+        return """
+                {
+                  "id": "evt_account_updated",
+                  "object": "event",
+                  "api_version": "%s",
+                  "type": "account.updated",
+                  "data": {
+                    "object": {
+                      "id": "%s",
+                      "object": "account",
+                      "details_submitted": %s,
+                      "payouts_enabled": %s,
+                      "deleted": %s
+                    }
+                  }
+                }
+                """.formatted(STRIPE_ACCOUNT_API_VERSION, accountId, detailsSubmitted, payoutsEnabled, deleted);
+    }
+
+    @Autowired
+    DeterministicConnectAccountGateway connectGateway;
+
     private String stripeSignature(String payload) throws Exception {
         long timestamp = Instant.now().getEpochSecond();
         Mac mac = Mac.getInstance("HmacSHA256");
@@ -300,6 +335,12 @@ abstract class AcceptanceTestBase extends AbstractPostgresIntegrationTest {
         @Primary
         PaymentGateway paymentGateway() {
             return new DeterministicPaymentGateway();
+        }
+
+        @Bean
+        @Primary
+        DeterministicConnectAccountGateway stripeConnectAccountGateway() {
+            return new DeterministicConnectAccountGateway();
         }
     }
 }

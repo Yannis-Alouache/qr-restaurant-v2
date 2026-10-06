@@ -1,10 +1,14 @@
-import { Component, OnInit, effect, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, effect, inject, signal } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RestaurantService, Table } from '../../core/services/restaurant.service';
 import { ImageService } from '../../core/services/image.service';
 import { ToastService } from '../../core/services/toast.service';
 import QRCode from 'qrcode';
 import { ADMIN_ICONS } from '../../core/icons';
+
+/** État de connexion Stripe affiché dans la section Paiements. */
+type StripeConnectState = 'loading' | 'none' | 'pending' | 'active' | 'restricted';
 
 const THEMES = [
   { id: 'classique', name: 'Classique', sub: 'Noir et blanc', cls: 'theme-preview-classic' },
@@ -29,6 +33,8 @@ interface QrEntry {
 export class SettingsComponent implements OnInit {
   private image = inject(ImageService);
   private toast = inject(ToastService);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
   restaurant = inject(RestaurantService);
 
   themes = THEMES;
@@ -37,6 +43,19 @@ export class SettingsComponent implements OnInit {
   uploadingLogo = signal(false);
   uploadingCover = signal(false);
   qrEntries = signal<QrEntry[]>([]);
+  connectingStripe = signal(false);
+
+  /** État Stripe Connect dérivé du restaurant chargé ('loading' tant que rien n'est arrivé). */
+  stripeState = computed<StripeConnectState>(() => {
+    const r = this.restaurant.restaurant();
+    if (!r) {
+      return 'loading';
+    }
+    if (!r.paymentProviderAccountId) {
+      return 'none';
+    }
+    return r.stripeConnectStatus ?? 'pending';
+  });
 
   /** All fields preserved on save; only name/theme/logo are surfaced in the UI. */
   form = new FormGroup({
@@ -66,6 +85,53 @@ export class SettingsComponent implements OnInit {
 
   ngOnInit(): void {
     this.generateQrCodes();
+    this.handleStripeRedirect();
+  }
+
+  // ── Paiements en ligne (Stripe Connect) ────────────────────────────
+  /**
+   * Retour du formulaire Stripe Express : ?connect=return après une étape
+   * complétée, ?connect=refresh si le lien a expiré. Dans les deux cas on
+   * relit le statut auprès de Stripe puis on nettoie l'URL.
+   */
+  private handleStripeRedirect(): void {
+    const connect = this.route.snapshot.queryParamMap.get('connect');
+    if (!connect) {
+      return;
+    }
+    this.router.navigate([], { relativeTo: this.route, queryParams: {} });
+
+    this.restaurant.refreshStripeStatus().subscribe({
+      next: (status) => {
+        if (connect === 'refresh') {
+          this.toast.show('Lien Stripe expiré : relancez la connexion depuis cette page');
+        } else if (status.stripeConnectStatus === 'active') {
+          this.toast.show('Compte Stripe connecté : vous pouvez encaisser les paiements');
+        } else if (status.stripeConnectStatus === 'restricted') {
+          this.toast.show('Stripe demande des informations supplémentaires sur votre compte');
+        } else {
+          this.toast.show('Inscription Stripe incomplète : reprenez où vous en étiez');
+        }
+      },
+      error: () => this.toast.show('Impossible de vérifier le statut Stripe'),
+    });
+  }
+
+  /** Ouvre le formulaire d'onboarding Stripe Express (redirection externe). */
+  connectStripe(): void {
+    if (this.connectingStripe()) {
+      return;
+    }
+    this.connectingStripe.set(true);
+    this.restaurant.startStripeOnboarding().subscribe({
+      next: (res) => {
+        window.location.href = res.url;
+      },
+      error: (err) => {
+        this.connectingStripe.set(false);
+        this.toast.show(err.error?.message ?? 'Impossible de démarrer la connexion Stripe');
+      },
+    });
   }
 
   // ── Restaurant info ────────────────────────────────────────────────

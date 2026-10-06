@@ -12,7 +12,13 @@ export interface Restaurant {
   coverPath: string | null;
   themeId: string;
   paymentProviderAccountId: string | null;
+  stripeConnectStatus: 'pending' | 'active' | 'restricted' | null;
   clientBaseUrl: string;
+}
+
+export interface StripeConnectStatusView {
+  paymentProviderAccountId: string | null;
+  stripeConnectStatus: Restaurant['stripeConnectStatus'];
 }
 
 export interface Table {
@@ -60,6 +66,21 @@ export class RestaurantService {
   loadTables(): Observable<Table[]> {
     return this.http.get<Table[]>('/api/admin/restaurant/tables').pipe(
       tap(t => this.tables.set(t))
+    );
+  }
+
+  /** Ouvre le flux Stripe Connect : crée le compte Express si besoin, renvoie l'URL d'onboarding. */
+  startStripeOnboarding(): Observable<{ url: string; paymentProviderAccountId: string }> {
+    return this.http.post<{ url: string; paymentProviderAccountId: string }>(
+      '/api/admin/connect/stripe/onboarding', {});
+  }
+
+  /** Relit le statut du compte auprès de Stripe et met à jour l'état local. */
+  refreshStripeStatus(): Observable<StripeConnectStatusView> {
+    return this.http.get<StripeConnectStatusView>('/api/admin/connect/stripe/status').pipe(
+      tap(status => this.restaurant.update(r => r
+        ? { ...r, paymentProviderAccountId: status.paymentProviderAccountId, stripeConnectStatus: status.stripeConnectStatus }
+        : r))
     );
   }
 

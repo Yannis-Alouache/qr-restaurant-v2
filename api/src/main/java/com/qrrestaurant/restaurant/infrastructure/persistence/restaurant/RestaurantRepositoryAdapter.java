@@ -39,6 +39,11 @@ public class RestaurantRepositoryAdapter implements RestaurantRepository {
     }
 
     @Override
+    public Optional<Restaurant> findByPaymentProviderAccountId(String paymentProviderAccountId) {
+        return jpaRepo.findByPaymentProviderAccountId(paymentProviderAccountId).map(this::toDomain);
+    }
+
+    @Override
     public boolean existsBySlug(String slug) {
         return jpaRepo.existsBySlug(slug);
     }
@@ -47,7 +52,7 @@ public class RestaurantRepositoryAdapter implements RestaurantRepository {
         return Restaurant.from(
                 e.getId(), e.getUserId(), e.getName(), e.getSlug(),
                 e.getAddress(), e.getLogoPath(), e.getCoverPath(), e.getThemeId(),
-                e.getPaymentProviderAccountId(), e.getCreatedAt()
+                e.getPaymentProviderAccountId(), e.getCreatedAt(), e.getStripeConnectStatus()
         );
     }
 
@@ -62,6 +67,7 @@ public class RestaurantRepositoryAdapter implements RestaurantRepository {
         e.setCoverPath(d.getCoverPath());
         e.setThemeId(d.getThemeId());
         e.setPaymentProviderAccountId(d.getPaymentProviderAccountId());
+        e.setStripeConnectStatus(d.getStripeConnectStatus());
         return e;
     }
 }

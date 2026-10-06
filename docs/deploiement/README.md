@@ -52,7 +52,8 @@ Internet ──────►│ Traefik (TLS Let's Encrypt, par Coolify)│
 
 1. **Un VPS** (étape 1) — 2 à 4 vCPU, **8 Go de RAM** recommandés, Ubuntu 24.04.
 2. **Un nom de domaine** (étape 2) — chez OVH, Gandi, Cloudflare… peu importe.
-3. **Des clés Stripe live** + un endpoint webhook (étape 8).
+3. **Des clés Stripe live**, l'**activation de Connect** (profil Express) et
+   un endpoint webhook à deux événements (étape 8).
 4. **Un relais SMTP** pour les e-mails transactionnels (étape 9) — ex. Brevo,
    gratuit à 300 e-mails/jour, suffisant pour démarrer.
 
@@ -208,16 +209,34 @@ changés ; les données (volumes PostgreSQL et SeaweedFS) ne bougent pas.
 
 1. Dashboard Stripe → **Developers → API keys**, basculez en *Live* :
    remplacez `STRIPE_PUBLIC_KEY` et `STRIPE_SECRET_KEY` dans Coolify.
-2. **Developers → Webhooks → Add endpoint** :
+2. **Activez Connect sur le compte plateforme** — obligatoire une seule fois,
+   et uniquement en live (en mode test, Connect est actif par défaut) :
+   - Dashboard → **Connect → Get started**, choisissez le type de compte
+     **Express** (le formulaire demande ensuite les informations légales de
+     votre plateforme ; c'est le même compte que vos clés API).
+   - Sans profil Connect actif, la création des comptes restaurateurs échoue
+     au clic sur « Connecter mon compte Stripe » : erreur 503 côté admin,
+     message Stripe détaillé dans les logs de l'API.
+3. **Developers → Webhooks → Add endpoint** :
    - URL : `https://api.votredomaine.fr/api/webhooks/stripe`
-   - Événement : `checkout.session.completed`
-3. Renseignez le `whsec_...` de l'endpoint dans `STRIPE_WEBHOOK_SECRET` et
+   - Événements : `checkout.session.completed` (confirmation des commandes
+     payées) **et** `account.updated` (statut d'onboarding Stripe Connect des
+     restaurateurs — sans lui, le badge « Paiements en ligne » de leurs
+     Paramètres ne se met plus à jour automatiquement)
+4. Renseignez le `whsec_...` de l'endpoint dans `STRIPE_WEBHOOK_SECRET` et
    l'identifiant `we_...` dans `STRIPE_WEBHOOK_ENDPOINT_ID` (l'API vérifie au
    démarrage la cohérence de version d'API et loggue un WARN en cas d'écart).
-4. **Restart** du service `api` dans Coolify pour prendre les nouvelles
-   variables.
-5. Testez une commande réelle à montant minimum, puis remboursez-la depuis
+5. **Restart** du service `api` dans Coolify pour prendre les nouvelles
+   variables. Par défaut les comptes Express sont créés en France
+   (`STRIPE_CONNECT_COUNTRY=FR`, cf. `.env.production.example`) — ne
+   surchargez la variable que si vos restaurateurs sont ailleurs.
+6. Testez une commande réelle à montant minimum, puis remboursez-la depuis
    le back-office (bouton de remboursement existant).
+7. Testez le parcours restaurateur : depuis **Paramètres → Paiements en
+   ligne**, cliquez « Connecter mon compte Stripe », complétez le formulaire
+   Stripe (vraies informations en live) et revenez dans l'admin : le badge
+   « Compte Stripe connecté » doit apparaître, puis une commande réelle doit
+   être encaissée et versée sur ce compte.
 
 > À chaque montée de version de `stripe-java` (pom.xml), mettez à jour la
 > version d'API de l'endpoint webhook dans le dashboard **dans le même

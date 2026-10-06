@@ -1,6 +1,7 @@
 package com.qrrestaurant.payment.presentation;
 
 import com.qrrestaurant.payment.application.HandleWebhookUseCase;
+import com.qrrestaurant.payment.connect.application.HandleStripeAccountUpdatedUseCase;
 import com.stripe.model.Event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,11 +20,14 @@ public class StripeWebhookController {
 
     private final StripeWebhookPayloadParser payloadParser;
     private final HandleWebhookUseCase handleWebhookUseCase;
+    private final HandleStripeAccountUpdatedUseCase handleStripeAccountUpdatedUseCase;
 
     public StripeWebhookController(StripeWebhookPayloadParser payloadParser,
-                                   HandleWebhookUseCase handleWebhookUseCase) {
+                                   HandleWebhookUseCase handleWebhookUseCase,
+                                   HandleStripeAccountUpdatedUseCase handleStripeAccountUpdatedUseCase) {
         this.payloadParser = payloadParser;
         this.handleWebhookUseCase = handleWebhookUseCase;
+        this.handleStripeAccountUpdatedUseCase = handleStripeAccountUpdatedUseCase;
     }
 
     @PostMapping
@@ -32,10 +36,21 @@ public class StripeWebhookController {
             @RequestHeader("Stripe-Signature") String sigHeader) {
         Event event = payloadParser.verify(payload, sigHeader);
 
-        // Les événements hors cycle de commande sont acquittés sans traitement :
-        // une réponse non 2xx déclencherait des tentatives de livraison inutiles.
+        // Les événements hors cycle de commande / Connect sont acquittés sans
+        // traitement : une réponse non 2xx déclencherait des tentatives de
+        // livraison inutiles.
         if (!payloadParser.isHandled(event.getType())) {
             log.info("Ignoring Stripe webhook event type {}", event.getType());
+            return ResponseEntity.ok().build();
+        }
+
+        if (StripeWebhookPayloadParser.ACCOUNT_UPDATED_EVENT.equals(event.getType())) {
+            StripeWebhookPayloadParser.ParsedAccountUpdate accountUpdate = payloadParser.extractAccountUpdate(event);
+            handleStripeAccountUpdatedUseCase.execute(
+                    accountUpdate.accountId(),
+                    accountUpdate.detailsSubmitted(),
+                    accountUpdate.payoutsEnabled(),
+                    accountUpdate.deleted());
             return ResponseEntity.ok().build();
         }
 

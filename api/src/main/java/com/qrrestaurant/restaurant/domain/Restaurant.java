@@ -15,10 +15,17 @@ public class Restaurant {
     private String coverPath;
     private String themeId;
     private String paymentProviderAccountId;
+    private String stripeConnectStatus;
     private final LocalDateTime createdAt;
 
     private Restaurant(UUID id, UUID userId, String name, String slug, String address,
                        String logoPath, String coverPath, String themeId, String paymentProviderAccountId, LocalDateTime createdAt) {
+        this(id, userId, name, slug, address, logoPath, coverPath, themeId, paymentProviderAccountId, createdAt, null);
+    }
+
+    private Restaurant(UUID id, UUID userId, String name, String slug, String address,
+                       String logoPath, String coverPath, String themeId, String paymentProviderAccountId,
+                       LocalDateTime createdAt, String stripeConnectStatus) {
         this.id = id;
         this.userId = userId;
         this.name = name;
@@ -29,6 +36,7 @@ public class Restaurant {
         this.themeId = themeId;
         this.paymentProviderAccountId = paymentProviderAccountId;
         this.createdAt = createdAt;
+        this.stripeConnectStatus = stripeConnectStatus;
     }
 
     public static Restaurant create(UUID userId, String name, String slug, String themeId, String logoPath) {
@@ -42,6 +50,14 @@ public class Restaurant {
     public static Restaurant from(UUID id, UUID userId, String name, String slug, String address,
                                    String logoPath, String coverPath, String themeId, String paymentProviderAccountId, LocalDateTime createdAt) {
         return new Restaurant(id, userId, name, slug, address, logoPath, coverPath, themeId, paymentProviderAccountId, createdAt);
+    }
+
+    /** Réhydratation complète, incluant l'état Stripe Connect (persistance). */
+    public static Restaurant from(UUID id, UUID userId, String name, String slug, String address,
+                                   String logoPath, String coverPath, String themeId, String paymentProviderAccountId,
+                                   LocalDateTime createdAt, String stripeConnectStatus) {
+        return new Restaurant(id, userId, name, slug, address, logoPath, coverPath, themeId,
+                paymentProviderAccountId, createdAt, stripeConnectStatus);
     }
 
     public void update(String name, String address, String logoPath, String coverPath, String themeId, String paymentProviderAccountId) {
@@ -65,6 +81,34 @@ public class Restaurant {
         }
     }
 
+    /**
+     * Rattache un compte Stripe Connect créé par le flux d'onboarding : le champ
+     * de paiement est rempli automatiquement (jamais saisi à la main) et le
+     * statut démarre à PENDING tant que le KYC Stripe n'est pas terminé.
+     */
+    public void markStripeConnectPending(String accountId) {
+        String normalized = normalizePaymentProviderAccountId(accountId);
+        if (normalized == null) {
+            throw new IllegalArgumentException("Identifiant de compte Stripe requis");
+        }
+        this.paymentProviderAccountId = normalized;
+        this.stripeConnectStatus = StripeConnectStatus.PENDING.value();
+    }
+
+    /** Met à jour le statut d'onboarding (webhook account.updated ou rafraîchissement manuel). */
+    public void updateStripeConnectStatus(StripeConnectStatus status) {
+        if (paymentProviderAccountId == null || paymentProviderAccountId.isBlank()) {
+            return;
+        }
+        this.stripeConnectStatus = status.value();
+    }
+
+    /** Déconnecte le compte Stripe (compte supprimé chez Stripe ou introuvable). */
+    public void clearStripeConnection() {
+        this.paymentProviderAccountId = null;
+        this.stripeConnectStatus = null;
+    }
+
     private static String normalizePaymentProviderAccountId(String paymentProviderAccountId) {
         if (paymentProviderAccountId == null) {
             return null;
@@ -82,6 +126,7 @@ public class Restaurant {
     public String getCoverPath() { return coverPath; }
     public String getThemeId() { return themeId; }
     public String getPaymentProviderAccountId() { return paymentProviderAccountId; }
+    public String getStripeConnectStatus() { return stripeConnectStatus; }
     public LocalDateTime getCreatedAt() { return createdAt; }
 
     public static class PaymentNotConfiguredException extends IllegalArgumentException {

@@ -8,5 +8,6 @@ public interface RestaurantRepository {
     Optional<Restaurant> findById(UUID id);
     Optional<Restaurant> findBySlug(String slug);
     Optional<Restaurant> findByUserId(UUID userId);
+    Optional<Restaurant> findByPaymentProviderAccountId(String paymentProviderAccountId);
     boolean existsBySlug(String slug);
 }
