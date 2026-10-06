@@ -25,6 +25,11 @@ export interface ResetPasswordRequest {
   newPassword: string;
 }
 
+/** Fournisseurs de connexion exposés par l'API — le bouton Google est masqué si désactivé. */
+export interface AuthProviders {
+  google: boolean;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private http = inject(HttpClient);
@@ -56,6 +61,11 @@ export class AuthService {
   /** Demande l'envoi d'un lien de réinitialisation. La réponse ne révèle pas si le compte existe. */
   requestPasswordReset(email: string): Observable<void> {
     return this.http.post<void>('/api/auth/forgot-password', { email });
+  }
+
+  /** Fournisseurs de connexion disponibles côté API (Google activé ou non). */
+  getProviders(): Observable<AuthProviders> {
+    return this.http.get<AuthProviders>('/api/auth/providers');
   }
 
   /** Consomme le jeton reçu par email pour poser un nouveau mot de passe. */
