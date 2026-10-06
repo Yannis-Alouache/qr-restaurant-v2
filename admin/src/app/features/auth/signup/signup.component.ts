@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
@@ -14,9 +14,12 @@ const strongPasswordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9])
   templateUrl: './signup.component.html',
   styleUrl: './signup.component.scss',
 })
-export class SignupComponent {
+export class SignupComponent implements OnInit {
   private auth = inject(AuthService);
   private router = inject(Router);
+
+  /** Fournisseurs activés côté API : le bouton Google n'est affiché que si configuré. */
+  readonly googleEnabled = signal(false);
 
   error = signal('');
   loading = signal(false);
@@ -32,6 +35,13 @@ export class SignupComponent {
     ]),
     confirmPassword: new FormControl('', [Validators.required]),
   });
+
+  ngOnInit(): void {
+    this.auth.getProviders().subscribe({
+      next: (providers) => this.googleEnabled.set(providers.google),
+      error: () => this.googleEnabled.set(false),
+    });
+  }
 
   togglePassword(): void {
     this.showPassword.update(v => !v);

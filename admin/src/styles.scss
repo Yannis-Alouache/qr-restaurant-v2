@@ -313,6 +313,43 @@ h1, h2, h3 { text-wrap: balance; font-family: var(--font-display); }
 .btn-secondary svg { width: 16px; height: 16px; }
 .btn-secondary:disabled { opacity: 0.6; cursor: not-allowed; pointer-events: none; }
 
+/* Connexion Google (login / signup) : bouton secondaire pleine largeur, même
+   gabarit que .btn-submit, avec le logo G officiel. L'ancre pointe vers
+   l'endpoint OAuth de l'API (/api/auth/oauth2/authorization/google). */
+.btn-google {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: 14px 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--fg-2);
+  text-decoration: none;
+  transition: border-color var(--motion-fast) var(--ease-standard),
+              background var(--motion-fast) var(--ease-standard);
+}
+.btn-google:hover { border-color: var(--fg-2); }
+.btn-google:active { transform: translateY(1px); }
+.btn-google:focus-visible { box-shadow: var(--focus-ring); }
+.btn-google svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+/* Séparateur « ou » entre le formulaire et les fournisseurs externes. */
+.google-divider {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+.google-divider::before,
+.google-divider::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+
 .btn-action {
   display: inline-flex;
   align-items: center;

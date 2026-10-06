@@ -1,5 +1,6 @@
 package com.qrrestaurant.auth.infrastructure.persistence;
 
+import com.qrrestaurant.auth.domain.AuthProvider;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -15,8 +16,13 @@ public class UserJpaEntity {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false)
+    /** Null pour un compte Google — cf. V15__add_google_auth.sql. */
+    @Column
     private String password;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "auth_provider", nullable = false)
+    private AuthProvider authProvider = AuthProvider.LOCAL;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -36,6 +42,9 @@ public class UserJpaEntity {
 
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
+
+    public AuthProvider getAuthProvider() { return authProvider; }
+    public void setAuthProvider(AuthProvider authProvider) { this.authProvider = authProvider; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
 

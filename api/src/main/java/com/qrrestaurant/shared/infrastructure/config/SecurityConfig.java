@@ -2,7 +2,12 @@ package com.qrrestaurant.shared.infrastructure.config;
 import com.qrrestaurant.shared.infrastructure.web.AllowedOriginResolver;
 import com.qrrestaurant.shared.infrastructure.web.RateLimitingFilter;
 
+import com.qrrestaurant.auth.infrastructure.oauth.GoogleAuthFailureHandler;
+import com.qrrestaurant.auth.infrastructure.oauth.GoogleAuthSuccessHandler;
+import com.qrrestaurant.auth.infrastructure.oauth.GoogleOAuthEndpoints;
+import com.qrrestaurant.auth.infrastructure.oauth.HttpCookieOAuth2AuthorizationRequestRepository;
 import com.qrrestaurant.auth.infrastructure.security.JwtAuthenticationFilter;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -11,8 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -28,13 +32,25 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final RateLimitingFilter rateLimitingFilter;
     private final AllowedOriginResolver allowedOriginResolver;
+    private final ObjectProvider<ClientRegistrationRepository> clientRegistrationRepository;
+    private final GoogleAuthSuccessHandler googleAuthSuccessHandler;
+    private final GoogleAuthFailureHandler googleAuthFailureHandler;
+    private final HttpCookieOAuth2AuthorizationRequestRepository cookieAuthorizationRequestRepository;
 
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
                           RateLimitingFilter rateLimitingFilter,
-                          AllowedOriginResolver allowedOriginResolver) {
+                          AllowedOriginResolver allowedOriginResolver,
+                          ObjectProvider<ClientRegistrationRepository> clientRegistrationRepository,
+                          GoogleAuthSuccessHandler googleAuthSuccessHandler,
+                          GoogleAuthFailureHandler googleAuthFailureHandler,
+                          HttpCookieOAuth2AuthorizationRequestRepository cookieAuthorizationRequestRepository) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.rateLimitingFilter = rateLimitingFilter;
         this.allowedOriginResolver = allowedOriginResolver;
+        this.clientRegistrationRepository = clientRegistrationRepository;
+        this.googleAuthSuccessHandler = googleAuthSuccessHandler;
+        this.googleAuthFailureHandler = googleAuthFailureHandler;
+        this.cookieAuthorizationRequestRepository = cookieAuthorizationRequestRepository;
     }
 
     @Bean
@@ -65,12 +81,25 @@ public class SecurityConfig {
             .addFilterBefore(rateLimitingFilter, UsernamePasswordAuthenticationFilter.class)
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
-        return http.build();
-    }
+        // Connexion Google : activée seulement si un client OAuth2 est configuré
+        // (bean ClientRegistrationRepository conditionnel — cf. GoogleOAuthClientConfig).
+        // La requête d'autorisation vit dans un cookie, pas en session : l'API
+        // reste stateless. Le succès/échec réémettent la session maison (JWT en
+        // cookie) et redirigent le navigateur vers le back-office.
+        ClientRegistrationRepository googleClient = clientRegistrationRepository.getIfAvailable();
+        if (googleClient != null) {
+            http.oauth2Login(oauth2 -> oauth2
+                .authorizationEndpoint(authorization -> authorization
+                    .baseUri(GoogleOAuthEndpoints.AUTHORIZATION_BASE_URI)
+                    .authorizationRequestRepository(cookieAuthorizationRequestRepository))
+                .redirectionEndpoint(redirection -> redirection
+                    .baseUri(GoogleOAuthEndpoints.REDIRECTION_BASE_URI))
+                .successHandler(googleAuthSuccessHandler)
+                .failureHandler(googleAuthFailureHandler)
+            );
+        }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        return http.build();
     }
 
     @Bean

@@ -1,6 +1,7 @@
 package com.qrrestaurant.auth.application;
 import com.qrrestaurant.auth.application.dto.AuthSession;
 
+import com.qrrestaurant.auth.domain.AuthProvider;
 import com.qrrestaurant.auth.domain.PasswordPolicy;
 import com.qrrestaurant.auth.domain.TokenService;
 import com.qrrestaurant.auth.domain.User;
@@ -51,9 +52,31 @@ public class AuthService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(InvalidCredentialsException::new);
 
+        if (user.getAuthProvider() == AuthProvider.GOOGLE) {
+            throw new GoogleAccountException();
+        }
+
         if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new InvalidCredentialsException();
         }
+
+        String token = tokenService.generateToken(user.getId(), user.getEmail());
+        return new AuthSession(token, user.getId().toString());
+    }
+
+    /**
+     * Connexion (ou création) d'un compte via Google. Google garantit que
+     * l'email appartient à l'utilisateur : la correspondance d'email suffit,
+     * y compris pour un compte LOCAL existant (rattachement implicite), mais
+     * l'email doit avoir été vérifié chez le fournisseur.
+     */
+    public AuthSession loginWithGoogle(String email, boolean emailVerified) {
+        if (!emailVerified) {
+            throw new GoogleEmailNotVerifiedException();
+        }
+
+        User user = userRepository.findByEmail(email)
+                .orElseGet(() -> userRepository.save(User.createGoogle(email)));
 
         String token = tokenService.generateToken(user.getId(), user.getEmail());
         return new AuthSession(token, user.getId().toString());
@@ -68,6 +91,18 @@ public class AuthService {
     public static class InvalidCredentialsException extends RuntimeException {
         public InvalidCredentialsException() {
             super("Identifiants invalides");
+        }
+    }
+
+    public static class GoogleAccountException extends RuntimeException {
+        public GoogleAccountException() {
+            super("Ce compte est relié à Google : utilisez le bouton « Continuer avec Google »");
+        }
+    }
+
+    public static class GoogleEmailNotVerifiedException extends RuntimeException {
+        public GoogleEmailNotVerifiedException() {
+            super("L'adresse email Google n'est pas vérifiée");
         }
     }
 }
