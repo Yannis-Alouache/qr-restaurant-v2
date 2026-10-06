@@ -1,5 +1,6 @@
 package com.qrrestaurant.auth.infrastructure.persistence;
 
+import com.qrrestaurant.auth.domain.AuthProvider;
 import com.qrrestaurant.auth.domain.User;
 import com.qrrestaurant.auth.domain.UserRepository;
 import org.springframework.stereotype.Repository;
@@ -38,7 +39,7 @@ public class UserRepositoryAdapter implements UserRepository {
     }
 
     private User toDomain(UserJpaEntity e) {
-        return User.from(e.getId(), e.getEmail(), e.getPassword(), e.getCreatedAt());
+        return User.from(e.getId(), e.getEmail(), e.getPassword(), e.getAuthProvider(), e.getCreatedAt());
     }
 
     private UserJpaEntity toEntity(User d) {
@@ -46,6 +47,7 @@ public class UserRepositoryAdapter implements UserRepository {
         e.setId(d.getId());
         e.setEmail(d.getEmail());
         e.setPassword(d.getPassword());
+        e.setAuthProvider(d.getAuthProvider() != null ? d.getAuthProvider() : AuthProvider.LOCAL);
         // Préservé lors du merge d'une entité existante (changement de mot de
         // passe) : sans copie, created_at serait écrasé à null par l'UPDATE.
         e.setCreatedAt(d.getCreatedAt());

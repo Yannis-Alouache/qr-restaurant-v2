@@ -111,7 +111,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler({
-            AuthService.InvalidCredentialsException.class
+            AuthService.InvalidCredentialsException.class,
+            AuthService.GoogleAccountException.class
     })
     public ResponseEntity<ApiErrorResponse> handleUnauthorized(RuntimeException ex) {
         return respond(HttpStatus.UNAUTHORIZED, ex.getMessage());

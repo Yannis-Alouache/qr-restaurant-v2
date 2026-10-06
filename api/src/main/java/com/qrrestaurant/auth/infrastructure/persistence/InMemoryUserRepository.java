@@ -1,5 +1,6 @@
 package com.qrrestaurant.auth.infrastructure.persistence;
 
+import com.qrrestaurant.auth.domain.AuthProvider;
 import com.qrrestaurant.auth.domain.User;
 import com.qrrestaurant.auth.domain.UserRepository;
 
@@ -16,8 +17,9 @@ public class InMemoryUserRepository implements UserRepository {
     public User save(User user) {
         UUID id = user.getId() != null ? user.getId() : UUID.randomUUID();
         LocalDateTime createdAt = user.getCreatedAt() != null ? user.getCreatedAt() : LocalDateTime.now();
+        AuthProvider authProvider = user.getAuthProvider() != null ? user.getAuthProvider() : AuthProvider.LOCAL;
 
-        User saved = User.from(id, user.getEmail(), user.getPassword(), createdAt);
+        User saved = User.from(id, user.getEmail(), user.getPassword(), authProvider, createdAt);
         usersByEmail.put(saved.getEmail(), saved);
         return copy(saved);
     }
@@ -41,6 +43,6 @@ public class InMemoryUserRepository implements UserRepository {
     }
 
     private User copy(User user) {
-        return User.from(user.getId(), user.getEmail(), user.getPassword(), user.getCreatedAt());
+        return User.from(user.getId(), user.getEmail(), user.getPassword(), user.getAuthProvider(), user.getCreatedAt());
     }
 }

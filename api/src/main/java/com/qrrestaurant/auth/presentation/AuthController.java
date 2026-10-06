@@ -4,6 +4,7 @@ import com.qrrestaurant.auth.application.dto.AuthResponse;
 import com.qrrestaurant.auth.application.AuthService;
 import com.qrrestaurant.auth.application.dto.AuthSession;
 import com.qrrestaurant.auth.domain.PasswordPolicy;
+import com.qrrestaurant.auth.infrastructure.oauth.GoogleOAuthProperties;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
@@ -24,10 +25,14 @@ public class AuthController {
 
     private final AuthService authService;
     private final JwtCookieFactory cookieFactory;
+    private final GoogleOAuthProperties googleOAuthProperties;
 
-    public AuthController(AuthService authService, JwtCookieFactory cookieFactory) {
+    public AuthController(AuthService authService,
+                          JwtCookieFactory cookieFactory,
+                          GoogleOAuthProperties googleOAuthProperties) {
         this.authService = authService;
         this.cookieFactory = cookieFactory;
+        this.googleOAuthProperties = googleOAuthProperties;
     }
 
     @PostMapping("/signup")
@@ -59,6 +64,12 @@ public class AuthController {
         return ResponseEntity.ok(new AuthResponse(userId.toString()));
     }
 
+    /** Fournisseurs de connexion disponibles : le back-office masque le bouton Google quand il est désactivé. */
+    @GetMapping("/providers")
+    public ResponseEntity<ProvidersResponse> providers() {
+        return ResponseEntity.ok(new ProvidersResponse(googleOAuthProperties.isEnabled()));
+    }
+
     private void attachCookie(HttpServletResponse response, ResponseCookie cookie) {
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
     }
@@ -74,4 +85,6 @@ public class AuthController {
             @NotBlank(message = "Email requis") @Email(message = "Email invalide") String email,
             @NotBlank(message = "Mot de passe requis") String password
     ) {}
+
+    public record ProvidersResponse(boolean google) {}
 }

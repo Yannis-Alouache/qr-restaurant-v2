@@ -95,6 +95,13 @@ class AuthControllerHttpTest extends AbstractPostgresIntegrationTest {
                 .andExpect(jsonPath("$.message").value("Authentification requise"));
     }
 
+    @Test
+    void shouldReportGoogleProviderAsDisabledWhenNotConfigured() throws Exception {
+        mockMvc.perform(get("/api/auth/providers"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.google").value(false));
+    }
+
     private MvcResult signup(String email, String password) throws Exception {
         return mockMvc.perform(post("/api/auth/signup")
                         .contentType(MediaType.APPLICATION_JSON)
