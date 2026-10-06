@@ -58,6 +58,8 @@ Les restaurateurs peuvent se connecter au back-office avec leur compte Google (�
    - en production : `https://admin.<votre-domaine>/api/auth/oauth2/code/google`
 3. Renseignez `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` / `GOOGLE_REDIRECT_URI` dans le `.env`, puis redémarrez l'API.
 
+> **Procédure pas à pas** (projet cloud, écran de consentement, récupération du Client ID et du secret, dépannage) : [docs/connexion-google.md](docs/connexion-google.md).
+
 Fonctionnement : la danse OAuth passe par le proxy du frontend (`/api` → API), la requête d'autorisation voyage dans un cookie httpOnly court (l'API reste stateless), et le succès réémet la session maison — le même cookie JWT httpOnly que `/api/auth/login`. Au premier passage, un compte est créé à partir de l'email Google vérifié ; un compte local existant (même email) est rattaché et peut dès lors se connecter des deux façons. Un compte créé via Google n'a pas de mot de passe : la connexion par mot de passe lui est refusée avec un message explicite.
 
 Quand Google n'est pas configuré, `GET /api/auth/providers` renvoie `{"google": false}` et le back-office masque le bouton — aucun endpoint OAuth n'est exposé.

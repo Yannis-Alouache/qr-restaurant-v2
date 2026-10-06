@@ -266,6 +266,10 @@ Les restaurateurs peuvent se connecter au back-office avec Google
 configuration, la fonctionnalité est simplement masquée — rien d'autre ne
 change.
 
+> **Procédure pas à pas** pour créer le projet Google Cloud, l'écran de
+> consentement et récupérer le Client ID / secret :
+> [connexion-google.md](../connexion-google.md).
+
 - Dans [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
   (APIs & Services > Credentials), créez un **client OAuth 2.0** de type
   « Application Web ».
