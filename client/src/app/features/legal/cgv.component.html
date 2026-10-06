@@ -1,0 +1,157 @@
+<header class="legal-topbar">
+  <div class="topbar-inner">
+    <span class="topbar-brand">{{ legal.brand }}</span>
+    <button class="topbar-back" type="button" (click)="goBack()">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+      Retour
+    </button>
+  </div>
+</header>
+
+<section class="legal-hero">
+  <h1>Conditions Générales de Vente</h1>
+  <div class="hero-meta">
+    <span class="hero-meta-item">Dernière mise à jour : <strong>5 octobre 2026</strong></span>
+    <span class="hero-meta-item">Version <strong>1.0</strong></span>
+    <span class="hero-meta-item">Commande sur place</span>
+  </div>
+</section>
+
+<div class="legal-content">
+  <nav class="legal-sommaire" aria-label="Sommaire">
+    <ul class="sommaire-list">
+      <li><a href="#sec-1"><span class="sommaire-num">01</span> Objet</a></li>
+      <li><a href="#sec-2"><span class="sommaire-num">02</span> La commande</a></li>
+      <li><a href="#sec-3"><span class="sommaire-num">03</span> Prix</a></li>
+      <li><a href="#sec-4"><span class="sommaire-num">04</span> Paiement</a></li>
+      <li><a href="#sec-5"><span class="sommaire-num">05</span> Consommation</a></li>
+      <li><a href="#sec-6"><span class="sommaire-num">06</span> Rétractation</a></li>
+      <li><a href="#sec-7"><span class="sommaire-num">07</span> Réclamations &amp; litiges</a></li>
+      <li><a href="#sec-8"><span class="sommaire-num">08</span> Responsabilités</a></li>
+      <li><a href="#sec-9"><span class="sommaire-num">09</span> Données personnelles</a></li>
+      <li><a href="#sec-10"><span class="sommaire-num">10</span> Contact</a></li>
+    </ul>
+  </nav>
+
+  <section class="legal-section" id="sec-1">
+    <h2><span class="section-num">01</span> Objet</h2>
+    <p>
+      Les présentes Conditions Générales de Vente (« <strong>CGV</strong> ») encadrent
+      les commandes passées par un client (« <strong>vous</strong> ») via l'application
+      de commande par QR code {{ legal.brand }}, depuis une table d'un restaurant
+      partenaire (« <strong>le Restaurant</strong> »).
+    </p>
+    <div class="callout">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <p>
+        Le contrat de vente est conclu entre vous et le Restaurant : c'est lui qui
+        établit la carte, les prix, prépare et sert votre commande.
+        <strong>{{ legal.brand }}</strong> n'est pas partie au contrat de vente —
+        elle fournit l'application technique de commande et de paiement, dont
+        l'identité de l'éditeur figure dans nos
+        <a routerLink="/legal/mentions-legales">Mentions légales</a>.
+      </p>
+    </div>
+  </section>
+
+  <section class="legal-section" id="sec-2">
+    <h2><span class="section-num">02</span> La commande</h2>
+    <p>
+      Vous composez votre commande depuis la carte affichée (article solo ou formule
+      dont vous choisissez les accompagnements), vérifiez le récapitulatif, puis
+      réglez. La commande devient ferme et définitive une fois le paiement confirmé ;
+      elle est ensuite transmise au Restaurant, qui l'exécute à la demande.
+    </p>
+  </section>
+
+  <section class="legal-section" id="sec-3">
+    <h2><span class="section-num">03</span> Prix</h2>
+    <p>
+      Les prix sont indiqués en euros, toutes taxes comprises, tels que définis par le
+      Restaurant. Pour les formules, le prix inclut les suppléments éventuellement
+      sélectionnés, affichés avant validation. Le total dû est rappelé sur le
+      récapitulatif de commande avant paiement.
+    </p>
+  </section>
+
+  <section class="legal-section" id="sec-4">
+    <h2><span class="section-num">04</span> Paiement</h2>
+    <p>
+      Le paiement s'effectue par carte bancaire au moment de la commande, via le
+      prestataire de paiement <strong>Stripe</strong>. Aucune donnée bancaire n'est
+      collectée ni stockée par l'application : le traitement est intégralement pris
+      en charge par Stripe. Un reçu est envoyé à l'email que vous saisissez dans le
+      formulaire de paiement.
+    </p>
+  </section>
+
+  <section class="legal-section" id="sec-5">
+    <h2><span class="section-num">05</span> Consommation</h2>
+    <p>
+      Les articles sont préparés à la demande par le Restaurant pour une consommation
+      sur place. En cas de problème sur votre commande (article manquant, non
+      conforme, erreur), adressez-vous au personnel du Restaurant, qui est seul
+      compétent pour y remédier.
+    </p>
+  </section>
+
+  <section class="legal-section" id="sec-6">
+    <h2><span class="section-num">06</span> Droit de rétractation</h2>
+    <p>
+      Conformément à l'article <strong>L221-28</strong> du Code de la consommation, le
+      droit de rétractation ne s'applique pas aux biens qui se détériorent ou
+      périssent rapidement (denrées alimentaires préparées à la demande) : la vente
+      est donc ferme et définitive après paiement. En cas de commande erronée ou non
+      conforme, le paragraphe « Réclamations » ci-dessous s'applique.
+    </p>
+  </section>
+
+  <section class="legal-section" id="sec-7">
+    <h2><span class="section-num">07</span> Réclamations &amp; litiges</h2>
+    <p>
+      Toute réclamation portant sur la commande (contenu, prix, service) doit être
+      adressée au Restaurant. Pour toute question relative au fonctionnement de
+      l'application ou au paiement, contactez l'éditeur à
+      <strong>{{ legal.contactEmail }}</strong>.
+    </p>
+    <p>
+      Les présentes CGV sont soumises au droit français. Conformément aux articles
+      <strong>L611-1 et suivants</strong> du Code de la consommation, vous pouvez
+      recourir gratuitement à un médiateur de la consommation en vue de la résolution
+      amiable d'un litige.
+    </p>
+  </section>
+
+  <section class="legal-section" id="sec-8">
+    <h2><span class="section-num">08</span> Responsabilités</h2>
+    <p>
+      Le Restaurant est seul responsable de l'exactitude de sa carte et de ses prix,
+      de la conformité de ses denrées (hygiène, allergènes) et de l'exécution de la
+      commande. {{ legal.brand }} s'efforce d'assurer la disponibilité de
+      l'application mais ne peut être tenue responsable d'une indisponibilité liée à
+      la maintenance, à un cas de force majeure ou à une défaillance du réseau du
+      restaurant.
+    </p>
+  </section>
+
+  <section class="legal-section" id="sec-9">
+    <h2><span class="section-num">09</span> Données personnelles</h2>
+    <p>
+      Vos données de commande et de paiement sont traitées conformément à notre
+      <a routerLink="/legal/confidentialite">Politique de confidentialité</a>.
+    </p>
+  </section>
+
+  <section class="legal-section" id="sec-10">
+    <h2><span class="section-num">10</span> Contact</h2>
+    <p>
+      {{ legal.contactEmail }}<br>
+      {{ legal.headOffice }}
+    </p>
+  </section>
+
+  <footer class="legal-footer">
+    <a routerLink="/legal/confidentialite">Politique de confidentialité</a>
+    <a routerLink="/legal/mentions-legales">Mentions légales</a>
+  </footer>
+</div>

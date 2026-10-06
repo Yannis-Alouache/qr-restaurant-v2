@@ -71,6 +71,36 @@ export const routes: Routes = [
       ),
   },
   {
+    // Pages légales — publiques, sans thème imposé (thème persisté du restaurant
+    // visité), accessibles notamment depuis le récapitulatif avant paiement.
+    path: 'legal',
+    children: [
+      { path: '', pathMatch: 'full', redirectTo: 'cgv' },
+      {
+        path: 'cgv',
+        loadComponent: () =>
+          import('./features/legal/cgv.component').then(m => m.CgvComponent),
+        title: 'Conditions Générales de Vente — Menzo',
+      },
+      {
+        path: 'confidentialite',
+        loadComponent: () =>
+          import('./features/legal/confidentialite.component').then(
+            m => m.ConfidentialiteComponent,
+          ),
+        title: 'Politique de confidentialité — Menzo',
+      },
+      {
+        path: 'mentions-legales',
+        loadComponent: () =>
+          import('./features/legal/mentions-legales.component').then(
+            m => m.MentionsLegalesComponent,
+          ),
+        title: 'Mentions légales — Menzo',
+      },
+    ],
+  },
+  {
     path: '',
     pathMatch: 'full',
     redirectTo: '',

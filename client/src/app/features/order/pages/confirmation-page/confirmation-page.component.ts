@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { OrderService } from '../../services/order.service';
 import { OrderStatusRealtimeService } from '../../services/order-status-realtime.service';
 import { OrderDetailResponse } from '../../../menu/models/menu.model';
@@ -8,7 +8,7 @@ import { PricePipe } from '../../../../shared/pipes/price.pipe';
 @Component({
   selector: 'app-confirmation-page',
   standalone: true,
-  imports: [PricePipe],
+  imports: [PricePipe, RouterLink],
   templateUrl: './confirmation-page.component.html',
   styleUrl: './confirmation-page.component.scss',
 })
