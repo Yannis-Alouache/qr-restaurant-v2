@@ -44,6 +44,23 @@ Copiez `.env.example` vers `.env` et adaptez si besoin.
 | `MAIL_FROM` | non | expéditeur des emails | `QR Restaurant <no-reply@qr-restaurant.local>` |
 | `MAIL_LOG_RESET_LINKS` | non | en cas d'échec d'envoi, journalise le lien de reset (développement uniquement, `false` par défaut en prod) | `true` en local |
 | `PASSWORD_RESET_TOKEN_TTL_MINUTES` | non | validité du lien de réinitialisation | `60` |
+| `GOOGLE_CLIENT_ID` | non | connexion Google du back-office — sans valeur, la fonctionnalité est désactivée et le bouton masqué | vide |
+| `GOOGLE_CLIENT_SECRET` | avec `GOOGLE_CLIENT_ID` | secret du client OAuth Google | vide |
+| `GOOGLE_REDIRECT_URI` | avec `GOOGLE_CLIENT_ID` | URI de callback OAuth, identique à celle déclarée dans Google Cloud Console | `http://localhost:4200/api/auth/oauth2/code/google` |
+
+## Connexion Google (back-office)
+
+Les restaurateurs peuvent se connecter au back-office avec leur compte Google (« Continuer avec Google » sur les pages de connexion et d'inscription). Configuration :
+
+1. Dans [Google Cloud Console](https://console.cloud.google.com/apis/credentials), créez un client OAuth 2.0 de type « Application Web ».
+2. Ajoutez en **URI de redirection autorisée** la valeur de `GOOGLE_REDIRECT_URI` :
+   - en local : `http://localhost:4200/api/auth/oauth2/code/google`
+   - en production : `https://admin.<votre-domaine>/api/auth/oauth2/code/google`
+3. Renseignez `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` / `GOOGLE_REDIRECT_URI` dans le `.env`, puis redémarrez l'API.
+
+Fonctionnement : la danse OAuth passe par le proxy du frontend (`/api` → API), la requête d'autorisation voyage dans un cookie httpOnly court (l'API reste stateless), et le succès réémet la session maison — le même cookie JWT httpOnly que `/api/auth/login`. Au premier passage, un compte est créé à partir de l'email Google vérifié ; un compte local existant (même email) est rattaché et peut dès lors se connecter des deux façons. Un compte créé via Google n'a pas de mot de passe : la connexion par mot de passe lui est refusée avec un message explicite.
+
+Quand Google n'est pas configuré, `GET /api/auth/providers` renvoie `{"google": false}` et le back-office masque le bouton — aucun endpoint OAuth n'est exposé.
 
 ## Démarrage local
 

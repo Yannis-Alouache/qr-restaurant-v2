@@ -56,6 +56,8 @@ Internet ──────►│ Traefik (TLS Let's Encrypt, par Coolify)│
    un endpoint webhook à deux événements (étape 8).
 4. **Un relais SMTP** pour les e-mails transactionnels (étape 9) — ex. Brevo,
    gratuit à 300 e-mails/jour, suffisant pour démarrer.
+5. **Optionnel** : un client OAuth Google pour la connexion « Continuer avec
+   Google » des restaurateurs (étape 10).
 
 ---
 
@@ -256,6 +258,32 @@ démarrer** en prod sans `MAIL_HOST`.
 - Vérifiez avec « Mot de passe oublié ? » depuis l'admin : le mail doit
   arriver, pointer vers `https://admin.votredomaine.fr/reset-password?token=…`
   et fonctionner une seule fois.
+
+## Étape 10 — Connexion Google (optionnelle)
+
+Les restaurateurs peuvent se connecter au back-office avec Google
+(« Continuer avec Google » sur les pages Connexion / Inscription). Sans
+configuration, la fonctionnalité est simplement masquée — rien d'autre ne
+change.
+
+- Dans [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
+  (APIs & Services > Credentials), créez un **client OAuth 2.0** de type
+  « Application Web ».
+- Ajoutez l'**URI de redirection autorisée** :
+  `https://admin.votredomaine.fr/api/auth/oauth2/code/google`
+  (la danse OAuth traverse le proxy nginx de l'admin, qui transmet `/api`
+  vers l'API — comme le reste des appels).
+- Renseignez dans Coolify : `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` et
+  `GOOGLE_REDIRECT_URI` (cette dernière **identique** à l'URI déclarée chez
+  Google), puis redéployez.
+- Vérification : le bouton apparaît sur la page de connexion de l'admin, et
+  `GET https://api.votredomaine.fr/api/auth/providers` renvoie
+  `{"google": true}`.
+
+Au premier passage, le compte est créé à partir de l'email Google **vérifié**
+; un restaurateur ayant déjà un compte local au même email peut dès lors se
+connecter des deux façons. Un compte créé via Google n'a pas de mot de passe :
+la connexion par mot de passe lui est refusée avec un message explicite.
 
 ## Sauvegardes
 
