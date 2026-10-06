@@ -1,0 +1,173 @@
+<header class="legal-topbar">
+  <div class="topbar-inner">
+    <span class="topbar-brand">{{ legal.brand }}</span>
+    <button class="topbar-back" type="button" (click)="goBack()">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+      Retour
+    </button>
+  </div>
+</header>
+
+<section class="legal-hero">
+  <h1>Politique de confidentialité — clients</h1>
+  <div class="hero-meta">
+    <span class="hero-meta-item">Dernière mise à jour : <strong>5 octobre 2026</strong></span>
+    <span class="hero-meta-item">Version <strong>1.0</strong></span>
+    <span class="hero-meta-item">Conforme au <strong>RGPD</strong></span>
+  </div>
+</section>
+
+<div class="legal-content">
+  <nav class="legal-sommaire" aria-label="Sommaire">
+    <ul class="sommaire-list">
+      <li><a href="#sec-1"><span class="sommaire-num">01</span> Qui traite vos données</a></li>
+      <li><a href="#sec-2"><span class="sommaire-num">02</span> Données collectées</a></li>
+      <li><a href="#sec-3"><span class="sommaire-num">03</span> Finalités et bases légales</a></li>
+      <li><a href="#sec-4"><span class="sommaire-num">04</span> Destinataires</a></li>
+      <li><a href="#sec-5"><span class="sommaire-num">05</span> Durée de conservation</a></li>
+      <li><a href="#sec-6"><span class="sommaire-num">06</span> Stockage local</a></li>
+      <li><a href="#sec-7"><span class="sommaire-num">07</span> Sécurité</a></li>
+      <li><a href="#sec-8"><span class="sommaire-num">08</span> Vos droits</a></li>
+      <li><a href="#sec-9"><span class="sommaire-num">09</span> Réclamation (CNIL)</a></li>
+      <li><a href="#sec-10"><span class="sommaire-num">10</span> Contact</a></li>
+    </ul>
+  </nav>
+
+  <section class="legal-section" id="sec-1">
+    <h2><span class="section-num">01</span> Qui traite vos données</h2>
+    <p>
+      Cette politique décrit le traitement de vos données lorsque vous passez commande
+      depuis un QR code posé sur une table, payez votre commande et laissez votre email
+      pour la réception du reçu.
+    </p>
+    <div class="callout">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <p>
+        Le <strong>restaurant</strong> dans lequel vous commandez est responsable du
+        traitement de votre commande, dont il est le vendeur. <strong>{{ legal.brand }}</strong>
+        (éditeur de l'application, dont l'identité figure dans nos
+        <a routerLink="/legal/mentions-legales">Mentions légales</a>) traite ces données
+        pour son compte en qualité de sous-traitant, et est responsable du traitement
+        des données liées au fonctionnement technique de l'application.
+      </p>
+    </div>
+  </section>
+
+  <section class="legal-section" id="sec-2">
+    <h2><span class="section-num">02</span> Données collectées</h2>
+    <table class="data-table">
+      <thead>
+        <tr><th>Catégorie</th><th>Exemples</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Commande</td>
+          <td>Numéro de table, articles commandés, quantités, montants, date et heure</td>
+        </tr>
+        <tr>
+          <td>Email</td>
+          <td>Votre email, saisi dans le formulaire de paiement, sert uniquement à la réception du reçu de commande</td>
+        </tr>
+        <tr>
+          <td>Paiement</td>
+          <td>Référence de transaction Stripe — aucune donnée bancaire n'est stockée par l'application</td>
+        </tr>
+        <tr>
+          <td>Technique</td>
+          <td>Adresses IP et journaux techniques, à des fins de sécurité</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="legal-section" id="sec-3">
+    <h2><span class="section-num">03</span> Finalités et bases légales</h2>
+    <p>
+      Vos données sont traitées pour : la prise et le service de votre commande
+      (exécution du contrat de vente), l'envoi du reçu à votre email (exécution du
+      contrat et obligations comptables du restaurant), et la sécurité du service
+      (intérêt légitime).
+    </p>
+    <div class="callout">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>
+      <p>
+        Votre email n'est utilisé que pour l'envoi du reçu de votre commande. Aucun
+        email commercial ni aucune prospection ne vous est adressé via l'application.
+      </p>
+    </div>
+  </section>
+
+  <section class="legal-section" id="sec-4">
+    <h2><span class="section-num">04</span> Destinataires des données</h2>
+    <p>
+      Vos données de commande sont transmises au restaurant concerné. Le paiement est
+      traité par <strong>Stripe</strong> (votre email et vos données bancaires lui sont
+      communiquées dans le cadre du paiement). Les données sont hébergées par notre
+      hébergeur au sein de l'Union européenne. Aucune donnée n'est vendue à des tiers.
+    </p>
+  </section>
+
+  <section class="legal-section" id="sec-5">
+    <h2><span class="section-num">05</span> Durée de conservation</h2>
+    <p>
+      Les commandes et l'email associé sont conservés par le restaurant pour les
+      besoins de sa comptabilité (10 ans, conformément au Code de commerce). Les
+      journaux techniques sont conservés pour une durée limitée.
+    </p>
+  </section>
+
+  <section class="legal-section" id="sec-6">
+    <h2><span class="section-num">06</span> Stockage local sur votre appareil</h2>
+    <p>
+      L'application dépose sur votre navigateur deux éléments strictement nécessaires :
+      votre panier en cours (sessionStorage, supprimé à la fermeture de l'onglet) et
+      votre préférence d'affichage (localStorage). Aucun cookie publicitaire ni aucun
+      traceur de mesure d'audience tiers n'est déposé.
+    </p>
+  </section>
+
+  <section class="legal-section" id="sec-7">
+    <h2><span class="section-num">07</span> Sécurité des données</h2>
+    <p>
+      Nous mettons en œuvre des mesures appropriées : chiffrement en transit (TLS) et
+      au repos, traitement des paiements intégralement délégué à Stripe, accès des
+      personnes habilitées restreint et journalisé.
+    </p>
+  </section>
+
+  <section class="legal-section" id="sec-8">
+    <h2><span class="section-num">08</span> Vos droits</h2>
+    <p>
+      Conformément au RGPD, vous disposez d'un droit d'accès, de rectification,
+      d'effacement, à la limitation, à la portabilité de vos données et d'opposition.
+    </p>
+    <p>
+      Pour les données de votre commande (y compris l'email de reçu), adressez-vous en
+      priorité au restaurant concerné. Pour les données liées au fonctionnement de
+      l'application, écrivez à <strong>{{ legal.dpoEmail }}</strong> en joignant un
+      justificatif d'identité — réponse dans un délai d'un mois.
+    </p>
+  </section>
+
+  <section class="legal-section" id="sec-9">
+    <h2><span class="section-num">09</span> Réclamation (CNIL)</h2>
+    <p>
+      Si vous estimez que vos droits ne sont pas respectés, vous pouvez introduire une
+      réclamation auprès de la <strong>CNIL</strong> (www.cnil.fr).
+    </p>
+  </section>
+
+  <section class="legal-section" id="sec-10">
+    <h2><span class="section-num">10</span> Contact protection des données</h2>
+    <p>
+      Notre référent protection des données est joignable à
+      <strong>{{ legal.dpoEmail }}</strong> ou par courrier à l'adresse du siège social
+      figurant dans nos <a routerLink="/legal/mentions-legales">Mentions légales</a>.
+    </p>
+  </section>
+
+  <footer class="legal-footer">
+    <a routerLink="/legal/cgv">Conditions Générales de Vente</a>
+    <a routerLink="/legal/mentions-legales">Mentions légales</a>
+  </footer>
+</div>

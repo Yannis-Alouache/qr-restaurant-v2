@@ -183,3 +183,22 @@
   font-size: 12px;
   color: var(--muted);
 }
+
+/* ─── Liens légaux ─── */
+.legal-links {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin-top: 4px;
+}
+
+.legal-links a {
+  font-size: 12px;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.legal-links a:active {
+  color: var(--accent);
+}

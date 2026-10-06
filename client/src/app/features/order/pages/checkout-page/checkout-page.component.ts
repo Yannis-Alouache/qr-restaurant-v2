@@ -1,5 +1,5 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { OrderService } from '../../services/order.service';
 import { MenuService } from '../../../menu/services/menu.service';
 import { CartService } from '../../../cart/services/cart.service';
@@ -16,7 +16,7 @@ type PayState = 'idle' | 'processing';
   selector: 'app-checkout-page',
   templateUrl: './checkout-page.component.html',
   styleUrl: './checkout-page.component.scss',
-  imports: [PricePipe, RestaurantHeaderComponent],
+  imports: [PricePipe, RestaurantHeaderComponent, RouterLink],
 })
 export class CheckoutPageComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);

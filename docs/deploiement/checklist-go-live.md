@@ -49,6 +49,12 @@ point se trouve dans [README.md](README.md).
       aucun champ « [À COMPLÉTER] » restant, l'avertissement a disparu de /mentions-legales
 - [ ] Les trois pages publiques répondent sans authentification : `/mentions-legales`, `/terms`, `/privacy`
 - [ ] Liens légaux visibles en bas des écrans connexion / inscription
+- [ ] Identité de l'éditeur répercutée dans `client/src/app/features/legal/legal-info.ts`
+      (miroir du fichier admin) — aucun champ « [À COMPLÉTER] » restant
+- [ ] Les trois pages légales client répondent sans authentification : `/legal/cgv`,
+      `/legal/confidentialite`, `/legal/mentions-legales`
+- [ ] Liens légaux visibles côté client : ligne CGV/confidentialité avant paiement sur
+      `/checkout/...`, pied de page sur confirmation et annulation de commande
 - [ ] Police Inter servie depuis le domaine (aucune requête vers fonts.googleapis.com — vérifier
       l'onglet réseau sur /login), cohérent avec la section « Cookies et traceurs » de la /privacy
 - [ ] `MAIL_FROM` cohérent avec la marque (signature « L'équipe Menzo ») et le domaine validé

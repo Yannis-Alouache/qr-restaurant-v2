@@ -1,0 +1,116 @@
+<header class="legal-topbar">
+  <div class="topbar-inner">
+    <span class="topbar-brand">{{ legal.brand }}</span>
+    <button class="topbar-back" type="button" (click)="goBack()">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+      Retour
+    </button>
+  </div>
+</header>
+
+<section class="legal-hero">
+  <h1>Mentions légales</h1>
+  <div class="hero-meta">
+    <span class="hero-meta-item">Application de commande</span>
+    <span class="hero-meta-item">Conforme à la <strong>LCEN</strong></span>
+  </div>
+</section>
+
+<div class="legal-content">
+  <nav class="legal-sommaire" aria-label="Sommaire">
+    <ul class="sommaire-list">
+      <li><a href="#sec-1"><span class="sommaire-num">01</span> Éditeur</a></li>
+      <li><a href="#sec-2"><span class="sommaire-num">02</span> Publication</a></li>
+      <li><a href="#sec-3"><span class="sommaire-num">03</span> Hébergement</a></li>
+      <li><a href="#sec-4"><span class="sommaire-num">04</span> Propriété intellectuelle</a></li>
+      <li><a href="#sec-5"><span class="sommaire-num">05</span> Données personnelles</a></li>
+      <li><a href="#sec-6"><span class="sommaire-num">06</span> Contact</a></li>
+    </ul>
+  </nav>
+
+  @if (pending) {
+    <div class="callout" style="margin-top: 24px">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+      <p>
+        <strong>Document en cours de finalisation :</strong> les champs marqués
+        « [À COMPLÉTER] » attendent les informations réelles de l'éditeur et de
+        l'hébergeur.
+      </p>
+    </div>
+  }
+
+  <section class="legal-section" id="sec-1">
+    <h2><span class="section-num">01</span> Éditeur de l'application</h2>
+    <table class="data-table">
+      <tbody>
+        <tr><td>Éditeur</td><td>{{ legal.brand }} — {{ legal.editorName }}</td></tr>
+        <tr><td>Forme juridique</td><td>{{ legal.legalForm }}</td></tr>
+        <tr><td>Immatriculation</td><td>{{ legal.rcs }}</td></tr>
+        <tr><td>Siège social</td><td>{{ legal.headOffice }}</td></tr>
+      </tbody>
+    </table>
+    <p>
+      {{ legal.brand }} édite l'application de commande et de paiement par QR code
+      mise à disposition des restaurants et de leurs clients.
+    </p>
+  </section>
+
+  <section class="legal-section" id="sec-2">
+    <h2><span class="section-num">02</span> Directeur de la publication</h2>
+    <p>{{ legal.publicationDirector }}.</p>
+  </section>
+
+  <section class="legal-section" id="sec-3">
+    <h2><span class="section-num">03</span> Hébergement</h2>
+    <table class="data-table">
+      <tbody>
+        <tr><td>Hébergeur</td><td>{{ legal.hostName }}</td></tr>
+        <tr><td>Forme juridique</td><td>{{ legal.hostLegalForm }}</td></tr>
+        <tr><td>Adresse</td><td>{{ legal.hostAddress }}</td></tr>
+        <tr><td>Téléphone</td><td>{{ legal.hostPhone }}</td></tr>
+      </tbody>
+    </table>
+    <div class="callout">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <p>
+        L'infrastructure est administrée par l'éditeur sur un serveur situé au sein
+        de l'Union européenne.
+      </p>
+    </div>
+  </section>
+
+  <section class="legal-section" id="sec-4">
+    <h2><span class="section-num">04</span> Propriété intellectuelle</h2>
+    <p>
+      L'ensemble des éléments de l'application {{ legal.brand }} (logiciel, interface,
+      textes, graphismes, logo) est protégé par le droit de la propriété
+      intellectuelle. Toute reproduction ou réutilisation, totale ou partielle, sans
+      autorisation écrite préalable de l'éditeur est interdite.
+    </p>
+    <p>
+      Les noms, logos, cartes et photographies des plats affichés dans l'application
+      appartiennent au restaurant concerné.
+    </p>
+  </section>
+
+  <section class="legal-section" id="sec-5">
+    <h2><span class="section-num">05</span> Données personnelles</h2>
+    <p>
+      Le traitement de vos données de commande et de paiement est décrit dans notre
+      <a routerLink="/legal/confidentialite">Politique de confidentialité</a>.
+    </p>
+  </section>
+
+  <section class="legal-section" id="sec-6">
+    <h2><span class="section-num">06</span> Contact</h2>
+    <p>
+      {{ legal.contactEmail }}<br>
+      {{ legal.headOffice }}
+    </p>
+  </section>
+
+  <footer class="legal-footer">
+    <a routerLink="/legal/cgv">Conditions Générales de Vente</a>
+    <a routerLink="/legal/confidentialite">Politique de confidentialité</a>
+  </footer>
+</div>

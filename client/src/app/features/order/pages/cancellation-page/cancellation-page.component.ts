@@ -1,10 +1,11 @@
 import { Component, inject, signal } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { OrderService } from '../../services/order.service';
 
 @Component({
   selector: 'app-cancellation-page',
   standalone: true,
+  imports: [RouterLink],
   templateUrl: './cancellation-page.component.html',
   styleUrl: './cancellation-page.component.scss',
 })
