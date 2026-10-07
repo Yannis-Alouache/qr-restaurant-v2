@@ -26,17 +26,20 @@ public class StripePaymentGateway implements PaymentGateway {
                                          String successUrl, String cancelUrl) {
         long amountCents = amount.multiply(BigDecimal.valueOf(100)).longValue();
 
+        SessionCreateParams.PaymentIntentData.Builder paymentIntentData = SessionCreateParams.PaymentIntentData.builder()
+                .setDescription(description);
+        if (isRealStripeAccountId(destinationAccountId)) {
+            paymentIntentData.setTransferData(SessionCreateParams.PaymentIntentData.TransferData.builder()
+                    .setDestination(destinationAccountId)
+                    .build());
+        }
+
         SessionCreateParams params = SessionCreateParams.builder()
                 .setMode(SessionCreateParams.Mode.PAYMENT)
                 .setSuccessUrl(successUrl)
                 .setCancelUrl(cancelUrl)
                 .putMetadata("order_id", orderId)
-                .setPaymentIntentData(SessionCreateParams.PaymentIntentData.builder()
-                        .setDescription(description)
-                        .setTransferData(SessionCreateParams.PaymentIntentData.TransferData.builder()
-                                .setDestination(destinationAccountId)
-                                .build())
-                        .build())
+                .setPaymentIntentData(paymentIntentData.build())
                 .addLineItem(SessionCreateParams.LineItem.builder()
                         .setQuantity(1L)
                         .setPriceData(SessionCreateParams.LineItem.PriceData.builder()
@@ -60,6 +63,18 @@ public class StripePaymentGateway implements PaymentGateway {
                     "Le paiement en ligne est temporairement indisponible. Réessayez dans quelques instants.",
                     e);
         }
+    }
+
+    /**
+     * Un id de compte Connect est toujours généré par Stripe (lettres et
+     * chiffres seulement après « acct_ »). Un placeholder comme
+     * « acct_seed_test » (jeu de données de démo/e2e) ne doit pas partir en
+     * destination de transfert : Stripe refuserait la session entière
+     * (« No such destination ») au lieu de simplement ignorer le transfert —
+     * autant dire le paiement du client, pas seulement sa répartition.
+     */
+    private static boolean isRealStripeAccountId(String destinationAccountId) {
+        return destinationAccountId != null && destinationAccountId.matches("acct_[0-9A-Za-z]+");
     }
 
     @Override
