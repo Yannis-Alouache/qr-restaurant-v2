@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -24,7 +25,7 @@ class StripePaymentGatewayTest {
                 "order-123",
                 new BigDecimal("13.50"),
                 "Commande #order-123",
-                "acct_restaurant_123",
+                "acct_1Restaurant00",
                 "https://client.example/order/order-123/confirmation",
                 "https://client.example/order/order-123/cancelled"
         );
@@ -37,11 +38,25 @@ class StripePaymentGatewayTest {
         assertEquals("https://client.example/order/order-123/cancelled", params.getCancelUrl());
         assertEquals("order-123", params.getMetadata().get("order_id"));
         assertEquals("Commande #order-123", params.getPaymentIntentData().getDescription());
-        assertEquals("acct_restaurant_123", params.getPaymentIntentData().getTransferData().getDestination());
+        assertEquals("acct_1Restaurant00", params.getPaymentIntentData().getTransferData().getDestination());
         assertEquals(1L, params.getLineItems().getFirst().getQuantity());
         assertEquals("eur", params.getLineItems().getFirst().getPriceData().getCurrency());
         assertEquals(1350L, params.getLineItems().getFirst().getPriceData().getUnitAmount());
         assertEquals("Commande #order-123", params.getLineItems().getFirst().getPriceData().getProductData().getName());
+    }
+
+    @Test
+    void shouldSkipTheConnectTransferWhenTheDestinationIsNotARealStripeAccount() {
+        RecordingStripeCheckoutSessionClient checkoutSessionClient = new RecordingStripeCheckoutSessionClient();
+        StripePaymentGateway gateway = new StripePaymentGateway(checkoutSessionClient, new RecordingStripeRefundClient());
+
+        // Placeholder du jeu de données de démo/e2e : Stripe refuserait la
+        // session entière (« No such destination ») si on l'envoyait tel quel.
+        gateway.createCheckoutSession(
+                "order-123", new BigDecimal("13.50"), "Commande #order-123", "acct_seed_test",
+                "https://client.example/success", "https://client.example/cancel");
+
+        assertNull(checkoutSessionClient.params.getPaymentIntentData().getTransferData());
     }
 
     @Test

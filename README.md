@@ -172,11 +172,14 @@ Les scénarios Playwright couvrent :
 
 1. le back-office admin qui reçoit une commande payée en temps réel et peut l’avancer ;
 2. la réinitialisation du mot de passe restaurateur (email lu via l'API Mailpit) ;
-3. la page client de confirmation qui se met à jour sans reload après webhook Stripe puis après changement d’état en cuisine.
+3. la page client de confirmation qui se met à jour sans reload après webhook Stripe puis après changement d’état en cuisine ;
+4. l’inscription d’un restaurateur et la création de son restaurant (onboarding) ;
+5. le parcours client complet — menu, panier, paiement sur le vrai Stripe Checkout hébergé — dès qu’une clé secrète de **test** (`sk_test_…`) est présente dans le `.env` ; sans elle, ce scénario s’auto-désactive et les autres tournent normalement.
 
 Pré-requis :
 
 - PostgreSQL local démarré ;
+- Mailpit démarré (lecture des emails de réinitialisation) ;
 - dépendances `admin`, `client` et racine installées ;
 - navigateur Chromium Playwright installé (`npx playwright install chromium`).
 
