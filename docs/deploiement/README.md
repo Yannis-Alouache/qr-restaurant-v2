@@ -58,6 +58,9 @@ Internet ──────►│ Traefik (TLS Let's Encrypt, par Coolify)│
    gratuit à 300 e-mails/jour, suffisant pour démarrer.
 5. **Optionnel** : un client OAuth Google pour la connexion « Continuer avec
    Google » des restaurateurs (étape 10).
+6. **Recommandé** : un compte Sentry gratuit pour l'alerte sur les erreurs
+   serveur (webhook Stripe, SMTP, 500) et une sonde de disponibilité
+   UptimeRobot (étape 11).
 
 ---
 
@@ -289,6 +292,21 @@ Au premier passage, le compte est créé à partir de l'email Google **vérifié
 connecter des deux façons. Un compte créé via Google n'a pas de mot de passe :
 la connexion par mot de passe lui est refusée avec un message explicite.
 
+## Étape 11 — Monitoring des erreurs (Sentry, gratuit)
+
+Un système qui encaisse les paiements d'autres commerces ne peut pas découvrir
+ses pannes par les réclamations clients. L'API signale chaque erreur serveur
+(webhook Stripe rejeté, API Stripe injoignable, échec SMTP, tout 500) à
+**Sentry**, qui envoie une alerte e-mail — plan Developer gratuit, sans carte
+bancaire.
+
+> **Procédure pas à pas** (compte, DSN, test de bout en bout, sonde
+> UptimeRobot) : [monitoring.md](monitoring.md).
+
+En résumé : créer le compte et le projet, renseigner `SENTRY_DSN` dans
+Coolify, redémarrer `api`, puis vérifier avec un webhook Stripe à signature
+bidon que l'issue apparaît et que l'e-mail part.
+
 ## Sauvegardes
 
 **Base PostgreSQL** — créez une **Scheduled Task** Coolify sur la ressource
@@ -324,8 +342,13 @@ gunzip -c db-2026-10-04-0330.sql.gz \
 
 ## Surveillance et maintenance
 
-- Tous les conteneurs ont des healthchecks ; Coolify les affiche (et redémarre
-  un service malsain si « auto-restart » est activé sur la ressource).
+- **Erreurs applicatives** : Sentry (étape 11) alerte par e-mail sur chaque
+  nouvelle erreur serveur — inutile de lire les logs « au cas où ».
+- **Disponibilité** : tous les conteneurs ont des healthchecks ; Coolify les
+  affiche (et redémarre un service malsain si « auto-restart » est activé sur
+  la ressource). Complétez par une sonde **extérieure** (UptimeRobot, étape 11)
+  : Sentry ne peut pas signaler un serveur mort, et Coolify ne le sait que
+  depuis lui-même.
 - Déployez **Uptime Kuma** (disponible en un clic dans Coolify) sur un autre
   serveur ou chez un hébergeur gratuit, pour être alerté si les 3 domaines
   publics ou `/actuator/health` ne répondent plus.
