@@ -11,7 +11,11 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-qr_user}"]
+      # TCP (-h localhost) et pas socket : au premier démarrage, le serveur
+      # temporaire d'initdb n'écoute que sur la socket — un healthcheck socket
+      # passerait « healthy » pendant l'initdb, avant l'arrêt de ce serveur
+      # temporaire et le démarrage du serveur réel.
+      test: ["CMD-SHELL", "pg_isready -h localhost -U ${POSTGRES_USER:-qr_user}"]
       interval: 5s
       timeout: 5s
       retries: 5

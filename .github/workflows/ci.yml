@@ -63,7 +63,9 @@ jobs:
       - name: Install Playwright browser
         run: npx playwright install --with-deps chromium
       - name: Start PostgreSQL and Mailpit
-        run: docker compose -f docker/docker-compose.yml up -d postgres mailpit
+        # --wait : rend la main seulement quand postgres a passé son
+        # healthcheck (TCP, donc serveur réel — voir docker-compose.yml).
+        run: docker compose -f docker/docker-compose.yml up -d --wait postgres mailpit
       - name: Run browser e2e
         run: npm run test:e2e
         env:

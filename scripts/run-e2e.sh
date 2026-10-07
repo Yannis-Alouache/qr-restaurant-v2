@@ -45,18 +45,36 @@ ensure_e2e_database() {
 
   # « up -d » rend la main avant le healthcheck : le conteneur peut exister
   # sans que postgres accepte déjà des connexions (race vue en CI).
+  #
+  # On sonde en TCP (-h localhost), jamais sur la socket Unix : au premier
+  # démarrage (volume frais = chaque run CI), l'entrypoint de l'image lance
+  # un serveur temporaire pour initdb, à l'écoute de la seule socket, puis
+  # l'arrête. Un pg_isready socket réussit donc pendant cette fenêtre, et la
+  # CREATE DATABASE qui suit meurt sur « the database system is shutting
+  # down » ou « terminating connection due to administrator command »
+  # (~1 run sur 2 en CI depuis le 04/10/2026). Le serveur temporaire n'écoute
+  # pas TCP : -h localhost ne sursature que le serveur réel.
+  db_ready=0
   for _ in $(seq 1 30); do
-    if docker exec "$DB_CONTAINER" pg_isready -U "$DB_USER" -q; then
+    if docker exec "$DB_CONTAINER" pg_isready -h localhost -U "$DB_USER" -q; then
+      db_ready=1
       break
     fi
     sleep 1
   done
-
-  if ! docker exec "$DB_CONTAINER" psql -U "$DB_USER" -d postgres -tAc \
-      "SELECT 1 FROM pg_database WHERE datname = '${E2E_DB_NAME}'" | grep -q 1; then
-    echo "Création de la base e2e dédiée : ${E2E_DB_NAME}" >&2
-    docker exec "$DB_CONTAINER" psql -U "$DB_USER" -d postgres -c "CREATE DATABASE ${E2E_DB_NAME}"
+  if [[ "$db_ready" -ne 1 ]]; then
+    echo "PostgreSQL n'accepte pas de connexion TCP après 30 s sur ${DB_CONTAINER}." >&2
+    docker logs --tail 50 "$DB_CONTAINER" >&2 || true
+    exit 1
   fi
+
+  # Existence + création en un seul aller-retour (\gexec, via stdin car -c
+  # n'interprète pas les méta-commandes) : idempotent et sans fenêtre
+  # TOCTOU entre le test et le CREATE DATABASE.
+  docker exec -i "$DB_CONTAINER" psql -h localhost -U "$DB_USER" -d postgres -q <<SQL
+SELECT 'CREATE DATABASE ${E2E_DB_NAME}' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '${E2E_DB_NAME}') \gexec
+SQL
+  echo "Base e2e dédiée prête : ${E2E_DB_NAME}" >&2
 }
 
 API_PID=""
