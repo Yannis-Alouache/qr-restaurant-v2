@@ -101,8 +101,24 @@ export const routes: Routes = [
     ],
   },
   {
+    // Écran 404 — cible des redirections ci-dessous (racine et URLs inconnues),
+    // sinon le routeur ne rend rien et l'utilisateur voit une page blanche.
+    path: '404',
+    title: 'Page introuvable — Menzo',
+    loadComponent: () =>
+      import('./shared/pages/not-found-screen/not-found-screen.component').then(
+        m => m.NotFoundScreenComponent,
+      ),
+  },
+  {
+    // Pas d'écran d'accueil : l'entrée se fait par le lien du QR code de table.
     path: '',
     pathMatch: 'full',
-    redirectTo: '',
+    redirectTo: '404',
+  },
+  {
+    // URLs hors du plan de routage : même écran, à l'adresse canonique /404.
+    path: '**',
+    redirectTo: '404',
   },
 ];
