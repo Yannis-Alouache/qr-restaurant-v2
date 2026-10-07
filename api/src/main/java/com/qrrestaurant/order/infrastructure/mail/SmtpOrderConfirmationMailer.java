@@ -2,6 +2,7 @@ package com.qrrestaurant.order.infrastructure.mail;
 
 import com.qrrestaurant.order.domain.OrderConfirmationEmail;
 import com.qrrestaurant.order.domain.OrderConfirmationMailer;
+import io.sentry.Sentry;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.slf4j.Logger;
@@ -49,7 +50,11 @@ public class SmtpOrderConfirmationMailer implements OrderConfirmationMailer {
             mailSender.send(message);
         } catch (MessagingException | RuntimeException e) {
             // MailException est un RuntimeException : le multi-catch couvre les
-            // pannes SMTP comme les erreurs de rendu. Aucun échec ne remonte.
+            // pannes SMTP comme les erreurs de rendu. Aucun échec ne remonte à
+            // l'appelant, mais chacun est signalé à Sentry (no-op sans DSN) :
+            // un client qui paie sans jamais recevoir son reçu est une panne
+            // silencieuse sinon.
+            Sentry.captureException(e);
             log.error("Envoi du reçu de commande {} impossible vers {} : {}",
                     email.orderReference(), email.to(), e.getMessage());
         }

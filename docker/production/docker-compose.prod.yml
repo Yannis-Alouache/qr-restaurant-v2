@@ -75,6 +75,10 @@ services:
       MAIL_LOG_RESET_LINKS: "false"
       PASSWORD_RESET_TOKEN_TTL_MINUTES: ${PASSWORD_RESET_TOKEN_TTL_MINUTES:-60}
       CORS_EXTRA_ORIGIN_PATTERNS: ${CORS_EXTRA_ORIGIN_PATTERNS:-}
+      # Erreurs (webhook Stripe, SMTP, 500) → Sentry. Sans DSN le SDK est
+      # inactif : à définir dans l'UI Coolify (docs/deploiement/monitoring.md).
+      SENTRY_DSN: ${SENTRY_DSN:-}
+      SENTRY_ENVIRONMENT: production
       # Le heap JVM plafonné évite qu'un pic (ou un build concurrent) affame
       # le VPS ; la limite mémoire du conteneur protège l'inverse.
       JAVA_TOOL_OPTIONS: "-XX:MaxRAMPercentage=75.0"

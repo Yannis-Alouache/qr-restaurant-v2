@@ -11,6 +11,9 @@ import com.qrrestaurant.restaurant.domain.Restaurant;
 import com.qrrestaurant.restaurant.domain.RestaurantTheme;
 import com.qrrestaurant.auth.domain.PasswordPolicy;
 import com.qrrestaurant.shared.domain.StorageService;
+import io.sentry.Sentry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -24,6 +27,8 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler({
             com.qrrestaurant.menu.application.GetMenuUseCase.RestaurantNotFoundException.class,
@@ -78,9 +83,8 @@ public class GlobalExceptionHandler {
             OrderPricingPolicy.ItemUnavailableException.class,
             OrderPricingPolicy.InvalidOrderItemException.class,
             Restaurant.PaymentNotConfiguredException.class,
-            StripeWebhookPayloadParser.InvalidWebhookSignatureException.class,
-            StripeWebhookPayloadParser.MissingOrderMetadataException.class,
-            StripeWebhookPayloadParser.InvalidWebhookPayloadException.class,
+            // Les exceptions de webhook Stripe sont gérées par
+            // handleInvalidStripeWebhook (400 + signalement Sentry).
             com.qrrestaurant.analytics.application.GetRestaurantStatsUseCase.InvalidStatsPeriodException.class,
             IllegalArgumentException.class
     })
@@ -88,8 +92,28 @@ public class GlobalExceptionHandler {
         return respond(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
+    /**
+     * Événement Stripe rejeté (signature, payload, métadonnées) : répond 400 à
+     * Stripe comme avant, mais remonte à Sentry — en production, une rafale de
+     * ces erreurs signale un endpoint webhook cassé (ex. secret roté côté
+     * dashboard sans mise à jour ici) et des commandes payées qui n'aboutissent
+     * jamais. No-op tant que SENTRY_DSN n'est pas défini.
+     */
+    @ExceptionHandler({
+            StripeWebhookPayloadParser.InvalidWebhookSignatureException.class,
+            StripeWebhookPayloadParser.MissingOrderMetadataException.class,
+            StripeWebhookPayloadParser.InvalidWebhookPayloadException.class
+    })
+    public ResponseEntity<ApiErrorResponse> handleInvalidStripeWebhook(RuntimeException ex) {
+        Sentry.captureException(ex);
+        return respond(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorResponse> handleGeneric(Exception ex) {
+        // Sans log ni signalement, un 500 restait invisible une fois parti en prod.
+        log.error("Erreur interne non gérée", ex);
+        Sentry.captureException(ex);
         return respond(HttpStatus.INTERNAL_SERVER_ERROR, "Erreur interne du serveur");
     }
 
@@ -127,20 +151,23 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler({
-            RestaurantSlugGenerator.SlugGenerationException.class,
+            com.qrrestaurant.restaurant.application.RestaurantSlugGenerator.SlugGenerationException.class,
             CreateCheckoutSessionUseCase.PriceUpdateException.class
     })
     public ResponseEntity<ApiErrorResponse> handleServerError(RuntimeException ex) {
+        Sentry.captureException(ex);
         return respond(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
     }
 
     @ExceptionHandler(StorageService.StorageUploadException.class)
     public ResponseEntity<ApiErrorResponse> handleStorageUploadError(StorageService.StorageUploadException ex) {
+        Sentry.captureException(ex);
         return respond(HttpStatus.SERVICE_UNAVAILABLE, ex.getMessage());
     }
 
     @ExceptionHandler(StorageService.StorageDownloadException.class)
     public ResponseEntity<ApiErrorResponse> handleStorageDownloadError(StorageService.StorageDownloadException ex) {
+        Sentry.captureException(ex);
         return respond(HttpStatus.SERVICE_UNAVAILABLE, ex.getMessage());
     }
 
@@ -155,6 +182,8 @@ public class GlobalExceptionHandler {
             com.qrrestaurant.payment.connect.domain.StripeConnectAccountGateway.StripeConnectUnavailableException.class
     })
     public ResponseEntity<ApiErrorResponse> handlePaymentUnavailable(RuntimeException ex) {
+        // L'API Stripe injoignable casse le paiement : mérite une alerte ops.
+        Sentry.captureException(ex);
         return respond(HttpStatus.SERVICE_UNAVAILABLE, ex.getMessage());
     }
 

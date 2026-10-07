@@ -78,6 +78,18 @@ logging:
     root: INFO
     com.qrrestaurant: INFO
 
+sentry:
+  # Monitoring des erreurs (webhook Stripe, SMTP, 500) vers sentry.io — plan
+  # Developer gratuit (5 000 événements/mois, alertes e-mail incluses).
+  # Sans SENTRY_DSN le SDK est désactivé (no-op) : dev et tests inchangés.
+  # Procédure pas à pas : docs/deploiement/monitoring.md
+  dsn: ${SENTRY_DSN:}
+  environment: ${SENTRY_ENVIRONMENT:development}
+  # Pas de tracing de performance par défaut : le quota gratuit doit rester
+  # disponible pour les erreurs (les pannes), pas pour l'instrumentation.
+  traces-sample-rate: ${SENTRY_TRACES_SAMPLE_RATE:0.0}
+  send-default-pii: false
+
 stripe:
   secret-key: ${STRIPE_SECRET_KEY}
   public-key: ${STRIPE_PUBLIC_KEY}
