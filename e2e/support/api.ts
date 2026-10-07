@@ -10,7 +10,7 @@ const webhookSecret = 'whsec_test';
 const stripeApiVersion = '2025-04-30.basil';
 const seedOwnerEmail = 'owner@test.com';
 const seedOwnerPassword = 'Secret123!';
-const tableId = 'c0eebc99-9c0b-4ef8-bb6d-6bb9bd380a01';
+export const tableId = 'c0eebc99-9c0b-4ef8-bb6d-6bb9bd380a01';
 const brownieId = 'e0eebc99-0001-4ef8-bb6d-6bb9bd380a03';
 
 export async function createStandaloneOrder(request: APIRequestContext) {

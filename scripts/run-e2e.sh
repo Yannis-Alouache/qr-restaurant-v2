@@ -16,6 +16,28 @@ DB_CONTAINER="qr-restaurant-db"
 DB_USER="$(grep -E '^POSTGRES_USER=' "$ROOT_DIR/.env" 2>/dev/null | cut -d= -f2 | tr -d '[:space:]' || true)"
 DB_USER="${DB_USER:-qr_user}"
 
+# Clés Stripe : le parcours « vrai checkout » (client-payment-journey.spec.ts)
+# exige une clé secrète de test réelle pour créer une session Checkout hébergée.
+# On lit le .env (même source que l'API) mais on n'accepte qu'une clé de test —
+# jamais de sk_live_*. Sans clé exploitable, l'API tourne avec des clés factices
+# et le spec s'auto-désactive (E2E_STRIPE_REAL=false) au lieu de faire échouer
+# toute la suite.
+stripe_secret="$(grep -E '^STRIPE_SECRET_KEY=' "$ROOT_DIR/.env" 2>/dev/null | tail -1 | cut -d= -f2- | tr -d '[:space:]' || true)"
+stripe_public="$(grep -E '^STRIPE_PUBLIC_KEY=' "$ROOT_DIR/.env" 2>/dev/null | tail -1 | cut -d= -f2- | tr -d '[:space:]' || true)"
+e2e_stripe_real=false
+if [[ "$stripe_secret" == sk_test_* ]]; then
+  e2e_stripe_real=true
+else
+  stripe_secret="sk_test_dummy"
+  stripe_public="pk_test_dummy"
+fi
+case "$stripe_public" in
+  pk_test_*) ;;
+  *) stripe_public="pk_test_dummy" ;;
+esac
+
+export E2E_STRIPE_REAL="$e2e_stripe_real"
+
 # Un serveur déjà présent sur le 8080 serait réutilisé tel quel : s'il pointe
 # vers la base de dev, les specs écriraient dedans. On refuse plutôt. Le test
 # par socket couvre aussi les non-API (phpMyAdmin, proxys Docker…) qui bloquent
@@ -147,7 +169,7 @@ API_PID="$(start_if_missing \
   "http://localhost:8080/api/public/menu/naia-burger" \
   "api" \
   "$API_LOG" \
-  env STRIPE_SECRET_KEY=sk_test_dummy STRIPE_PUBLIC_KEY=pk_test_dummy STRIPE_WEBHOOK_SECRET=whsec_test SEED_DEMO_DATA=true DATABASE_URL="$E2E_DB_URL" "$MVN_CMD" -q spring-boot:run)"
+  env STRIPE_SECRET_KEY="$stripe_secret" STRIPE_PUBLIC_KEY="$stripe_public" STRIPE_WEBHOOK_SECRET=whsec_test SEED_DEMO_DATA=true DATABASE_URL="$E2E_DB_URL" "$MVN_CMD" -q spring-boot:run)"
 
 CLIENT_PID="$(start_if_missing \
   "http://localhost:4300/menu/naia-burger/c0eebc99-9c0b-4ef8-bb6d-6bb9bd380a01" \
