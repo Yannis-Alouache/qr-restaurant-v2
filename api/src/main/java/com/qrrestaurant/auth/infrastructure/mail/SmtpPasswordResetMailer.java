@@ -1,6 +1,7 @@
 package com.qrrestaurant.auth.infrastructure.mail;
 
 import com.qrrestaurant.auth.domain.PasswordResetMailer;
+import io.sentry.Sentry;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.slf4j.Logger;
@@ -49,6 +50,9 @@ public class SmtpPasswordResetMailer implements PasswordResetMailer {
             helper.setText(buildHtmlBody(resetUrl), true);
             mailSender.send(message);
         } catch (MailException | MessagingException e) {
+            // L'échec est invisible côté utilisateur : sans signalement externe,
+            // une panne SMTP ne serait découverte qu'à l'usage. No-op sans SENTRY_DSN.
+            Sentry.captureException(e);
             log.error("Envoi de l'email de réinitialisation impossible vers {} : {}", to, e.getMessage());
             if (logResetLinksOnFailure) {
                 log.warn("Lien de réinitialisation pour {} (journalisé car app.mail.log-reset-links-on-failure=true) : {}",

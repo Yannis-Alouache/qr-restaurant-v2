@@ -35,13 +35,19 @@ point se trouve dans [README.md](README.md).
 - [ ] `MAIL_FROM` est une adresse du domaine validé
 - [ ] « Mot de passe oublié ? » reçoit un e-mail, le lien fonctionne une seule fois
 
+## Monitoring
+
+- [ ] `SENTRY_DSN` renseigné dans Coolify, `api` redémarré (étape 11 du README)
+- [ ] Test effectué : webhook Stripe à signature bidon → issue « Signature Stripe invalide » visible dans Sentry sous ~30 s
+- [ ] Règle d'alerte e-mail « new issue » active dans Sentry, votre adresse membre du projet
+- [ ] Sonde extérieure sur les 3 domaines + `/actuator/health` (UptimeRobot gratuit ou Uptime Kuma sur un autre serveur) avec alerte e-mail
+
 ## Sécurité & exploitation
 
 - [ ] `COOLIFY_DEPLOY_WEBHOOK` configuré dans GitHub (déploiement uniquement après CI verte)
 - [ ] Sauvegarde PostgreSQL quotidienne planifiée (Scheduled Task Coolify) et copie **hors site** vérifiée
 - [ ] Volume SeaweedFS inclus dans la sauvegarde hors site
 - [ ] Restauration testée une fois sur une base jetable
-- [ ] Uptime Kuma (ou équivalent) surveille les 3 domaines + `/actuator/health`
 - [ ] Coolify à jour (Settings → Update)
 
 ## Légal & conformité
@@ -63,5 +69,5 @@ point se trouve dans [README.md](README.md).
 
 ## Après ouverture
 
-- [ ] Surveiller les logs `api` les premiers jours (échecs webhook Stripe, erreurs SMTP)
+- [ ] Les premiers jours, traiter chaque issue Sentry neuve (échecs webhook Stripe, erreurs SMTP, 500)
 - [ ] Vérifier la première sauvegarde hebdomadaire complète
