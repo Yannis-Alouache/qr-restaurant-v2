@@ -63,27 +63,37 @@
   <!-- Orders grid -->
   @if (filteredOrders().length > 0) {
     <div class="orders-grid">
-      @for (order of filteredOrders(); track order.id) {
+      @for (order of filteredOrders(); track order.id; let i = $index) {
         @let cfg = statusConfig(order.status);
-        <article class="order-card" [attr.data-testid]="'order-card-' + order.id">
-          <div class="order-stripe" [style.background-color]="cfg.stripe"></div>
+        <article
+          class="order-card {{ cfg.cls }}"
+          [style.animation-delay.ms]="(i > 6 ? 6 : i) * 45"
+          [attr.data-testid]="'order-card-' + order.id"
+        >
+          <div class="order-stripe"></div>
 
           <div class="order-header">
-            <div class="order-header-main">
-              <span class="order-table-num">Table {{ order.tableNumber }}</span>
+            <div class="order-table">
+              <span class="order-table-label">Table</span>
+              <span class="order-table-num">{{ order.tableNumber }}</span>
+            </div>
+            <div class="order-header-side">
               <span class="order-status" [attr.data-testid]="'order-status-' + order.id">
-                <span class="order-status-dot" [style.background-color]="cfg.stripe"></span>
+                <span class="order-status-dot"></span>
                 {{ statusLabels[order.status] }}
               </span>
+              <span class="order-time" [attr.title]="'Commande passée à ' + formatTime(order.createdAt)">
+                <svg lucideClock></svg>
+                {{ formatElapsed(order.createdAt) }}
+              </span>
             </div>
-            <span class="order-time">{{ formatTime(order.createdAt) }}</span>
           </div>
 
           <div class="order-items">
             @for (item of order.items; track item.id) {
               <div class="order-item">
-                <span class="order-item-qty">{{ item.quantity }}</span>
-                <span class="order-item-name">{{ item.name }}</span>
+                <span class="order-item-qty">{{ item.quantity }}×</span>
+                <span class="order-item-name" [attr.title]="item.name">{{ item.name }}</span>
                 @if (item.menuRole && item.menuRole !== 'plat') {
                   <span class="order-item-role">{{ item.menuRole }}</span>
                 }
@@ -92,7 +102,10 @@
           </div>
 
           <div class="order-footer">
-            <div class="order-total">{{ formatPrice(order.total) }}</div>
+            <div class="order-total">
+              <span class="order-total-label">Total</span>
+              <span class="order-total-value">{{ formatPrice(order.total) }}</span>
+            </div>
             <div class="order-actions">
               @if (cfg.action; as action) {
                 <button class="btn-action {{ action.cls }}" (click)="advanceStatus(order)" [attr.data-testid]="'order-advance-' + order.id">
@@ -113,7 +126,7 @@
     </div>
   } @else {
     <div class="empty-state">
-      <svg lucideInbox></svg>
+      <div class="empty-state-icon"><svg lucideInbox></svg></div>
       <h3>Aucune commande</h3>
       <p>Les nouvelles commandes de vos clients apparaîtront ici en temps réel.</p>
     </div>

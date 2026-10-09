@@ -17,17 +17,20 @@ import { ADMIN_ICONS } from '../../core/icons';
 type Filter = 'active' | 'served' | 'all';
 
 interface StatusConfig {
-  stripe: string;
+  /** Classe d'état posée sur la carte : pilote bande, pastille et teintes via --card-accent. */
+  cls: string;
   action: { label: string; cls: string } | null;
 }
 
 /** Visual treatment per order status — extends the mockup's 3-status model to the API's 5. */
 const STATUS_CONFIG: Record<string, StatusConfig> = {
-  nouvelle: { stripe: 'var(--accent)', action: { label: 'Accepter', cls: 'btn-action-primary' } },
-  en_preparation: { stripe: 'var(--warn)', action: { label: 'Prête', cls: 'btn-action-success' } },
-  prete: { stripe: 'var(--success)', action: { label: 'Servie', cls: 'btn-action-success' } },
-  servie: { stripe: 'var(--muted)', action: null },
-  rembourse: { stripe: 'var(--danger)', action: null },
+  nouvelle: { cls: 'st-nouvelle', action: { label: 'Accepter', cls: 'btn-action-primary' } },
+  en_preparation: { cls: 'st-preparation', action: { label: 'Prête', cls: 'btn-action-success' } },
+  prete: { cls: 'st-prete', action: { label: 'Servie', cls: 'btn-action-success' } },
+  servie: { cls: 'st-servie', action: null },
+  en_attente_paiement: { cls: 'st-attente', action: null },
+  paiement_echoue: { cls: 'st-echec', action: null },
+  rembourse: { cls: 'st-rembourse', action: null },
 };
 
 /** Miroir de Order.assertRefundable côté domaine : payée non servie ou servie. */
@@ -96,6 +99,13 @@ export class OrdersComponent implements OnInit, OnDestroy {
   statusLabels = STATUS_LABELS;
   filter = signal<Filter>('active');
 
+  /** Horloge partagée : rafraîchit les temps d'attente sans recalcul manuel. */
+  readonly now = signal(Date.now());
+  private readonly clock: ReturnType<typeof setInterval> = setInterval(
+    () => this.now.set(Date.now()),
+    30_000,
+  );
+
   counts = computed(() => {
     const orders = this.orders();
     return {
@@ -125,6 +135,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    clearInterval(this.clock);
     this.ws.disconnect();
     document.title = this.baseTitle;
   }
@@ -137,7 +148,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
     }
     const notificationsGranted = await this.alerts.enable();
     this.toast.show(notificationsGranted
-      ? 'Alertes cuisine activées — son et notifications'
+      ? 'Alertes cuisine activées : son et notifications'
       : 'Alertes sonores activées (notifications refusées par le navigateur)');
   }
 
@@ -169,7 +180,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
   async refundOrder(order: OrderView): Promise<void> {
     const confirmed = await this.confirm.ask({
       title: 'Rembourser la commande ?',
-      message: `Table ${order.tableNumber} — ${this.formatPrice(order.total)}. `
+      message: `Table ${order.tableNumber}, ${this.formatPrice(order.total)}. `
         + 'Le client sera intégralement remboursé, cette action est définitive.',
       confirmLabel: 'Rembourser',
       tone: 'danger',
@@ -191,6 +202,16 @@ export class OrdersComponent implements OnInit, OnDestroy {
 
   formatPrice(price: number): string {
     return price.toFixed(2).replace('.', ',') + ' €';
+  }
+
+  /** Temps écoulé depuis la prise de commande, arrondi au service près. */
+  formatElapsed(iso: string): string {
+    const minutes = Math.max(0, Math.floor((this.now() - new Date(iso).getTime()) / 60_000));
+    if (minutes < 1) return "à l'instant";
+    if (minutes < 60) return `${minutes} min`;
+    const hours = Math.floor(minutes / 60);
+    const rest = minutes % 60;
+    return rest > 0 ? `${hours} h ${String(rest).padStart(2, '0')}` : `${hours} h`;
   }
 
   formatTime(iso: string): string {
