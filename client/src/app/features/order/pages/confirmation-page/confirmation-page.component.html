@@ -58,6 +58,23 @@
 
       <p class="auto-update">Cette page se met à jour automatiquement</p>
 
+      <!-- Invitation à laisser un avis Google : seulement une fois servi -->
+      @if (order()!.status === 'servie' && reviewUrl(); as url) {
+        <div class="review-card" data-testid="google-review-card">
+          <div class="review-stars" aria-hidden="true">
+            @for (star of [1, 2, 3, 4, 5]; track star) {
+              <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            }
+          </div>
+          <h2 class="review-title">Vous avez aimé&nbsp;?</h2>
+          <p class="review-text">Votre avis nous aide énormément et ne prend que quelques secondes.</p>
+          <a class="review-button" [href]="url" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            Noter sur Google
+          </a>
+        </div>
+      }
+
       <footer class="legal-links">
         <a routerLink="/legal/cgv">CGV</a>
         <a routerLink="/legal/confidentialite">Confidentialité</a>

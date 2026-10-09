@@ -1,6 +1,7 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { OrderService } from '../../services/order.service';
+import { ReviewPromptService } from '../../services/review-prompt.service';
 import { MenuService } from '../../../menu/services/menu.service';
 import { CartService } from '../../../cart/services/cart.service';
 import { CartEntry } from '../../../cart/models/cart.model';
@@ -24,6 +25,7 @@ export class CheckoutPageComponent implements OnInit {
   private readonly orderService = inject(OrderService);
   private readonly menuService = inject(MenuService);
   private readonly themeService = inject(ThemeService);
+  private readonly reviewPrompt = inject(ReviewPromptService);
   readonly cart = inject(CartService);
 
   restaurantName = signal<string>('');
@@ -121,6 +123,9 @@ export class CheckoutPageComponent implements OnInit {
   private openCheckout(orderId: string): void {
     this.orderService.createCheckoutSession(orderId).subscribe({
       next: session => {
+        // Mémorise le contexte pour l'invitation d'avis après le service :
+        // la page de suivi (retour Stripe) n'a pas le slug dans son URL.
+        this.reviewPrompt.track(this.slug, this.tableId, orderId);
         this.cart.clear();
         window.location.href = session.checkoutUrl;
       },

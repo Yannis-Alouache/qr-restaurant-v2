@@ -184,6 +184,72 @@
   color: var(--muted);
 }
 
+/* ─── Invitation avis Google ─── */
+.review-card {
+  background: var(--accent-soft);
+  border: 1.5px solid var(--accent);
+  border-radius: var(--radius-md);
+  padding: 24px 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.review-stars {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 2px;
+}
+
+.review-stars svg {
+  width: 22px;
+  height: 22px;
+  fill: #fbbc04;
+  stroke: none;
+}
+
+.review-title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--fg);
+}
+
+.review-text {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.4;
+  max-width: 260px;
+}
+
+.review-button {
+  margin-top: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  font-size: 15px;
+  text-decoration: none;
+}
+
+.review-button svg {
+  width: 16px;
+  height: 16px;
+  fill: #fff;
+  stroke: none;
+}
+
+.review-button:active {
+  opacity: 0.9;
+}
+
 /* ─── Liens légaux ─── */
 .legal-links {
   display: flex;
