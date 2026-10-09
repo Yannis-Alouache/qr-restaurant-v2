@@ -152,64 +152,133 @@
   grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
   gap: var(--space-5);
 }
+
+/* Chaque statut teinte la carte via --card-accent : bande, pastille, liseré
+   et halo dérivent tous de cette unique couleur. */
 .order-card {
+  --card-accent: var(--muted);
+  display: flex;
+  flex-direction: column;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   overflow: hidden;
+  animation: card-in 0.4s var(--ease-standard) backwards;
   transition: border-color var(--motion-fast) var(--ease-standard),
-              box-shadow var(--motion-base) var(--ease-standard);
+              box-shadow var(--motion-base) var(--ease-standard),
+              transform var(--motion-base) var(--ease-standard);
 }
 .order-card:hover {
-  border-color: var(--fg-2);
+  transform: translateY(-2px);
+  border-color: color-mix(in oklab, var(--card-accent), transparent 55%);
   box-shadow: var(--elev-raised);
 }
-.order-stripe {
-  height: 3px;
-  width: 100%;
+.order-card.st-nouvelle {
+  --card-accent: var(--accent);
+  border-color: color-mix(in oklab, var(--accent), transparent 62%);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.06);
 }
+.order-card.st-nouvelle:hover {
+  border-color: color-mix(in oklab, var(--accent), transparent 40%);
+}
+.order-card.st-preparation { --card-accent: var(--warn); }
+.order-card.st-prete { --card-accent: var(--success); }
+.order-card.st-attente { --card-accent: var(--warn); }
+.order-card.st-echec { --card-accent: var(--danger); }
+.order-card.st-rembourse { --card-accent: var(--danger); }
+.order-card.st-servie { opacity: 0.8; }
+.order-card.st-servie:hover { opacity: 1; }
+
+@keyframes card-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.order-stripe {
+  height: 4px;
+  background: var(--card-accent);
+  flex-shrink: 0;
+}
+
+/* En-tête façon ticket : table à gauche (label + numéro), statut et
+   ancienneté empilés à droite. */
 .order-header {
   display: flex;
-  align-items: baseline;
+  align-items: flex-start;
   justify-content: space-between;
-  padding: var(--space-4) var(--space-5) var(--space-2);
-}
-.order-header-main {
-  display: flex;
-  align-items: center;
   gap: var(--space-3);
+  padding: var(--space-4) var(--space-5) var(--space-3);
+}
+.order-table {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
   min-width: 0;
+}
+.order-table-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--muted);
+}
+.order-table-num {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: var(--tracking-display);
+  line-height: 1.1;
+  color: var(--fg);
+  font-variant-numeric: tabular-nums;
+}
+.order-header-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  flex-shrink: 0;
 }
 .order-status {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 3px 10px;
+  padding: 4px 10px;
   border-radius: var(--radius-pill);
-  background: var(--border-soft);
+  background: color-mix(in oklab, var(--card-accent), transparent 91%);
+  color: color-mix(in oklab, var(--card-accent), black 32%);
   font-size: 11px;
-  font-weight: 600;
-  color: var(--fg-2);
+  font-weight: 700;
   white-space: nowrap;
 }
 .order-status-dot {
   width: 7px;
   height: 7px;
   border-radius: 50%;
+  background: var(--card-accent);
   flex-shrink: 0;
 }
-.order-table-num {
-  font-family: var(--font-display);
-  font-size: var(--text-xl);
-  font-weight: 700;
-  letter-spacing: var(--tracking-display);
+/* Une commande « nouvelle » attend une action : la pastille respire. */
+.st-nouvelle .order-status-dot {
+  animation: status-pulse 1.8s var(--ease-standard) infinite;
+}
+@keyframes status-pulse {
+  0% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--card-accent), transparent 45%); }
+  70% { box-shadow: 0 0 0 6px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
 }
 .order-time {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   font-family: var(--font-mono);
-  font-size: var(--text-sm);
-  color: var(--fg-2);
+  font-size: var(--text-xs);
+  color: var(--muted);
+  white-space: nowrap;
   font-variant-numeric: tabular-nums;
 }
+.order-time svg { width: 12px; height: 12px; }
+
+/* Articles : quantité + nom tronqué (infobulle) + rôle, sur une ligne. */
 .order-items {
   padding: 0 var(--space-5) var(--space-2);
   display: flex;
@@ -222,48 +291,87 @@
   gap: var(--space-2);
   font-size: var(--text-sm);
   padding: 3px 0;
+  min-width: 0;
 }
 .order-item-qty {
   font-family: var(--font-mono);
   font-size: 11px;
-  font-weight: 600;
-  color: var(--accent);
-  background: rgba(37, 99, 235, 0.06);
-  min-width: 22px;
+  font-weight: 700;
+  color: var(--fg-2);
+  background: var(--border-soft);
+  min-width: 24px;
   height: 22px;
-  border-radius: 4px;
+  padding: 0 4px;
+  border-radius: 6px;
   display: grid;
   place-items: center;
   flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
 }
-.order-item-name { color: var(--fg); flex: 1; min-width: 0; }
+.order-item-name {
+  color: var(--fg);
+  font-weight: 500;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .order-item-role {
   font-size: 11px;
+  font-weight: 600;
   color: var(--muted);
   background: var(--border-soft);
   padding: 2px 8px;
   border-radius: var(--radius-pill);
   text-transform: capitalize;
+  flex-shrink: 0;
 }
+
+/* Pied : le total est un bloc ancré, jamais compressé par les actions ;
+   s'il manque de la place, les boutons passent à la ligne. */
 .order-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-3);
   padding: var(--space-3) var(--space-5) var(--space-4);
   border-top: 1px solid var(--border-soft);
-  margin-top: var(--space-1);
+  margin-top: var(--space-2);
 }
 .order-total {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex-shrink: 0;
+}
+.order-total-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--muted);
+}
+.order-total-value {
   font-family: var(--font-display);
   font-size: var(--text-xl);
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: var(--tracking-display);
+  line-height: 1.15;
+  color: var(--fg);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 .order-actions {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
   gap: var(--space-2);
+  min-width: 0;
 }
+.order-actions .btn-action { white-space: nowrap; }
 
 /* ─── Empty state ───────────────────────────────────────────────────── */
 .empty-state {
@@ -275,12 +383,17 @@
   text-align: center;
   color: var(--muted);
 }
-.empty-state svg {
-  width: 48px;
-  height: 48px;
+.empty-state-icon {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
   margin-bottom: var(--space-4);
-  opacity: 0.35;
+  border-radius: 50%;
+  background: var(--surface-warm);
+  color: var(--accent);
 }
+.empty-state-icon svg { width: 28px; height: 28px; }
 .empty-state h3 {
   font-size: var(--text-base);
   font-weight: 600;
@@ -298,4 +411,11 @@
   .summary-pills { display: none; }
   .orders-grid { grid-template-columns: 1fr; }
   .alert-toggle span { display: none; }
+}
+
+/* ─── Accessibilité : mouvement réduit ──────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .order-card { animation: none; }
+  .order-card:hover { transform: none; }
+  .st-nouvelle .order-status-dot { animation: none; }
 }
