@@ -27,19 +27,25 @@ public class UpdateRestaurantUseCase {
 
     public RestaurantView execute(UUID userId, String name, String address, String logoPath,
                                   String coverPath, String themeId, String paymentProviderAccountId) {
+        return execute(userId, name, address, logoPath, coverPath, themeId, paymentProviderAccountId, null);
+    }
+
+    public RestaurantView execute(UUID userId, String name, String address, String logoPath,
+                                  String coverPath, String themeId, String paymentProviderAccountId, String googleReviewUrl) {
         Restaurant restaurant = restaurantRepository.findByUserId(userId)
                 .orElseThrow(GetRestaurantUseCase.NoRestaurantException::new);
 
         String previousLogo = restaurant.getLogoPath();
         String previousCover = restaurant.getCoverPath();
-        restaurant.update(name, address, logoPath, coverPath, themeId, paymentProviderAccountId);
+        restaurant.update(name, address, logoPath, coverPath, themeId, paymentProviderAccountId, googleReviewUrl);
 
         Restaurant saved = restaurantRepository.save(restaurant);
         cleanupImageIfChanged(previousLogo, saved.getLogoPath());
         cleanupImageIfChanged(previousCover, saved.getCoverPath());
         return new RestaurantView(saved.getId().toString(), saved.getName(), saved.getSlug(),
                 saved.getAddress(), saved.getLogoPath(), saved.getCoverPath(), saved.getThemeId(),
-                saved.getPaymentProviderAccountId(), saved.getStripeConnectStatus(), clientBaseUrl);
+                saved.getPaymentProviderAccountId(), saved.getStripeConnectStatus(),
+                saved.getGoogleReviewUrl(), clientBaseUrl);
     }
 
     private void cleanupImageIfChanged(String previousPath, String currentPath) {
@@ -50,5 +56,5 @@ public class UpdateRestaurantUseCase {
 
     public record RestaurantView(String id, String name, String slug, String address,
                                    String logoPath, String coverPath, String themeId, String paymentProviderAccountId,
-                                   String stripeConnectStatus, String clientBaseUrl) {}
+                                   String stripeConnectStatus, String googleReviewUrl, String clientBaseUrl) {}
 }

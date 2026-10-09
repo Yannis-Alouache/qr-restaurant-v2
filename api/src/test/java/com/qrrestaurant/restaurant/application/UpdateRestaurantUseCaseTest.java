@@ -69,6 +69,20 @@ class UpdateRestaurantUseCaseTest {
         verify(ctx.storage).delete("/api/images/covers/old.png");
     }
 
+    @Test
+    void shouldPersistGoogleReviewUrlFromSettings() {
+        var ctx = setup(null, null);
+
+        var view = ctx.useCase.execute(ctx.ownerId, "Bistro", null, null, null, null, null,
+                "https://g.page/r/bistro/review");
+
+        org.assertj.core.api.Assertions.assertThat(view.googleReviewUrl())
+                .isEqualTo("https://g.page/r/bistro/review");
+        var reloaded = ctx.repository.findByUserId(ctx.ownerId).orElseThrow();
+        org.assertj.core.api.Assertions.assertThat(reloaded.getGoogleReviewUrl())
+                .isEqualTo("https://g.page/r/bistro/review");
+    }
+
     private Context setup(String logoPath, String coverPath) {
         InMemoryRestaurantRepository restaurantRepository = new InMemoryRestaurantRepository();
         StorageService storage = mock(StorageService.class);
@@ -83,6 +97,7 @@ class UpdateRestaurantUseCaseTest {
         ctx.ownerId = ownerId;
         ctx.useCase = useCase;
         ctx.storage = storage;
+        ctx.repository = restaurantRepository;
         return ctx;
     }
 
@@ -90,5 +105,6 @@ class UpdateRestaurantUseCaseTest {
         UUID ownerId;
         UpdateRestaurantUseCase useCase;
         StorageService storage;
+        InMemoryRestaurantRepository repository;
     }
 }

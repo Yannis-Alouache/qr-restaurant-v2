@@ -50,7 +50,8 @@ public class RestaurantController {
             Authentication auth, @Valid @RequestBody UpdateRestaurantRequest request) {
         return ResponseEntity.ok(updateRestaurantUseCase.execute(
                 extractUserId(auth), request.name(), request.address(),
-                request.logoPath(), request.coverPath(), request.themeId(), request.paymentProviderAccountId()));
+                request.logoPath(), request.coverPath(), request.themeId(), request.paymentProviderAccountId(),
+                request.googleReviewUrl()));
     }
 
     @GetMapping("/restaurant/tables")
@@ -74,6 +75,11 @@ public class RestaurantController {
             // (normalisée en null par le domaine). Stripe rejette lui-même un
             // compte inconnu au moment du checkout.
             @Pattern(regexp = "^\\s*$|^acct_[A-Za-z0-9_]{6,}$", message = "Identifiant de compte Stripe invalide")
-            String paymentProviderAccountId
+            String paymentProviderAccountId,
+            // Sanity check de format : le lien « laisser un avis » Google est
+            // une URL http(s) (g.page/r/.../review, writereview?placeid=... ou
+            // lien court). Valeur blanche acceptée, elle efface le lien.
+            @Pattern(regexp = "^\\s*$|^https?://\\S+$", message = "Lien d'avis Google invalide")
+            String googleReviewUrl
     ) {}
 }

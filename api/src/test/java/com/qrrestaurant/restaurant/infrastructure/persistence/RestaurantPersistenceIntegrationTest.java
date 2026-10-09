@@ -39,7 +39,8 @@ class RestaurantPersistenceIntegrationTest extends AbstractPostgresIntegrationTe
                 "encoded-password");
 
         Restaurant restaurant = Restaurant.from(null, ownerId, "Bistro Verde", "bistro-verde",
-                "10 rue des Jardins", null, null, "classique", "acct_bistro_verde", null);
+                "10 rue des Jardins", null, null, "classique", "acct_bistro_verde", null, null,
+                "https://g.page/r/bistro-verde/review");
         Restaurant savedRestaurant = restaurantRepository.save(restaurant);
 
         restaurantTableRepository.save(RestaurantTable.create(savedRestaurant.getId(), 8));
@@ -51,6 +52,7 @@ class RestaurantPersistenceIntegrationTest extends AbstractPostgresIntegrationTe
 
         assertEquals(savedRestaurant.getId(), bySlug.getId());
         assertEquals(savedRestaurant.getId(), byUserId.getId());
+        assertEquals("https://g.page/r/bistro-verde/review", bySlug.getGoogleReviewUrl());
         assertTrue(restaurantRepository.existsBySlug("bistro-verde"));
         assertFalse(restaurantRepository.existsBySlug("unknown-slug"));
         assertEquals(List.of(3, 8), tables.stream().map(RestaurantTable::getNumber).toList());

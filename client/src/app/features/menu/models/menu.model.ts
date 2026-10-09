@@ -12,6 +12,7 @@ export interface RestaurantInfo {
   logoPath: string | null;
   coverPath: string | null;
   themeId: string;
+  googleReviewUrl: string | null;
 }
 
 export interface CategoryView {

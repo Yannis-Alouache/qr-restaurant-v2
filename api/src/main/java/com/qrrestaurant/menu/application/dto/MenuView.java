@@ -16,7 +16,8 @@ public record MenuView(
         String address,
         String logoPath,
         String coverPath,
-        String themeId
+        String themeId,
+        String googleReviewUrl
     ) {}
 
     public record CategoryView(

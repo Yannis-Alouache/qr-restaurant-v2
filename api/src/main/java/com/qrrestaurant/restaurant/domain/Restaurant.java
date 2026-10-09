@@ -16,16 +16,24 @@ public class Restaurant {
     private String themeId;
     private String paymentProviderAccountId;
     private String stripeConnectStatus;
+    private String googleReviewUrl;
     private final LocalDateTime createdAt;
 
     private Restaurant(UUID id, UUID userId, String name, String slug, String address,
                        String logoPath, String coverPath, String themeId, String paymentProviderAccountId, LocalDateTime createdAt) {
-        this(id, userId, name, slug, address, logoPath, coverPath, themeId, paymentProviderAccountId, createdAt, null);
+        this(id, userId, name, slug, address, logoPath, coverPath, themeId, paymentProviderAccountId, createdAt, null, null);
     }
 
     private Restaurant(UUID id, UUID userId, String name, String slug, String address,
                        String logoPath, String coverPath, String themeId, String paymentProviderAccountId,
                        LocalDateTime createdAt, String stripeConnectStatus) {
+        this(id, userId, name, slug, address, logoPath, coverPath, themeId, paymentProviderAccountId,
+                createdAt, stripeConnectStatus, null);
+    }
+
+    private Restaurant(UUID id, UUID userId, String name, String slug, String address,
+                       String logoPath, String coverPath, String themeId, String paymentProviderAccountId,
+                       LocalDateTime createdAt, String stripeConnectStatus, String googleReviewUrl) {
         this.id = id;
         this.userId = userId;
         this.name = name;
@@ -37,6 +45,7 @@ public class Restaurant {
         this.paymentProviderAccountId = paymentProviderAccountId;
         this.createdAt = createdAt;
         this.stripeConnectStatus = stripeConnectStatus;
+        this.googleReviewUrl = googleReviewUrl;
     }
 
     public static Restaurant create(UUID userId, String name, String slug, String themeId, String logoPath) {
@@ -56,11 +65,24 @@ public class Restaurant {
     public static Restaurant from(UUID id, UUID userId, String name, String slug, String address,
                                    String logoPath, String coverPath, String themeId, String paymentProviderAccountId,
                                    LocalDateTime createdAt, String stripeConnectStatus) {
+        return from(id, userId, name, slug, address, logoPath, coverPath, themeId,
+                paymentProviderAccountId, createdAt, stripeConnectStatus, null);
+    }
+
+    /** Réhydratation complète, Stripe Connect + lien d'avis Google (persistance). */
+    public static Restaurant from(UUID id, UUID userId, String name, String slug, String address,
+                                   String logoPath, String coverPath, String themeId, String paymentProviderAccountId,
+                                   LocalDateTime createdAt, String stripeConnectStatus, String googleReviewUrl) {
         return new Restaurant(id, userId, name, slug, address, logoPath, coverPath, themeId,
-                paymentProviderAccountId, createdAt, stripeConnectStatus);
+                paymentProviderAccountId, createdAt, stripeConnectStatus, googleReviewUrl);
     }
 
     public void update(String name, String address, String logoPath, String coverPath, String themeId, String paymentProviderAccountId) {
+        update(name, address, logoPath, coverPath, themeId, paymentProviderAccountId, null);
+    }
+
+    public void update(String name, String address, String logoPath, String coverPath, String themeId,
+                       String paymentProviderAccountId, String googleReviewUrl) {
         if (name != null) this.name = name;
         if (address != null) this.address = address;
         if (logoPath != null) {
@@ -72,6 +94,9 @@ public class Restaurant {
         if (themeId != null) this.themeId = RestaurantTheme.normalizeOrDefault(themeId);
         if (paymentProviderAccountId != null) {
             this.paymentProviderAccountId = normalizePaymentProviderAccountId(paymentProviderAccountId);
+        }
+        if (googleReviewUrl != null) {
+            this.googleReviewUrl = googleReviewUrl.isBlank() ? null : googleReviewUrl.trim();
         }
     }
 
@@ -127,6 +152,7 @@ public class Restaurant {
     public String getThemeId() { return themeId; }
     public String getPaymentProviderAccountId() { return paymentProviderAccountId; }
     public String getStripeConnectStatus() { return stripeConnectStatus; }
+    public String getGoogleReviewUrl() { return googleReviewUrl; }
     public LocalDateTime getCreatedAt() { return createdAt; }
 
     public static class PaymentNotConfiguredException extends IllegalArgumentException {

@@ -41,6 +41,9 @@ public class RestaurantJpaEntity {
     @Column(name = "stripe_connect_status")
     private String stripeConnectStatus;
 
+    @Column(name = "google_review_url")
+    private String googleReviewUrl;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -80,6 +83,9 @@ public class RestaurantJpaEntity {
 
     public String getStripeConnectStatus() { return stripeConnectStatus; }
     public void setStripeConnectStatus(String stripeConnectStatus) { this.stripeConnectStatus = stripeConnectStatus; }
+
+    public String getGoogleReviewUrl() { return googleReviewUrl; }
+    public void setGoogleReviewUrl(String googleReviewUrl) { this.googleReviewUrl = googleReviewUrl; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
 }
