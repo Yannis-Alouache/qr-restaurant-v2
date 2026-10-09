@@ -13,6 +13,7 @@ export interface Restaurant {
   themeId: string;
   paymentProviderAccountId: string | null;
   stripeConnectStatus: 'pending' | 'active' | 'restricted' | null;
+  googleReviewUrl: string | null;
   clientBaseUrl: string;
 }
 
@@ -56,7 +57,7 @@ export class RestaurantService {
   }
 
   updateRestaurant(
-    data: Partial<Pick<Restaurant, 'name' | 'address' | 'logoPath' | 'coverPath' | 'themeId' | 'paymentProviderAccountId'>>,
+    data: Partial<Pick<Restaurant, 'name' | 'address' | 'logoPath' | 'coverPath' | 'themeId' | 'paymentProviderAccountId' | 'googleReviewUrl'>>,
   ): Observable<Restaurant> {
     return this.http.put<Restaurant>('/api/admin/restaurant', data).pipe(
       tap(r => this.restaurant.set(r))

@@ -63,6 +63,7 @@ export class SettingsComponent implements OnInit {
     address: new FormControl(''),
     themeId: new FormControl('classique', Validators.required),
     paymentProviderAccountId: new FormControl(''),
+    googleReviewUrl: new FormControl('', Validators.pattern(/^https?:\/\/\S+$/i)),
   });
 
   constructor() {
@@ -77,6 +78,7 @@ export class SettingsComponent implements OnInit {
           address: restaurant.address ?? '',
           themeId: restaurant.themeId,
           paymentProviderAccountId: restaurant.paymentProviderAccountId ?? '',
+          googleReviewUrl: restaurant.googleReviewUrl ?? '',
         },
         { emitEvent: false },
       );
@@ -148,6 +150,7 @@ export class SettingsComponent implements OnInit {
         address: this.form.controls.address.value ?? '',
         themeId: this.form.controls.themeId.value ?? 'classique',
         paymentProviderAccountId: this.form.controls.paymentProviderAccountId.value ?? '',
+        googleReviewUrl: this.form.controls.googleReviewUrl.value ?? '',
       })
       .subscribe({
         next: () => {

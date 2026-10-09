@@ -233,6 +233,71 @@ class RestaurantAdminControllerHttpTest extends AbstractPostgresIntegrationTest 
         assertThat(persistedCoverPath).isNull();
     }
 
+    @Test
+    void shouldPersistAndExposeGoogleReviewUrlFromRestaurantSettings() throws Exception {
+        String reviewUrl = "https://g.page/r/naia-burger/review";
+
+        mockMvc.perform(put("/api/admin/restaurant")
+                        .cookie(bearerToken(OWNER_ID, "owner@test.com"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "googleReviewUrl": "%s"
+                                }
+                                """.formatted(reviewUrl)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.googleReviewUrl").value(reviewUrl));
+
+        mockMvc.perform(get("/api/admin/restaurant")
+                        .cookie(bearerToken(OWNER_ID, "owner@test.com")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.googleReviewUrl").value(reviewUrl));
+
+        String persistedUrl = jdbcTemplate.queryForObject(
+                "SELECT google_review_url FROM restaurant WHERE id = ?",
+                String.class,
+                RESTAURANT_ID);
+        assertThat(persistedUrl).isEqualTo(reviewUrl);
+    }
+
+    @Test
+    void shouldClearGoogleReviewUrlWhenSettingsUpdateProvidesBlankValue() throws Exception {
+        jdbcTemplate.update(
+                "UPDATE restaurant SET google_review_url = ? WHERE id = ?",
+                "https://g.page/r/naia-burger/review",
+                RESTAURANT_ID);
+
+        mockMvc.perform(put("/api/admin/restaurant")
+                        .cookie(bearerToken(OWNER_ID, "owner@test.com"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "googleReviewUrl": "   "
+                                }
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.googleReviewUrl").isEmpty());
+
+        String persistedUrl = jdbcTemplate.queryForObject(
+                "SELECT google_review_url FROM restaurant WHERE id = ?",
+                String.class,
+                RESTAURANT_ID);
+        assertThat(persistedUrl).isNull();
+    }
+
+    @Test
+    void shouldRejectInvalidGoogleReviewUrl() throws Exception {
+        mockMvc.perform(put("/api/admin/restaurant")
+                        .cookie(bearerToken(OWNER_ID, "owner@test.com"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "googleReviewUrl": "pas-un-lien"
+                                }
+                                """))
+                .andExpect(status().isBadRequest());
+    }
+
     private Cookie bearerToken(UUID userId, String email) {
         return TestAuthCookies.jwt(jwtService, userId, email);
     }

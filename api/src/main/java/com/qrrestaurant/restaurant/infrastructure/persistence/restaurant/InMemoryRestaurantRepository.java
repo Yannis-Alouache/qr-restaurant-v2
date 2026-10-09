@@ -19,7 +19,8 @@ public class InMemoryRestaurantRepository implements RestaurantRepository {
 
         Restaurant saved = Restaurant.from(id, restaurant.getUserId(), restaurant.getName(), restaurant.getSlug(),
                 restaurant.getAddress(), restaurant.getLogoPath(), restaurant.getCoverPath(), restaurant.getThemeId(),
-                restaurant.getPaymentProviderAccountId(), createdAt, restaurant.getStripeConnectStatus());
+                restaurant.getPaymentProviderAccountId(), createdAt, restaurant.getStripeConnectStatus(),
+                restaurant.getGoogleReviewUrl());
         restaurants.put(id, saved);
         return copy(saved);
     }
@@ -62,6 +63,7 @@ public class InMemoryRestaurantRepository implements RestaurantRepository {
     private Restaurant copy(Restaurant restaurant) {
         return Restaurant.from(restaurant.getId(), restaurant.getUserId(), restaurant.getName(), restaurant.getSlug(),
                 restaurant.getAddress(), restaurant.getLogoPath(), restaurant.getCoverPath(), restaurant.getThemeId(),
-                restaurant.getPaymentProviderAccountId(), restaurant.getCreatedAt(), restaurant.getStripeConnectStatus());
+                restaurant.getPaymentProviderAccountId(), restaurant.getCreatedAt(), restaurant.getStripeConnectStatus(),
+                restaurant.getGoogleReviewUrl());
     }
 }

@@ -2,6 +2,8 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { OrderService } from '../../services/order.service';
 import { OrderStatusRealtimeService } from '../../services/order-status-realtime.service';
+import { ReviewPromptService } from '../../services/review-prompt.service';
+import { MenuService } from '../../../menu/services/menu.service';
 import { OrderDetailResponse } from '../../../menu/models/menu.model';
 import { PricePipe } from '../../../../shared/pipes/price.pipe';
 
@@ -16,10 +18,14 @@ export class ConfirmationPageComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly orderService = inject(OrderService);
   private readonly orderStatusRealtime = inject(OrderStatusRealtimeService);
+  private readonly reviewPrompt = inject(ReviewPromptService);
+  private readonly menuService = inject(MenuService);
 
   order = signal<OrderDetailResponse | null>(null);
   loading = signal(true);
   error = signal<string | null>(null);
+  /** Lien d'avis Google du restaurant, une fois le menu chargé. */
+  reviewUrl = signal<string | null>(null);
 
   readonly statusSteps = [
     { key: 'nouvelle', label: 'Confirmée' },
@@ -46,6 +52,7 @@ export class ConfirmationPageComponent implements OnInit {
         this.order.update((currentOrder) =>
           currentOrder ? { ...currentOrder, status } : currentOrder,
         );
+        this.reviewPrompt.setStatus(this.orderId, status);
       },
       // Rattrape toute transition émise avant l'établissement du WebSocket.
       () => this.loadOrder(),
@@ -96,6 +103,8 @@ export class ConfirmationPageComponent implements OnInit {
       next: (o) => {
         this.order.set(o);
         this.loading.set(false);
+        this.reviewPrompt.setStatus(o.id, o.status);
+        this.loadReviewUrl();
         if (o.status === 'en_attente_paiement') {
           this.startPaymentPolling();
         } else {
@@ -106,6 +115,22 @@ export class ConfirmationPageComponent implements OnInit {
         this.error.set('Impossible de charger la commande');
         this.loading.set(false);
       },
+    });
+  }
+
+  /** Le lien d'avis vient du menu (slug mémorisé au paiement) : chargé une
+   *  seule fois, la page de suivi peut être rechargée souvent. */
+  private loadReviewUrl(): void {
+    if (this.reviewUrl() !== null) {
+      return;
+    }
+    const context = this.reviewPrompt.reviewContext();
+    if (!context) {
+      return;
+    }
+    this.menuService.getMenu(context.slug).subscribe({
+      next: (menu) => this.reviewUrl.set(menu.restaurant.googleReviewUrl),
+      error: () => this.reviewUrl.set(null),
     });
   }
 

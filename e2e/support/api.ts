@@ -61,13 +61,39 @@ export async function completeCheckout(request: APIRequestContext, orderId: stri
 }
 
 export async function advanceOrderToPreparation(request: APIRequestContext, orderId: string) {
+  await patchOrderStatus(request, orderId, 'en_preparation');
+}
+
+/** Chemin complet de cuisine jusqu'au service : nouvelle → … → servie. */
+export async function advanceOrderToServed(request: APIRequestContext, orderId: string) {
+  await patchOrderStatus(request, orderId, 'en_preparation');
+  await patchOrderStatus(request, orderId, 'prete');
+  await patchOrderStatus(request, orderId, 'servie');
+}
+
+/** Enregistre le lien d'avis Google sur le restaurant seedé via le back office. */
+export async function configureGoogleReviewUrl(request: APIRequestContext, reviewUrl: string) {
+  const token = await loginSeedOwner(request);
+  const response = await request.put(`${apiBaseUrl}/api/admin/restaurant`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    data: {
+      googleReviewUrl: reviewUrl,
+    },
+  });
+
+  expect(response.ok()).toBeTruthy();
+}
+
+async function patchOrderStatus(request: APIRequestContext, orderId: string, status: string) {
   const token = await loginSeedOwner(request);
   const response = await request.patch(`${apiBaseUrl}/api/admin/orders/${orderId}/status`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
     data: {
-      status: 'en_preparation',
+      status,
     },
   });
 

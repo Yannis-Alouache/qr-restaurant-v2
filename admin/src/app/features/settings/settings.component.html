@@ -69,6 +69,17 @@
       </div>
       <p class="cover-hint">Photo affichée en grand format en haut du menu client (format paysage recommandé).</p>
 
+      <div class="field" style="margin-top: var(--space-5);">
+        <label for="google-review-url">Lien d'avis Google</label>
+        <input id="google-review-url" class="input" type="url" formControlName="googleReviewUrl"
+               placeholder="https://g.page/r/…/review"
+               [class.invalid]="form.controls.googleReviewUrl.touched && form.controls.googleReviewUrl.invalid" />
+        <p class="cover-hint">
+          Collez le lien « laisser un avis » de votre fiche Google (depuis Google Maps ou Search :
+          fiche de l'établissement → « Demander des avis »). Vos clients pourront vous noter depuis le menu digital.
+        </p>
+      </div>
+
       <button type="submit" class="btn-save" [class.saved]="saved()" [disabled]="loading()">
         @if (saved()) {
           <svg lucideCheck></svg> Enregistré

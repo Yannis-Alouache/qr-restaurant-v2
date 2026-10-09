@@ -52,7 +52,8 @@ public class RestaurantRepositoryAdapter implements RestaurantRepository {
         return Restaurant.from(
                 e.getId(), e.getUserId(), e.getName(), e.getSlug(),
                 e.getAddress(), e.getLogoPath(), e.getCoverPath(), e.getThemeId(),
-                e.getPaymentProviderAccountId(), e.getCreatedAt(), e.getStripeConnectStatus()
+                e.getPaymentProviderAccountId(), e.getCreatedAt(), e.getStripeConnectStatus(),
+                e.getGoogleReviewUrl()
         );
     }
 
@@ -68,6 +69,7 @@ public class RestaurantRepositoryAdapter implements RestaurantRepository {
         e.setThemeId(d.getThemeId());
         e.setPaymentProviderAccountId(d.getPaymentProviderAccountId());
         e.setStripeConnectStatus(d.getStripeConnectStatus());
+        e.setGoogleReviewUrl(d.getGoogleReviewUrl());
         return e;
     }
 }

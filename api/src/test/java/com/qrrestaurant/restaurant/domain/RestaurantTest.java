@@ -33,7 +33,7 @@ class RestaurantTest {
     void shouldClearLogoPathWhenUpdateProvidesBlankValue() {
         Restaurant restaurant = restaurantWithLogo("http://cdn/logos/naia.png");
 
-        restaurant.update(null, null, "   ", null, null, null);
+        restaurant.update(null, null, "   ", null, null, null, null);
 
         assertThat(restaurant.getLogoPath()).isNull();
     }
@@ -42,7 +42,7 @@ class RestaurantTest {
     void shouldKeepLogoPathWhenUpdateOmitsIt() {
         Restaurant restaurant = restaurantWithLogo("http://cdn/logos/naia.png");
 
-        restaurant.update("Naia Burger", null, null, null, null, null);
+        restaurant.update("Naia Burger", null, null, null, null, null, null);
 
         assertThat(restaurant.getLogoPath()).isEqualTo("http://cdn/logos/naia.png");
     }
@@ -51,7 +51,7 @@ class RestaurantTest {
     void shouldClearCoverPathWhenUpdateProvidesBlankValue() {
         Restaurant restaurant = restaurantWithCover("http://cdn/covers/naia.png");
 
-        restaurant.update(null, null, null, "   ", null, null);
+        restaurant.update(null, null, null, "   ", null, null, null);
 
         assertThat(restaurant.getCoverPath()).isNull();
     }
@@ -60,9 +60,45 @@ class RestaurantTest {
     void shouldKeepCoverPathWhenUpdateOmitsIt() {
         Restaurant restaurant = restaurantWithCover("http://cdn/covers/naia.png");
 
-        restaurant.update("Naia Burger", null, null, null, null, null);
+        restaurant.update("Naia Burger", null, null, null, null, null, null);
 
         assertThat(restaurant.getCoverPath()).isEqualTo("http://cdn/covers/naia.png");
+    }
+
+    @Test
+    void shouldSetGoogleReviewUrlWhenUpdateProvidesIt() {
+        Restaurant restaurant = restaurantWithGoogleReviewUrl(null);
+
+        restaurant.update(null, null, null, null, null, null, "https://g.page/r/naia-burger/review");
+
+        assertThat(restaurant.getGoogleReviewUrl()).isEqualTo("https://g.page/r/naia-burger/review");
+    }
+
+    @Test
+    void shouldClearGoogleReviewUrlWhenUpdateProvidesBlankValue() {
+        Restaurant restaurant = restaurantWithGoogleReviewUrl("https://g.page/r/naia-burger/review");
+
+        restaurant.update(null, null, null, null, null, null, "   ");
+
+        assertThat(restaurant.getGoogleReviewUrl()).isNull();
+    }
+
+    @Test
+    void shouldKeepGoogleReviewUrlWhenUpdateOmitsIt() {
+        Restaurant restaurant = restaurantWithGoogleReviewUrl("https://g.page/r/naia-burger/review");
+
+        restaurant.update("Naia Burger", null, null, null, null, null, null);
+
+        assertThat(restaurant.getGoogleReviewUrl()).isEqualTo("https://g.page/r/naia-burger/review");
+    }
+
+    @Test
+    void shouldTrimGoogleReviewUrl() {
+        Restaurant restaurant = restaurantWithGoogleReviewUrl(null);
+
+        restaurant.update(null, null, null, null, null, null, "  https://g.page/r/naia-burger/review  ");
+
+        assertThat(restaurant.getGoogleReviewUrl()).isEqualTo("https://g.page/r/naia-burger/review");
     }
 
     private Restaurant restaurantWithPaymentAccount(String paymentProviderAccountId) {
@@ -77,5 +113,10 @@ class RestaurantTest {
     private Restaurant restaurantWithCover(String coverPath) {
         return Restaurant.from(null, null, "Naia Burger", "naia-burger", null,
                 null, coverPath, "classique", null, null);
+    }
+
+    private Restaurant restaurantWithGoogleReviewUrl(String googleReviewUrl) {
+        return Restaurant.from(null, null, "Naia Burger", "naia-burger", null,
+                null, null, "classique", null, null, null, googleReviewUrl);
     }
 }
