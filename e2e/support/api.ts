@@ -71,6 +71,22 @@ export async function advanceOrderToServed(request: APIRequestContext, orderId: 
   await patchOrderStatus(request, orderId, 'servie');
 }
 
+/** Titre d'onglet attendu au regard des commandes « nouvelle » réelles : le
+ * badge de l'admin affiche ce décompte global, la liste API en est la source. */
+export async function titleForPendingOrders(request: APIRequestContext) {
+  const token = await loginSeedOwner(request);
+  const response = await request.get(`${apiBaseUrl}/api/admin/orders`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  expect(response.ok()).toBeTruthy();
+  const orders = (await response.json()) as Array<{ status: string }>;
+  const pending = orders.filter((order) => order.status === 'nouvelle').length;
+  return pending > 0 ? `(${pending}) Menzo — Admin` : 'Menzo — Admin';
+}
+
 /** Enregistre le lien d'avis Google sur le restaurant seedé via le back office. */
 export async function configureGoogleReviewUrl(request: APIRequestContext, reviewUrl: string) {
   const token = await loginSeedOwner(request);

@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { adminBaseUrl, completeCheckout, createStandaloneOrder } from './support/api';
+import { adminBaseUrl, completeCheckout, createStandaloneOrder, titleForPendingOrders } from './support/api';
 
 test('kitchen alerts ring and badge the tab title until the order is taken', async ({ page, request }) => {
   await page.goto(`${adminBaseUrl}/login`);
@@ -26,9 +26,16 @@ test('kitchen alerts ring and badge the tab title until the order is taken', asy
   // Commande en attente : le compteur s'affiche dans le titre de l'onglet…
   await expect(page).toHaveTitle(/^\(\d+\) Menzo — Admin$/);
 
-  // …et disparaît dès la prise en charge.
+  // …et retombe sur le décompte réel dès la prise en charge. Le compteur est
+  // global et les specs parallèles font vivre leurs propres commandes
+  // « nouvelle » : aucune valeur absolue (ni « compteur - 1 ») n'est
+  // observable de façon fiable. On attend l'invariant du badge : coïncider
+  // avec la liste admin, qui ne compte plus NOTRE commande une fois acceptée.
   await page.getByTestId(`order-advance-${order.id}`).click();
-  await expect(page).toHaveTitle('Menzo — Admin');
+  await expect(page.getByTestId(`order-status-${order.id}`)).toHaveText('En préparation');
+  await expect
+    .poll(async () => (await page.title()) === (await titleForPendingOrders(request)))
+    .toBe(true);
 });
 
 test('admin receives a paid order in real time and can advance it', async ({ page, request }) => {
