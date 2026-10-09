@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { clientBaseUrl, completeCheckout, tableId } from './support/api';
+import { advanceOrderToServed, clientBaseUrl, completeCheckout, tableId } from './support/api';
 
 // Vrai Stripe Checkout hébergé : impossible sans clé secrète de test réelle.
 // Le harnais détecte la clé dans le .env et exporte le flag (voir
@@ -60,4 +60,8 @@ test('customer journey from the menu to a real Stripe hosted payment', async ({ 
   // transport du webhook est simulé, le paiement, lui, a réellement eu lieu.
   await completeCheckout(request, orderId, `pi_e2e_${orderId}`);
   await expect(page.getByTestId('confirmation-title')).toHaveText('Commande confirmée !');
+
+  // Ménage : laissée à l'état « nouvelle », la commande gonflerait en permanence
+  // le badge du titre de l'admin ouvert par les specs parallèles.
+  await advanceOrderToServed(request, orderId);
 });
