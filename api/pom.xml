@@ -184,6 +184,19 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <systemPropertyVariables>
+                        <!-- Les tests simulent des pannes (Stripe, SMTP…) : sans
+                             ce forçage, un SENTRY_DSN hérité du shell enverrait
+                             ces fausses erreurs au projet Sentry et déclencherait
+                             les alertes e-mail (cf. docs/deploiement/monitoring.md). -->
+                        <sentry.dsn></sentry.dsn>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 </project>

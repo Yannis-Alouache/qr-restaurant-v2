@@ -45,12 +45,27 @@ en dev local, rien ne part nulle part.)
 
 Redéployez ou **Restart** le service `api`.
 
+### Ne mettez jamais `SENTRY_DSN` dans le `.env` local
+
+Un DSN local envoie au projet Sentry **toutes** les erreurs de dev et de test :
+webhooks à signature bidon des e2e, Mailpit arrêté, pannes Stripe/SeaweedFS
+simulées par les tests unitaires… Le 7 octobre 2026, une soirée de tests locaux
+a généré 7 issues et autant d'e-mails d'alerte pour zéro incident réel. Depuis,
+le `.env` d'exemple laisse le DSN commenté, et `api/pom.xml` force
+`sentry.dsn` à vide sous Surefire : `mvn test` ne peut plus rien envoyer, même
+si `SENTRY_DSN` traîne dans l'environnement du shell. Seul Coolify (prod)
+doit porter le DSN.
+
 ## Étape 3 — Vérifier l'alerte e-mail
 
-Dans Sentry, le projet a une règle d'alerte par défaut (**Alerts → votre
-projet**) : « Send a notification for a new issue », par e-mail aux membres du
-projet. Vérifiez qu'elle est **activée** et que votre adresse est bien membre
-du projet. C'est cette règle qui vous réveille la nuit ; ne la désactivez pas.
+La règle d'alerte active est **« Erreurs production (e-mail) »**
+(**Alerts → votre projet**) : nouvelle issue ou régression, filtrée sur
+`environment: production`, e-mail au propriétaire. Créée le 8 octobre 2026 en
+remplacement de la règle par défaut « Send a notification for high priority
+issues », désormais **désactivée** car elle alertait pour tous les
+environnements — y compris les erreurs de test locales. Si vous créez une
+règle vous-même, gardez le filtre `environment: production` : c'est lui qui
+évite les faux réveils.
 
 ## Étape 4 — Test de bout en bout
 
